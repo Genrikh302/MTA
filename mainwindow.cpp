@@ -10,6 +10,8 @@
 #include <QSqlTableModel>
 #include <QModelIndex>
 #include <QTableView>
+#include <QTableWidgetItem>
+
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -32,7 +34,7 @@ void MainWindow::on_actionOpen_triggered()
         qDebug()<<"Problem creating db";
     }
     QSqlQuery query;
-    QString str = "CREATE TABLE logbase (id integer primary key autoincrement, "    //проверить if not exists
+    QString str = "CREATE TABLE logbase ( "    //проверить if not exists
                   "intype VARCHAR(1),"
                   "ininc1 int, "
                   "ininc2 int, "
@@ -55,20 +57,15 @@ void MainWindow::on_actionOpen_triggered()
     if (!query.exec(str)) {
         qDebug() << "Unable to create a table";
     }
-   //query.prepare("INSERT INTO  (resptype, resp1, resp2, resp3, respnum, resplen, inctype, inc1, inc2, inc3, incnum, inclen) VALUES (:resptype, :resp1, :resp2, :resp3, :respnum, :resplen, :inctype, :inc1, :inc2, :inc3, :incnum, :inclen)");
-
-    //base->show();
-    //setCentralWidget(base);
-
     //Последовательная обработка файлов
-    for(int i = 0; i < /*filesway.size()*/1; i++)
+    for(int i = 0; i < filesway.size(); i++)
     {
         //QFile inputFile(filesway.at(i));
         QFile inputFile("/Users/genrikhmayorov/Desktop/CDR/cdr_log_17_03_2015.log");
         if(!inputFile.open(QIODevice::ReadOnly))
         {
-            //qDebug()<<"ERROR: Can't open file "<<filesway.at(i); !!!!!Вернуть на место
-            //continue;
+            qDebug()<<"ERROR: Can't open file "<<filesway.at(i);
+            continue;
         }
         QTextStream in(&inputFile);
         std::list <Qcallog> l;
@@ -80,23 +77,34 @@ void MainWindow::on_actionOpen_triggered()
                 in >> logstr;
                 l.push_back(logstr);
                 logdb << logstr;
-                //logstr.print();
+
         }
         for(auto i = l.begin(); i != l.end(); i++){
             i->print();
         }
         inputFile.close();
         }
-    QTableView *base = ui->tableView;
     QSqlTableModel *model = new QSqlTableModel;
     model->setTable("logbase");
+    model->setFilter("intype = 'C'");
+    //model->setFilter("ininc1 < 111 ");
     model->select();
-    base->setModel(model);
+    ui->tableView->setModel(model);
+//    QTableView *base = ui->tableView;
+//    QSqlTableModel *model = new QSqlTableModel;
+//    model->setTable("logbase");
+//    model->select();
+//    base->setModel(model);
+    //base->setSpan(1, 0, 1, 4); объединение ячеек
+
+
 }
 
-//void MainWindow::on_FindButton_clicked()
-//{
-//    //QString searchString = ui->SearchWord->text();
-//    //ui->textEdit->find(searchString, QTextDocument::FindWholeWords);
-//}
 
+
+void MainWindow::on_pushButton_clicked()
+{
+    QWidget* Form = new QDialog;
+    Form->setAttribute(Qt::WA_DeleteOnClose, true);
+    Form->show();
+}

@@ -148,7 +148,7 @@ Qlogdb operator << (Qlogdb &logdb, Qcallog &log)
     query.bindValue(":outinc3", outinc3.toInt(&ok, 10));
     query.bindValue(":outnum", outnum);
     query.bindValue(":outanum", outanum.toInt(&ok, 10));
-    query.bindValue(":date", date.toTime_t()); //преобразить в нормальную дату
+    query.bindValue(":date", date.toTime_t()); //преобразовать в нормальную дату
     query.bindValue(":linelen", linelen);
     query.bindValue(":callen", callen);
     query.bindValue(":relreason", relreason);

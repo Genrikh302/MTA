@@ -15,6 +15,7 @@ class MainWindow : public QMainWindow
 
 public:
     explicit MainWindow(QWidget *parent = 0);
+    //QSqlTableModel *model;
     ~MainWindow();
 
 //Здесь были private slots, не работало
@@ -22,9 +23,11 @@ private slots:
     void on_actionOpen_triggered();
 
 
+    void on_pushButton_clicked();
+
 private:
     Ui::MainWindow *ui;
-    Qlogdb logdb; //раньше была private
+    Qlogdb logdb;
 };
 
 
