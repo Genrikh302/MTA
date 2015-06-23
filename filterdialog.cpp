@@ -12,3 +12,8 @@ FilterDialog::~FilterDialog()
 {
     delete ui;
 }
+
+void FilterDialog::on_buttonBox_accepted()
+{
+
+}

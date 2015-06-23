@@ -12,6 +12,7 @@
 #include <QTableView>
 #include <QTableWidgetItem>
 #include "cdrtablemodel.h"
+#include "filterdialog.h"
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -103,7 +104,8 @@ void MainWindow::on_actionOpen_triggered()
 
 void MainWindow::on_pushButton_clicked()
 {
-    QWidget* Form = new QDialog;
+    QWidget* Form = new FilterDialog;
     Form->setAttribute(Qt::WA_DeleteOnClose, true);
     Form->show();
+
 }
