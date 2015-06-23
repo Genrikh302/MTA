@@ -11,7 +11,7 @@
 #include <QModelIndex>
 #include <QTableView>
 #include <QTableWidgetItem>
-#include "mytablemodel.h"
+#include "cdrtablemodel.h"
 #include "filterdialog.h"
 
 
@@ -20,6 +20,39 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+
+    if (!logdb.createConnection())
+        qDebug() << "Problem creating db";
+
+    if (!logdb.createTabel())
+        qDebug() << "Unable to create a table";
+
+
+    // сразу скормим файл с тектстовой инфой
+    addCDRFileToDB(QApplication::instance()->applicationDirPath()+QString("/CDR/cdr_log_17_03_2015.log"));
+
+    QCDRTableModel *model = new QCDRTableModel;
+    model->setTable("logbase");
+    model->setFilter("intype = 'C'"); //сделать через setQuery
+    //model->setFilter("intype = 'A'");
+    //model->setFilter("ininc1 < 111 ");
+    model->select();
+    ui->tableView->setModel(model);
+
+    model->setHeaderData(0, Qt::Horizontal, "Канал");
+    model->setHeaderData(1, Qt::Horizontal, "Модуль");
+    model->setHeaderData(2, Qt::Horizontal, "Поток");
+    model->setHeaderData(3, Qt::Horizontal, "Канал");
+    model->setHeaderData(4, Qt::Horizontal, "Номер");
+
+    // скрываем лишние столбцы
+    ui->tableView->setColumnHidden(1, true);
+    ui->tableView->setColumnHidden(2, true);
+    ui->tableView->setColumnHidden(3, true);
+
+
+
 }
 
 MainWindow::~MainWindow()
@@ -27,73 +60,44 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::addCDRFileToDB(const QString &file) {
+    QFile inputFile(file);
+
+    if(!inputFile.open(QIODevice::ReadOnly))
+    {
+        qDebug()<<"ERROR: Can't open file "<< file;
+        return;
+    }
+
+    QTextStream in(&inputFile);
+    std::list <Qcallog> l;
+    //Занесение данных из файлов в лист, из листа в базу
+    while (!in.atEnd())
+    {
+        //QString line = inputFile.readLine();
+        Qcallog logstr;
+        in >> logstr;
+//        l.push_back(logstr);
+        logdb << logstr;
+    }
+
+    for(auto i = l.begin(); i != l.end(); i++)
+        i->print();
+
+    inputFile.close();
+}
+
 void MainWindow::on_actionOpen_triggered()
 {
     //Выбор нескольких файлов для обработки
     QStringList filesway = QFileDialog::getOpenFileNames(0, "Open Dialog", "", "*.log *.txt");
-    //qDebug()<<filesway;
-    if(!logdb.createConnection()){
-        qDebug()<<"Problem creating db";
-    }
-    QSqlQuery query;
-    QString str = "CREATE TABLE logbase ( "    //проверить if not exists
-                  "intype VARCHAR(1),"
-                  "ininc1 int, "
-                  "ininc2 int, "
-                  "ininc3 int, "
-                  "innum VARCHAR(28), "
-                  "inanum int, "
-                  "outtype VARCHAR(1), "
-                  "outinc1 int, "
-                  "outinc2 int, "
-                  "outinc3 int, "
-                  "outnum VARCHAR(28), "
-                  "outanum int, "
-                  "date int, "
-                  "linelen int, "
-                  "callen int , "
-                  "relreason int)" ;
-    if (!query.exec(str)) {
-        qDebug() << "Unable to create a table";
-    }
+    if (filesway.empty())
+        return;
+
     //Последовательная обработка файлов
-    for(int i = 0; i < /*filesway.size()*/1; i++)
-    {
-        //QFile inputFile(filesway.at(i));
-        QFile inputFile("/Users/genrikhmayorov/Desktop/CDR/cdr_log_17_03_2015.log");
-        if(!inputFile.open(QIODevice::ReadOnly))
-        {
-            qDebug()<<"ERROR: Can't open file "<<filesway.at(i);
-            continue;
-        }
-        QTextStream in(&inputFile);
-        std::list <Qcallog> l;
-        //Занесение данных из файлов в лист, из листа в базу
-        while (!in.atEnd())
-        {
-                //QString line = inputFile.readLine();
-                Qcallog logstr;
-                in >> logstr;
-                l.push_back(logstr);
-                logdb << logstr;
-        }
-        for(auto i = l.begin(); i != l.end(); i++){
-            i->print();
-        }
-        inputFile.close();
-        }
-    MyTableModel *model = new MyTableModel;
-    model->setTable("logbase");
-    model->setFilter("intype = 'C'"); //сделать через setQuery
-    //model->setFilter("intype = 'A'");
-    //model->setFilter("ininc1 < 111 ");
-    model->select();
-    ui->tableView->setModel(model);
-//    QTableView *base = ui->tableView;
-//    QSqlTableModel *model = new QSqlTableModel;
-//    model->setTable("logbase");
-//    model->select();
-//    base->setModel(model);
+    foreach (QString str, filesway)
+        addCDRFileToDB(str);
+
 }
 
 

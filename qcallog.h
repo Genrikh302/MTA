@@ -27,6 +27,7 @@ public:
     //Заполнение БД данными из лога
     friend Qlogdb operator << (Qlogdb &logdb, Qcallog &log);
     void getval(char &_intype, QString &_indraft, QString &_ininc1, QString &_ininc2,  QString &_ininc3, QString &_innum, QString &_inanum, char &_outtype, QString &_outdraft, QString &_outinc1, QString &_outinc2,  QString &_outinc3, QString &_outnum, QString &_outanum, QDateTime &_date, int &_linelen, int &_callen, int &_relreason);
+
 private:
     QString wholelog;
     QDateTime date;
