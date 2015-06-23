@@ -1,19 +1,19 @@
-#include "mytablemodel.h"
+#include "cdrtablemodel.h"
 #include <QSqlRecord>
 #include <QDebug>
 #include <QSqlQuery>
 
-MyTableModel::MyTableModel() : QSqlTableModel()
+QCDRTableModel::QCDRTableModel() : QSqlTableModel()
 {
 
 }
 
-MyTableModel::~MyTableModel()
+QCDRTableModel::~QCDRTableModel()
 {
 
 }
 
-QVariant MyTableModel::data(const QModelIndex & index, int role) const
+QVariant QCDRTableModel::data(const QModelIndex & index, int role) const
 {
     if (role != Qt::DisplayRole) return QVariant();
     if (!index.isValid()) return QVariant();

@@ -124,6 +124,7 @@ void Qcallog::getval(char &_intype, QString &_indraft, QString &_ininc1, QString
     _relreason = Qcallog::relreason;
 }
 
+
 Qlogdb operator << (Qlogdb &logdb, Qcallog &log)
 {
     char intype, outtype;
@@ -157,3 +158,4 @@ Qlogdb operator << (Qlogdb &logdb, Qcallog &log)
     }
     return logdb;
 }
+
