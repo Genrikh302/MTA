@@ -15,6 +15,9 @@ public:
     explicit FilterDialog(QWidget *parent = 0);
     ~FilterDialog();
 
+private slots:
+    void on_buttonBox_accepted();
+
 private:
     Ui::FilterDialog *ui;
 };
