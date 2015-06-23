@@ -19,33 +19,17 @@ QVariant QCDRTableModel::data(const QModelIndex & index, int role) const
     if (!index.isValid()) return QVariant();
 
     QVariant value = QSqlTableModel::data(index, role);
-    QSqlRecord rec;
-    QSqlQuery query;
+//    QSqlRecord rec;
+//    QSqlQuery query;
 
     if(index.column() == 0)
     {
-        rec = QSqlTableModel::record(index.row());
+        //rec = QSqlTableModel::record(index.row());
 
         QString strtype =  QSqlTableModel::data(QSqlTableModel::index(index.row(), index.column() + 0), role).toString();//query.value(rec.indexOf("intype")).toString();
         QString str1 =  QSqlTableModel::data(QSqlTableModel::index(index.row(), index.column() + 1), role).toString();
-        QString str2 =  QSqlTableModel::data(QSqlTableModel::index(index.row(), index.column() + 2), role).toString();
-        if(str2.length() == 2)
-        {
-            str2 = "0" + str2;
-        }
-        else if(str2.length() == 1)
-        {
-            str2 = "00" + str2;
-        }
-        QString str3 =  QSqlTableModel::data(QSqlTableModel::index(index.row(), index.column() + 3), role).toString();
-        if(str3.length() == 2)
-        {
-            str3 = "0" + str3;
-        }
-        else if(str3.length() == 1)
-        {
-            str3 = "00" + str3;
-        }
+        QString str2 = QString("%1").arg(QSqlTableModel::data(QSqlTableModel::index(index.row(), index.column() + 2), role).toInt(), 3, 10, QLatin1Char('0'));
+        QString str3 =  QString("%1").arg(QSqlTableModel::data(QSqlTableModel::index(index.row(), index.column() + 3), role).toInt(), 3, 10, QLatin1Char('0'));
 
         QString val = QString("%1%2%3%4").arg(strtype).arg(str1).arg(str2).arg(str3);//допилить нули
         return val;
