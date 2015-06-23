@@ -102,7 +102,6 @@ void MainWindow::on_actionOpen_triggered()
     QCDRTableModel *model = static_cast<QCDRTableModel *>(ui->tableView->model());
     model->select();
     ui->tableView->reset();
-
 }
 
 
