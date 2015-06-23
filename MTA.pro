@@ -13,6 +13,8 @@ CONFIG += C++11 precompile_header
 
 OBJECTS_DIR = obj
 
+PRECOMPILED_HEADER  = stable.h
+
 TARGET = MTA
 TEMPLATE = app
 
@@ -32,5 +34,3 @@ HEADERS += stable.h
 FORMS    += \
     mainwindow.ui
 
-RESOURCES += \
-    callstatistics.qrc
