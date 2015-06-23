@@ -16,6 +16,7 @@ CallStatistic::~CallStatistic()
 {
     delete ui;
 }
+
 void CallStatistic::loadTextFile()
 {
     QString fileway = QFileDialog::getOpenFileName(0, "Open Dialog", "", "*.log *.txt");
@@ -29,6 +30,7 @@ void CallStatistic::loadTextFile()
     QTextCursor cursor = ui->textFile->textCursor();
     cursor.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor, 1);
 }
+
 void CallStatistic::on_pushButton_clicked()
 {
     QString searchString = ui->lineEdit->text();

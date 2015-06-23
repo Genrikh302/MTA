@@ -1,3 +1,0 @@
-This is my «Hello World!» in Qt
-Extra string
-One more extra string
