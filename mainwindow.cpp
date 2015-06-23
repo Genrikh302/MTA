@@ -46,6 +46,7 @@ MainWindow::MainWindow(QWidget *parent) :
     model->setHeaderData(3, Qt::Horizontal, "Канал");
     model->setHeaderData(4, Qt::Horizontal, "Номер");
 
+
     // скрываем лишние столбцы
     ui->tableView->setColumnHidden(1, true);
     ui->tableView->setColumnHidden(2, true);
@@ -97,6 +98,10 @@ void MainWindow::on_actionOpen_triggered()
     //Последовательная обработка файлов
     foreach (QString str, filesway)
         addCDRFileToDB(str);
+
+    QCDRTableModel *model = static_cast<QCDRTableModel *>(ui->tableView->model());
+    model->select();
+    ui->tableView->reset();
 
 }
 
