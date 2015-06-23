@@ -16,15 +16,20 @@ TEMPLATE = app
 SOURCES += main.cpp\
     mainwindow.cpp \
     qcallog.cpp \
-    qlogdb.cpp
+    qlogdb.cpp \
+    mytablemodel.cpp \
+    filterdialog.cpp
 
 HEADERS  += \
     mainwindow.h \
     qcallog.h \
-    qlogdb.h
+    qlogdb.h \
+    mytablemodel.h \
+    filterdialog.h
 
 FORMS    += \
-    mainwindow.ui
+    mainwindow.ui \
+    filterdialog.ui
 
 RESOURCES += \
     callstatistics.qrc

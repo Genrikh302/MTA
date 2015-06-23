@@ -11,6 +11,7 @@
 #include <QModelIndex>
 #include <QTableView>
 #include <QTableWidgetItem>
+#include "mytablemodel.h"
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -51,14 +52,11 @@ void MainWindow::on_actionOpen_triggered()
                   "linelen int, "
                   "callen int , "
                   "relreason int)" ;
-
-
-
     if (!query.exec(str)) {
         qDebug() << "Unable to create a table";
     }
     //Последовательная обработка файлов
-    for(int i = 0; i < filesway.size(); i++)
+    for(int i = 0; i < /*filesway.size()*/1; i++)
     {
         //QFile inputFile(filesway.at(i));
         QFile inputFile("/Users/genrikhmayorov/Desktop/CDR/cdr_log_17_03_2015.log");
@@ -69,7 +67,7 @@ void MainWindow::on_actionOpen_triggered()
         }
         QTextStream in(&inputFile);
         std::list <Qcallog> l;
-        //Построчное чтение из файла
+        //Занесение данных из файлов в лист, из листа в базу
         while (!in.atEnd())
         {
                 //QString line = inputFile.readLine();
@@ -77,16 +75,16 @@ void MainWindow::on_actionOpen_triggered()
                 in >> logstr;
                 l.push_back(logstr);
                 logdb << logstr;
-
         }
         for(auto i = l.begin(); i != l.end(); i++){
             i->print();
         }
         inputFile.close();
         }
-    QSqlTableModel *model = new QSqlTableModel;
+    MyTableModel *model = new MyTableModel;
     model->setTable("logbase");
-    model->setFilter("intype = 'C'");
+    model->setFilter("intype = 'C'"); //сделать через setQuery
+    //model->setFilter("intype = 'A'");
     //model->setFilter("ininc1 < 111 ");
     model->select();
     ui->tableView->setModel(model);
@@ -95,9 +93,6 @@ void MainWindow::on_actionOpen_triggered()
 //    model->setTable("logbase");
 //    model->select();
 //    base->setModel(model);
-    //base->setSpan(1, 0, 1, 4); объединение ячеек
-
-
 }
 
 
