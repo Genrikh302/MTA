@@ -46,7 +46,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Filter</string>
+     <string>Фильтр</string>
     </property>
    </widget>
   </widget>
@@ -61,7 +61,7 @@
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
-     <string>File</string>
+     <string>Файл</string>
     </property>
     <addaction name="actionOpen"/>
    </widget>
