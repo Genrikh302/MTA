@@ -9,6 +9,12 @@ QT       += sql
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
+CONFIG += C++11 precompile_header
+
+OBJECTS_DIR = obj
+
+PRECOMPILED_HEADER  = stable.h
+
 TARGET = MTA
 TEMPLATE = app
 
@@ -27,9 +33,9 @@ HEADERS  += \
     mytablemodel.h \
     filterdialog.h
 
+HEADERS += stable.h
+
 FORMS    += \
     mainwindow.ui \
     filterdialog.ui
 
-RESOURCES += \
-    callstatistics.qrc
