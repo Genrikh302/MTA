@@ -71,6 +71,8 @@ MainWindow::~MainWindow()
 void MainWindow::addCDRFileToDB(const QString &file) {
     QFile inputFile(file);
 
+    statusBar()->showMessage(tr("Loaded %1").arg(file), 2000);
+
     if(!inputFile.open(QIODevice::ReadOnly))
     {
         qDebug()<<"ERROR: Can't open file "<< file;
