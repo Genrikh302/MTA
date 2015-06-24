@@ -70,13 +70,15 @@ public:
         tableView = new QTableView(centralwidget);
         tableView->setObjectName(QStringLiteral("tableView"));
         tableView->setMaximumSize(QSize(1920, 1080));
+        tableView->viewport()->setProperty("cursor", QVariant(QCursor(Qt::ArrowCursor)));
+        tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
         verticalLayout->addWidget(tableView);
 
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QStringLiteral("menubar"));
-        menubar->setGeometry(QRect(0, 0, 800, 19));
+        menubar->setGeometry(QRect(0, 0, 800, 22));
         menuFile = new QMenu(menubar);
         menuFile->setObjectName(QStringLiteral("menuFile"));
         MainWindow->setMenuBar(menubar);

@@ -1,5 +1,7 @@
 #include "filterdialog.h"
 #include "ui_filterdialog.h"
+#include <QtGui>
+#include <QDebug>
 
 FilterDialog::FilterDialog(QWidget *parent) :
     QDialog(parent),
@@ -15,5 +17,6 @@ FilterDialog::~FilterDialog()
 
 void FilterDialog::on_buttonBox_accepted()
 {
-
+    ui->abin->text();
+    qDebug() << ui->abin->text();
 }

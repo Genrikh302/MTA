@@ -23,15 +23,15 @@ SOURCES += main.cpp\
     mainwindow.cpp \
     qcallog.cpp \
     qlogdb.cpp \
-    mytablemodel.cpp \
-    filterdialog.cpp
+    filterdialog.cpp \
+    cdrtablemodel.cpp
 
 HEADERS  += \
     mainwindow.h \
     qcallog.h \
     qlogdb.h \
-    mytablemodel.h \
-    filterdialog.h
+    filterdialog.h \
+    cdrtablemodel.h
 
 HEADERS += stable.h
 

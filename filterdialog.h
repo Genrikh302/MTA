@@ -13,6 +13,7 @@ class FilterDialog : public QDialog
 
 public:
     explicit FilterDialog(QWidget *parent = 0);
+    QString ab1;
     ~FilterDialog();
 
 private slots:
