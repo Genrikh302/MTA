@@ -12,7 +12,7 @@
 #include <QTableView>
 #include <QTableWidgetItem>
 #include "cdrtablemodel.h"
-#include "filterdialog.h"
+
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -51,6 +51,13 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tableView->setColumnHidden(1, true);
     ui->tableView->setColumnHidden(2, true);
     ui->tableView->setColumnHidden(3, true);
+    ui->tableView->setColumnHidden(7, true);
+    ui->tableView->setColumnHidden(8, true);
+    ui->tableView->setColumnHidden(9, true);
+
+
+    // высоту ячейки
+    ui->tableView->verticalHeader()->setDefaultSectionSize(18);
 
 
 
@@ -78,7 +85,7 @@ void MainWindow::addCDRFileToDB(const QString &file) {
         //QString line = inputFile.readLine();
         Qcallog logstr;
         in >> logstr;
-//        l.push_back(logstr);
+        //l.push_back(logstr);
         logdb << logstr;
     }
 
@@ -108,8 +115,13 @@ void MainWindow::on_actionOpen_triggered()
 
 void MainWindow::on_pushButton_clicked()
 {
-    QWidget* Form = new FilterDialog;
+    FilterDialog* Form = new FilterDialog;
     Form->setAttribute(Qt::WA_DeleteOnClose, true);
-    Form->show();
+    if (Form->exec() == QDialog::Accepted)
+        qDebug() << "Ok";
+}
 
+void MainWindow::getfilters(FilterDialog &filter)
+{
+  //ab1filter = abf1;
 }

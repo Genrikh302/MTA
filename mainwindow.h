@@ -5,6 +5,7 @@
 #include <QDateTime>
 #include "qlogdb.h"
 #include "qcallog.h"
+#include "filterdialog.h"
 namespace Ui {
 class MainWindow;
 }
@@ -18,6 +19,7 @@ public:
     //QSqlTableModel *model;
     ~MainWindow();
     void addCDRFileToDB(const QString &file); // добавляет CDR file в базу
+    void getfilters(FilterDialog &filter);
 
 private slots:
     void on_actionOpen_triggered();
@@ -25,10 +27,10 @@ private slots:
     void on_pushButton_clicked();
 
 
-
 private:
     Ui::MainWindow *ui;
     Qlogdb logdb;
+    QString ab1filter;
 };
 
 

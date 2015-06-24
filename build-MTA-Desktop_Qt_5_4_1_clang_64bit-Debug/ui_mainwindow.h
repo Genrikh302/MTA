@@ -69,9 +69,12 @@ public:
 
         tableView = new QTableView(centralwidget);
         tableView->setObjectName(QStringLiteral("tableView"));
+        tableView->setEnabled(true);
         tableView->setMaximumSize(QSize(1920, 1080));
         tableView->viewport()->setProperty("cursor", QVariant(QCursor(Qt::ArrowCursor)));
         tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+        tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
+        tableView->setSortingEnabled(true);
 
         verticalLayout->addWidget(tableView);
 
@@ -96,7 +99,7 @@ public:
 
     void retranslateUi(QMainWindow *MainWindow)
     {
-        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "MainWindow", 0));
+        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "\320\236\321\202\321\207\320\265\321\202 2015", 0));
         actionOpen->setText(QApplication::translate("MainWindow", "Open", 0));
         pushButton->setText(QApplication::translate("MainWindow", "Filter", 0));
         menuFile->setTitle(QApplication::translate("MainWindow", "\320\244\320\260\320\271\320\273", 0));

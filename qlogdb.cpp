@@ -40,6 +40,7 @@ bool Qlogdb::createTabel()
                   "outnum VARCHAR(28), "
                   "outanum int, "
                   "date int, "
+                  "time int, "
                   "linelen int, "
                   "callen int , "
                   "relreason int)" ;

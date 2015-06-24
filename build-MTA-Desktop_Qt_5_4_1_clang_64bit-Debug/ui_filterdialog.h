@@ -194,7 +194,7 @@ public:
 
     void retranslateUi(QDialog *FilterDialog)
     {
-        FilterDialog->setWindowTitle(QApplication::translate("FilterDialog", "Dialog", 0));
+        FilterDialog->setWindowTitle(QApplication::translate("FilterDialog", "\320\244\320\270\320\273\321\214\321\202\321\200", 0));
         abinlabel->setText(QApplication::translate("FilterDialog", "\320\220\320\261\320\276\320\275\320\265\320\275\321\202 \320\220/\320\222\321\205. \320\241\320\233", 0));
         aboutlabel->setText(QApplication::translate("FilterDialog", "\320\220\320\261\320\276\320\275\320\265\320\275\321\202 \320\221/\320\230\321\201\321\205. \320\241\320\233", 0));
         datelabel->setText(QApplication::translate("FilterDialog", "\320\224\320\260\321\202\320\260", 0));

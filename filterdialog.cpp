@@ -1,5 +1,6 @@
 #include "filterdialog.h"
 #include "ui_filterdialog.h"
+#include "mainwindow.h"
 #include <QtGui>
 #include <QDebug>
 
@@ -15,8 +16,9 @@ FilterDialog::~FilterDialog()
     delete ui;
 }
 
-void FilterDialog::on_buttonBox_accepted()
+
+void FilterDialog::getfil(QString &abfd1)
 {
-    ui->abin->text();
-    qDebug() << ui->abin->text();
+    abfd1 = ui->abin->text();
+    qDebug() << abfd1 << "+";
 }
