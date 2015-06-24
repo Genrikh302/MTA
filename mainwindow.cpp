@@ -52,6 +52,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tableView->setColumnHidden(2, true);
     ui->tableView->setColumnHidden(3, true);
 
+    // высоту ячейки
+    ui->tableView->verticalHeader()->setDefaultSectionSize(18);
+
 
 
 }
