@@ -45,8 +45,7 @@ QVariant QCDRTableModel::data(const QModelIndex & index, int role) const
         }
 
         if (index.column() == COL_DATE_OUT) {
-            QDate d;
-            d.fromJulianDay(QSqlTableModel::data(QSqlTableModel::index(index.row(), index.column() + 0), role).toLongLong());
+            QDate d = QDate::fromJulianDay(QSqlTableModel::data(QSqlTableModel::index(index.row(), index.column() + 0), role).toLongLong());
             //qDebug() << QSqlTableModel::data(QSqlTableModel::index(index.row(), index.column() + 0), role).toLongLong();
             //qDebug() << d.toString("dd-MM-yyyy");
             return d.toString("dd-MM-yyyy");
