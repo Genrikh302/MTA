@@ -30,39 +30,39 @@ QTextStream &operator>>(QTextStream &in, Qcallog &log)
     //std::istringstream in(log.wholelog);
     //in << log.wholelog;
     in >> type;
-        in >> draft;
-        if(draft.size() == 9){
-            inc1 = draft.mid(0,3);
-            inc2 = draft.mid(3,3);
-            inc3 = draft.mid(6);
-        }
-        else if(draft.size() == 3){
-            inc1 = draft.mid(0,3);
-        }
-        else{
-            qDebug() << "Error reading files";
-        }
-        in >> num;
-        in >> anum;
-        log.in.sWrite(type, draft, inc1, inc2, inc3, num, anum);
-        //разбираем данные о втором абоненте
-        in.skipWhiteSpace();
-        in >> type;
-        in >> draft;
-        if(draft.size() == 9){
-            inc1 = draft.mid(0,3);
-            inc2 = draft.mid(3,3);
-            inc3 = draft.mid(6);
-        }
-        else if(draft.size() == 3){
-            inc1 = draft.mid(0,3);
-        }
-        else{
-            qDebug() << "Error reading files";
-        }
-        in >> num;
-        in >> anum;
-        log.out.sWrite(type, draft, inc1, inc2, inc3, num, anum);
+    in >> draft;
+    if(draft.size() == 9){
+        inc1 = draft.mid(0,3);
+        inc2 = draft.mid(3,3);
+        inc3 = draft.mid(6);
+    }
+    else if(draft.size() == 3){
+        inc1 = draft.mid(0,3);
+    }
+    else{
+        qDebug() << "Error reading files";
+    }
+    in >> num;
+    in >> anum;
+    log.in.sWrite(type, draft, inc1, inc2, inc3, num, anum);
+    //разбираем данные о втором абоненте
+    in.skipWhiteSpace();
+    in >> type;
+    in >> draft;
+    if(draft.size() == 9) {
+        inc1 = draft.mid(0,3);
+        inc2 = draft.mid(3,3);
+        inc3 = draft.mid(6);
+    }
+    else if(draft.size() == 3) {
+        inc1 = draft.mid(0,3);
+    }
+    else{
+        qDebug() << "Error reading files";
+    }
+    in >> num;
+    in >> anum;
+    log.out.sWrite(type, draft, inc1, inc2, inc3, num, anum);
     //Разбираем общие данные о звонке
     QString datestr;
     QString timestr;
@@ -71,6 +71,7 @@ QTextStream &operator>>(QTextStream &in, Qcallog &log)
     datestr += " " + timestr;
     QString dateformat = "dd-MM-yy hh:mm:ss";
     log.date = QDateTime::fromString(datestr, dateformat);
+    log.date = log.date.addYears(100);
     in >> log.linelen;
     in >> log.callen;
     in >> log.relreason;
