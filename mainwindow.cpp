@@ -123,7 +123,7 @@ void MainWindow::on_pushButton_clicked()
         qDebug() << "Ok";
 }
 
-void MainWindow::getfilters(FilterDialog &filter)
+void MainWindow::getfilters()
 {
   //ab1filter = abf1;
 }

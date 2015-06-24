@@ -19,7 +19,7 @@ public:
     //QSqlTableModel *model;
     ~MainWindow();
     void addCDRFileToDB(const QString &file); // добавляет CDR file в базу
-    void getfilters(FilterDialog &filter);
+    void getfilters();
 
 private slots:
     void on_actionOpen_triggered();
