@@ -98,8 +98,8 @@ QTextStream &operator >> (QTextStream &in, Qcallog::s &log)
     else {
         qDebug() << "Error reading files";
     }
-    in >> log.num;
     in >> log.anum;
+    in >> log.num;
     return in;
 }
 
@@ -130,7 +130,8 @@ Qlogdb operator << (Qlogdb &logdb, Qcallog &log)
 
     int calltype = Qcallog::getIntTypeCalls(QStringList() << QString(intype) << QString(outtype) << innum << outnum);
 
-    query.prepare("INSERT INTO  logbase (intype, ininc1, ininc2, ininc3, innum, inanum, outtype, outinc1, outinc2, outinc3, outnum, outanum, date, time, type, linelen, callen, relreason) VALUES (:intype, :ininc1, :ininc2, :ininc3, :innum, :inanum, :outtype, :outinc1, :outinc2, :outinc3, :outnum, :outanum, :date, :time, :type, :linelen, :callen, :relreason)");
+    query.prepare("INSERT INTO  logbase (intype, ininc1, ininc2, ininc3, innum, inanum, outtype, outinc1, outinc2, outinc3, outnum, outanum, date, time, type, linelen, callen, relreason) "
+                               "VALUES (:intype, :ininc1, :ininc2, :ininc3, :innum, :inanum, :outtype, :outinc1, :outinc2, :outinc3, :outnum, :outanum, :date, :time, :type, :linelen, :callen, :relreason)");
     query.bindValue(":intype", QString(intype));
     query.bindValue(":ininc1", ininc1.toInt(&ok, 10));
     query.bindValue(":ininc2", ininc2.toInt(&ok, 10));
