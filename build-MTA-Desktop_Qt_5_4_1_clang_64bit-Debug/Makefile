@@ -803,7 +803,6 @@ obj/mainwindow.o: ../mainwindow.cpp ../mainwindow.h \
 		../cdrtablemodel.h \
 		../../../../Qt/5.4/clang_64/lib/QtCore.framework/Versions/5/Headers/QObject \
 		../../../../Qt/5.4/clang_64/lib/QtCore.framework/Versions/5/Headers/qobject.h \
-		ui_filterdialog.h \
 		obj/MTA/c++.pch \
 		obj/MTA/objective-c++.pch
 	$(CXX) -c -Xclang -include-pch -Xclang obj/MTA/c++.pch $(CXXFLAGS) $(INCPATH) -o obj/mainwindow.o ../mainwindow.cpp
@@ -867,6 +866,31 @@ obj/filterdialog.o: ../filterdialog.cpp ../filterdialog.h \
 		../../../../Qt/5.4/clang_64/lib/QtWidgets.framework/Versions/5/Headers/QDialog \
 		../../../../Qt/5.4/clang_64/lib/QtWidgets.framework/Versions/5/Headers/qdialog.h \
 		ui_filterdialog.h \
+		../mainwindow.h \
+		../../../../Qt/5.4/clang_64/lib/QtWidgets.framework/Versions/5/Headers/QMainWindow \
+		../../../../Qt/5.4/clang_64/lib/QtWidgets.framework/Versions/5/Headers/qmainwindow.h \
+		../../../../Qt/5.4/clang_64/lib/QtSql.framework/Versions/5/Headers/QtSql \
+		../../../../Qt/5.4/clang_64/lib/QtSql.framework/Versions/5/Headers/qsql.h \
+		../../../../Qt/5.4/clang_64/lib/QtSql.framework/Versions/5/Headers/qsqldatabase.h \
+		../../../../Qt/5.4/clang_64/lib/QtSql.framework/Versions/5/Headers/qsqldriver.h \
+		../../../../Qt/5.4/clang_64/lib/QtSql.framework/Versions/5/Headers/qsqldriverplugin.h \
+		../../../../Qt/5.4/clang_64/lib/QtSql.framework/Versions/5/Headers/qsqlerror.h \
+		../../../../Qt/5.4/clang_64/lib/QtSql.framework/Versions/5/Headers/qsqlfield.h \
+		../../../../Qt/5.4/clang_64/lib/QtSql.framework/Versions/5/Headers/qsqlindex.h \
+		../../../../Qt/5.4/clang_64/lib/QtSql.framework/Versions/5/Headers/qsqlquery.h \
+		../../../../Qt/5.4/clang_64/lib/QtSql.framework/Versions/5/Headers/qsqlrecord.h \
+		../../../../Qt/5.4/clang_64/lib/QtSql.framework/Versions/5/Headers/qsqlresult.h \
+		../../../../Qt/5.4/clang_64/lib/QtSql.framework/Versions/5/Headers/qsqlquerymodel.h \
+		../../../../Qt/5.4/clang_64/lib/QtSql.framework/Versions/5/Headers/qsqlrelationaldelegate.h \
+		../../../../Qt/5.4/clang_64/lib/QtSql.framework/Versions/5/Headers/qsqlrelationaltablemodel.h \
+		../../../../Qt/5.4/clang_64/lib/QtSql.framework/Versions/5/Headers/qsqltablemodel.h \
+		../../../../Qt/5.4/clang_64/lib/QtSql.framework/Versions/5/Headers/qtsqlversion.h \
+		../../../../Qt/5.4/clang_64/lib/QtCore.framework/Versions/5/Headers/QDateTime \
+		../../../../Qt/5.4/clang_64/lib/QtCore.framework/Versions/5/Headers/qdatetime.h \
+		../qlogdb.h \
+		../../../../Qt/5.4/clang_64/lib/QtCore.framework/Versions/5/Headers/QtDebug \
+		../../../../Qt/5.4/clang_64/lib/QtCore.framework/Versions/5/Headers/qdebug.h \
+		../qcallog.h \
 		../../../../Qt/5.4/clang_64/lib/QtGui.framework/Versions/5/Headers/QtGui \
 		../../../../Qt/5.4/clang_64/lib/QtGui.framework/Versions/5/Headers/qaccessible.h \
 		../../../../Qt/5.4/clang_64/lib/QtGui.framework/Versions/5/Headers/qaccessiblebridge.h \
@@ -968,7 +992,6 @@ obj/filterdialog.o: ../filterdialog.cpp ../filterdialog.h \
 		../../../../Qt/5.4/clang_64/lib/QtGui.framework/Versions/5/Headers/qvalidator.h \
 		../../../../Qt/5.4/clang_64/lib/QtGui.framework/Versions/5/Headers/qtguiversion.h \
 		../../../../Qt/5.4/clang_64/lib/QtCore.framework/Versions/5/Headers/QDebug \
-		../../../../Qt/5.4/clang_64/lib/QtCore.framework/Versions/5/Headers/qdebug.h \
 		obj/MTA/c++.pch \
 		obj/MTA/objective-c++.pch
 	$(CXX) -c -Xclang -include-pch -Xclang obj/MTA/c++.pch $(CXXFLAGS) $(INCPATH) -o obj/filterdialog.o ../filterdialog.cpp

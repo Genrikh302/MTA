@@ -19,6 +19,6 @@ FilterDialog::~FilterDialog()
 
 void FilterDialog::getfil(QString &abfd1)
 {
-    abfd1 = ui->abin->text();
+    //abfd1 = ui->abin->text();
     qDebug() << abfd1 << "+";
 }
