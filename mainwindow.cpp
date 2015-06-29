@@ -142,7 +142,47 @@ void MainWindow::on_pushButton_clicked()
     {
         qDebug() << "Ok";
         Form->writefil(abinf, aboutf, datesincef, datetof, timesincef, timetof, busylenfromf, busylentof, talklenfromf, talklentof, inaonf, innumf, outaonf, outnumf);
-        qDebug() << abinf << aboutf << datesincef << timetof;
+        qDebug() << abinf << aboutf << datesincef << timetof << inaonf;
+
+        QCDRTableModel *model = static_cast<QCDRTableModel *>(ui->tableView->model());
+
+        QString filter;
+        if (!abinf.isEmpty()) {
+            QTextStream str(&abinf);
+            Qcallog::s log;
+            str >> log;
+
+            // фильтр по входящему каналу
+            const char type = log.getType();
+            if (type == 'A')
+                filter.append(QString(" intype = '%1' and ininc1 = %2").arg(type).arg(log.getInc1()));
+
+            if (type == 'C') {
+                filter = QString(" intype = '%1'").arg(type);
+                if (log.getInc1() != "*") {// все модули
+                    filter.append(QString(" and ininc1 = %1").arg(log.getInc1()));
+                    if (log.getInc2() != "*") { // все потоки
+                        filter.append(QString(" and ininc2 = %1").arg(log.getInc2()));
+                        if (log.getInc3() != "*") // все каналы
+                            filter.append(QString(" and ininc3 = %1").arg(log.getInc3()));
+                    }
+                }
+            }
+        }
+
+        if (!inaonf.isEmpty()) {
+            if (!filter.isEmpty())
+                filter.append(" and ");
+
+            // заменяем из человеческого формама в SqlLiteовский
+            inaonf.replace('?', QString("_"));
+            inaonf.replace('*', QString("%"));
+            filter.append(QString(" inanum like '%1'").arg(inaonf));
+        }
+
+
+
+        model->setFilter(filter);
     }
 
 }

@@ -3,12 +3,30 @@
 #include "mainwindow.h"
 #include <QtGui>
 #include <QDebug>
+#include <QRegExp>
+#include <QRegExpValidator>
 
 FilterDialog::FilterDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::FilterDialog)
 {
     ui->setupUi(this);
+
+    // валидаторы на ввод каналов и абонентов
+    //QRegExp regExp = QRegExp("(([C,c][0-9]{9,9})|([C,c][0-9]{0,8}[*]{1,1})|([A,a][0-9]{1,10}))");
+    QRegExp regExp = QRegExp("(([C,c][0-9]{9,9})|([C,c](([*]{1,1})|([0-9]{3,3}[*]{1,1})|([0-9]{6,6}[*]{1,1})))|([A,a][0-9]{1,10}))");
+    QRegExpValidator *validator = new QRegExpValidator(regExp, this);
+
+    ui->abin->setValidator(validator);
+    ui->about->setValidator(validator);
+
+    // нужны валидаторы на ввод нумеров возможны цыфры и буквы A-F
+    regExp = QRegExp("((([0-9,A-F,?]|([0-9,a-f,?])){0,28}[*]))");
+    validator = new QRegExpValidator(regExp, this);
+    ui->inaon->setValidator(validator);
+    ui->innum->setValidator(validator);
+    ui->outaon->setValidator(validator);
+    ui->outnum->setValidator(validator);
 }
 
 FilterDialog::~FilterDialog()

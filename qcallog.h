@@ -18,6 +18,12 @@ public:
             QString num;
             QString anum;
         public:
+            char getType() {return type;}
+            const QString& getDraft() {return draft;}
+            const QString& getInc1() {return inc1;}
+            const QString& getInc2() {return inc2;}
+            const QString& getInc3() {return inc3;}
+
             void sWrite(char type, const QString &draft, const QString &inc1, const QString &inc2, const QString &inc3, const QString &num, const QString &anum);
             void getval(char &_type, QString &_draft, QString &_inc1, QString &_inc2,  QString &_inc3, QString &_num, QString &_anum);
             QString sPrint();
