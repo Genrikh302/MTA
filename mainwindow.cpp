@@ -137,17 +137,21 @@ void MainWindow::on_actionOpen_triggered()
 
 void MainWindow::on_pushButton_clicked()
 {
-    FilterDialog* Form = new FilterDialog;
+    FilterDialog* Form = new FilterDialog(propertyFilter);
+
     if (Form->exec() == QDialog::Accepted)
     {
         qDebug() << "Ok";
-        Form->writefil(abinf, aboutf, datesincef, datetof, timesincef, timetof, busylenfromf, busylentof, talklenfromf, talklentof, inaonf, innumf, outaonf, outnumf);
-        qDebug() << abinf << aboutf << datesincef << timetof << inaonf;
+//        PropertyFilter p;
+        //Form->writefil(abinf, aboutf, datesincef, datetof, timesincef, timetof, busylenfromf, busylentof, talklenfromf, talklentof, inaonf, innumf, outaonf, outnumf);
+        Form->writefil(propertyFilter);
+        //qDebug() << abinf << aboutf << datesincef << timetof << inaonf;
 
         QCDRTableModel *model = static_cast<QCDRTableModel *>(ui->tableView->model());
 
         QString filter;
-        if (!abinf.isEmpty()) {
+        if (!propertyFilter.abinf().isEmpty()) {
+            QString abinf = propertyFilter.abinf();
             QTextStream str(&abinf);
             Qcallog::s log;
             str >> log;
@@ -170,7 +174,8 @@ void MainWindow::on_pushButton_clicked()
             }
         }
 
-        if (!inaonf.isEmpty()) {
+        if (!propertyFilter.inaonf().isEmpty()) {
+            QString inaonf = propertyFilter.inaonf();
             if (!filter.isEmpty())
                 filter.append(" and ");
 
@@ -181,6 +186,16 @@ void MainWindow::on_pushButton_clicked()
         }
 
 
+        if (!propertyFilter.innumf().isEmpty()) {
+            QString innumf = propertyFilter.innumf();
+            if (!filter.isEmpty())
+                filter.append(" and ");
+
+            // заменяем из человеческого формама в SqlLiteовский
+            innumf.replace('?', QString("_"));
+            innumf.replace('*', QString("%"));
+            filter.append(QString(" innum like '%1'").arg(innumf));
+        }
 
         model->setFilter(filter);
     }

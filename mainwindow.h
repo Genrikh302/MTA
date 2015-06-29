@@ -30,20 +30,22 @@ private slots:
 private:
     Ui::MainWindow *ui;
     Qlogdb logdb;
-    QString abinf;
-    QString aboutf;
-    QString datesincef;
-    QString datetof;
-    QString timesincef;
-    QString timetof;
-    QString busylenfromf;
-    QString busylentof;
-    QString talklenfromf;
-    QString talklentof;
-    QString inaonf;
-    QString innumf;
-    QString outaonf;
-    QString outnumf;
+
+    PropertyFilter propertyFilter;
+//    QString abinf;
+//    QString aboutf;
+//    QString datesincef;
+//    QString datetof;
+//    QString timesincef;
+//    QString timetof;
+//    QString busylenfromf;
+//    QString busylentof;
+//    QString talklenfromf;
+//    QString talklentof;
+//    QString inaonf;
+//    QString innumf;
+//    QString outaonf;
+//    QString outnumf;
 };
 
 
