@@ -34,30 +34,50 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QCDRTableModel *model = new QCDRTableModel;
     model->setTable("logbase");
-    model->setFilter("intype = 'C'"); //сделать через setQuery
+    //model->setFilter("intype = 'C'"); //сделать через setQuery
     //model->setFilter("intype = 'A'");
     //model->setFilter("ininc1 < 111 ");
     model->select();
     ui->tableView->setModel(model);
 
-    model->setHeaderData(0, Qt::Horizontal, "Канал");
-    model->setHeaderData(1, Qt::Horizontal, "Модуль");
-    model->setHeaderData(2, Qt::Horizontal, "Поток");
-    model->setHeaderData(3, Qt::Horizontal, "Канал");
-    model->setHeaderData(4, Qt::Horizontal, "Номер");
+    model->setHeaderData(QCDRTableModel::COL_IN_TYPE, Qt::Horizontal, "Аб. А\nВх. канал ");
+    model->setHeaderData(QCDRTableModel::COL_IN_MN, Qt::Horizontal, "Вх. модуль");
+    model->setHeaderData(QCDRTableModel::COL_IN_SLPCM, Qt::Horizontal, "Вх. поток");
+    model->setHeaderData(QCDRTableModel::COL_IN_PORT, Qt::Horizontal, "Вх. канал");
+    model->setHeaderData(QCDRTableModel::COL_IN_AON, Qt::Horizontal, "Вх. АОН");
+    model->setHeaderData(QCDRTableModel::COL_IN_NUMBER, Qt::Horizontal, "Вх. Номер");
+
+
+    model->setHeaderData(QCDRTableModel::COL_OUT_TYPE, Qt::Horizontal, "Аб. Б\nИсх. канал ");
+    model->setHeaderData(QCDRTableModel::COL_OUT_MN, Qt::Horizontal, "Исх. модуль");
+    model->setHeaderData(QCDRTableModel::COL_OUT_SLPCM, Qt::Horizontal, "Исх. поток");
+    model->setHeaderData(QCDRTableModel::COL_OUT_PORT, Qt::Horizontal, "Исх. канал");
+    model->setHeaderData(QCDRTableModel::COL_OUT_AON, Qt::Horizontal, "Исх. АОН");
+    model->setHeaderData(QCDRTableModel::COL_OUT_NUMBER, Qt::Horizontal, "Исх. Номер");
+
+    model->setHeaderData(QCDRTableModel::COL_DATE, Qt::Horizontal, "Дата");
+    model->setHeaderData(QCDRTableModel::COL_TIME, Qt::Horizontal, "Время");
+
+    model->setHeaderData(QCDRTableModel::COL_CALL_TYPE, Qt::Horizontal, "Тип");
+    model->setHeaderData(QCDRTableModel::COL_TIME_SEIZ, Qt::Horizontal, "Дл. занятия");
+    model->setHeaderData(QCDRTableModel::COL_TIME_TALK, Qt::Horizontal, "Дл. разговора");
+    model->setHeaderData(QCDRTableModel::COL_CRELEASE, Qt::Horizontal, "Причина \nзавершения");
 
 
     // скрываем лишние столбцы
-    ui->tableView->setColumnHidden(1, true);
-    ui->tableView->setColumnHidden(2, true);
-    ui->tableView->setColumnHidden(3, true);
-    ui->tableView->setColumnHidden(7, true);
-    ui->tableView->setColumnHidden(8, true);
-    ui->tableView->setColumnHidden(9, true);
+    ui->tableView->setColumnHidden(QCDRTableModel::COL_IN_MN, true); // inc1
+    ui->tableView->setColumnHidden(QCDRTableModel::COL_IN_SLPCM, true); // inc2
+    ui->tableView->setColumnHidden(QCDRTableModel::COL_IN_PORT, true); // inc3
+    ui->tableView->setColumnHidden(QCDRTableModel::COL_OUT_MN, true); // outinc1
+    ui->tableView->setColumnHidden(QCDRTableModel::COL_OUT_SLPCM, true); // outinc2
+    ui->tableView->setColumnHidden(QCDRTableModel::COL_OUT_PORT, true); // outinc3
 
 
     // высоту ячейки
     ui->tableView->verticalHeader()->setDefaultSectionSize(18);
+//    ui->tableView->setColumnWidth(QCDRTableModel::COL_IN_TYPE, 150);
+//    ui->tableView->setColumnWidth(QCDRTableModel::COL_OUT_TYPE, 150);
+//    ui->tableView->setColumnWidth(QCDRTableModel::COL_CRELEASE, 150);
 
 
 
@@ -125,5 +145,6 @@ void MainWindow::on_pushButton_clicked()
 
 void MainWindow::getfilters()
 {
-  //ab1filter = abf1;
+    Q_UNUSED(filter)
+    //ab1filter = abf1;
 }
