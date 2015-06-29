@@ -138,13 +138,13 @@ void MainWindow::on_actionOpen_triggered()
 void MainWindow::on_pushButton_clicked()
 {
     FilterDialog* Form = new FilterDialog;
-    Form->setAttribute(Qt::WA_DeleteOnClose, true);
     if (Form->exec() == QDialog::Accepted)
+    {
         qDebug() << "Ok";
+        Form->writefil(abinf, aboutf, datesincef, datetof, timesincef, timetof, busylenfromf, busylentof, talklenfromf, talklentof, inaonf, innumf, outaonf, outnumf);
+        qDebug() << abinf << aboutf << datesincef << timetof;
+    }
+
 }
 
-void MainWindow::getfilters()
-{
-    Q_UNUSED(filter)
-    //ab1filter = abf1;
-}
+

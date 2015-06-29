@@ -19,7 +19,7 @@ public:
     //QSqlTableModel *model;
     ~MainWindow();
     void addCDRFileToDB(const QString &file); // добавляет CDR file в базу
-    void getfilters();
+    void getfilters(FilterDialog fildial); // получает фильтры из диалогового окна
 
 private slots:
     void on_actionOpen_triggered();
@@ -30,7 +30,20 @@ private slots:
 private:
     Ui::MainWindow *ui;
     Qlogdb logdb;
-    QString ab1filter;
+    QString abinf;
+    QString aboutf;
+    QString datesincef;
+    QString datetof;
+    QString timesincef;
+    QString timetof;
+    QString busylenfromf;
+    QString busylentof;
+    QString talklenfromf;
+    QString talklentof;
+    QString inaonf;
+    QString innumf;
+    QString outaonf;
+    QString outnumf;
 };
 
 

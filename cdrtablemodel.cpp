@@ -90,7 +90,7 @@ QString QCDRTableModel::getQStringTypeCalls(int value) const
         case Qcallog::TYPE_TRANZIT_INTERNATIONAL: return "Международный транзит";
         case Qcallog::TYPE_TRANZIT_NATIONAL: return "Междугородный транзит";
         case Qcallog::TYPE_TRANZIT_LOCAL: return "Транзит";
-        default: return "unkniwn";
+        default: return "unknown";
     }
 }
 

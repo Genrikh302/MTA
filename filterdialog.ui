@@ -452,6 +452,19 @@
     </rect>
    </property>
   </widget>
+  <widget class="QPushButton" name="clearbutton">
+   <property name="geometry">
+    <rect>
+     <x>380</x>
+     <y>460</y>
+     <width>115</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Очистить</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections>
