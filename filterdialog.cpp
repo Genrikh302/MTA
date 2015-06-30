@@ -44,11 +44,14 @@ FilterDialog::FilterDialog(const PropertyFilter &propertyFilter, QWidget *parent
 //    ui->timesince->setText(propertyFilter.timefromf());
 //    ui->timeto->setText(propertyFilter.timetof());
 
+    ui->reason->addItem(QString("%1").arg(tr("не задана")), QVariant(0));
     foreach (auto v, QCDRTableModel::causeValue.keys())
         ui->reason->addItem(QString("%1 - %2").arg(QCDRTableModel::causeValue.value(v)).arg(v), QVariant(v));
 
     if (QCDRTableModel::causeValue.keys().contains(propertyFilter.releaseCause()))
-         ui->reason->setCurrentIndex(QCDRTableModel::causeValue.keys().indexOf(propertyFilter.releaseCause()));
+        ui->reason->setCurrentIndex(ui->reason->findData(propertyFilter.releaseCause()));
+    else
+        ui->reason->setCurrentIndex(0);
 }
 
 FilterDialog::~FilterDialog()

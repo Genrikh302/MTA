@@ -11,9 +11,11 @@ public:
     bool createConnection();
     QSqlError lastError() const {return db.lastError();}
 
-    bool createTabel(); // создаем таблицу
+    bool createTabelCDR(); // создаем таблицу
+    bool createTabelInternationalCode();
+    bool createTabelNationalCode();
 
-
+    QSqlDatabase &getDB() {return db;}
 private:
     QSqlDatabase db;
 

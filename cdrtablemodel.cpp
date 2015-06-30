@@ -70,7 +70,7 @@ QMap <unsigned char, QString> QCDRTableModel::causeValue =
    {127, "Interworking unspecified"}
 };
 
-QCDRTableModel::QCDRTableModel() : QSqlTableModel()
+QCDRTableModel::QCDRTableModel(QObject *parent, QSqlDatabase db) : QSqlTableModel(parent, db)
 {
 
 }

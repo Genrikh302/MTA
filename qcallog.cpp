@@ -150,12 +150,49 @@ Qlogdb operator << (Qlogdb &logdb, Qcallog &log)
     query.bindValue(":linelen", linelen);
     query.bindValue(":callen", callen);
     query.bindValue(":relreason", relreason);
-    if (!query.exec()) {
-        qDebug() << "Unable to insert value"<<logdb.lastError();
-    }
+    if (!query.exec())
+        qDebug() << "Unable to insert value" << logdb.lastError();
+
     return logdb;
 }
 
+void operator << (QCDRTableModel &m, Qcallog &log)
+{
+    char intype, outtype;
+    QString indraft, ininc1, ininc2, ininc3, innum, inanum, outdraft, outinc1, outinc2, outinc3, outnum, outanum;
+    QDate date;
+    QTime time;
+    int linelen;
+    int callen;
+    int relreason;
+    bool ok;
+    log.getval(intype, indraft, ininc1, ininc2, ininc3, innum, inanum, outtype, outdraft, outinc1, outinc2, outinc3, outnum, outanum, date, time, linelen, callen, relreason);
+    QSqlQuery query;
+
+    int calltype = Qcallog::getIntTypeCalls(QStringList() << QString(intype) << QString(outtype) << innum << outnum);
+
+    int row = m.rowCount();
+    if (!m.insertRow(row))
+        qDebug() << "insertRow nationalCode" << m.lastError().text();
+    m.setData(m.index(row, m.fieldIndex("intype")), QString(intype));
+    m.setData(m.index(row, m.fieldIndex("ininc1")), ininc1.toInt(&ok, 10));
+    m.setData(m.index(row, m.fieldIndex("ininc2")), ininc2.toInt(&ok, 10));
+    m.setData(m.index(row, m.fieldIndex("ininc3")), ininc3.toInt(&ok, 10));
+    m.setData(m.index(row, m.fieldIndex("innum")), innum);
+    m.setData(m.index(row, m.fieldIndex("inanum")), inanum);
+    m.setData(m.index(row, m.fieldIndex("outtype")), QString(outtype));
+    m.setData(m.index(row, m.fieldIndex("outinc1")), outinc1.toInt(&ok, 10));
+    m.setData(m.index(row, m.fieldIndex("outinc2")), outinc2.toInt(&ok, 10));
+    m.setData(m.index(row, m.fieldIndex("outinc3")), outinc3.toInt(&ok, 10));
+    m.setData(m.index(row, m.fieldIndex("outnum")), outnum);
+    m.setData(m.index(row, m.fieldIndex("outanum")), outanum);
+    m.setData(m.index(row, m.fieldIndex("date")), date.toJulianDay());
+    m.setData(m.index(row, m.fieldIndex("time")), QTime(0,0).secsTo(time));
+    m.setData(m.index(row, m.fieldIndex("type")), calltype);
+    m.setData(m.index(row, m.fieldIndex("linelen")), linelen);
+    m.setData(m.index(row, m.fieldIndex("callen")), callen);
+    m.setData(m.index(row, m.fieldIndex("relreason")), relreason);
+}
 
 int Qcallog::getTypeCall(const QString &num)
 {

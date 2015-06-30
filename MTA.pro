@@ -24,18 +24,21 @@ SOURCES += main.cpp\
     qcallog.cpp \
     qlogdb.cpp \
     filterdialog.cpp \
-    cdrtablemodel.cpp
+    cdrtablemodel.cpp \
+    qprogrampropertydialog.cpp
 
 HEADERS  += \
     mainwindow.h \
     qcallog.h \
     qlogdb.h \
     filterdialog.h \
-    cdrtablemodel.h
+    cdrtablemodel.h \
+    qprogrampropertydialog.h
 
 HEADERS += stable.h
 
 FORMS    += \
     mainwindow.ui \
-    filterdialog.ui
+    filterdialog.ui \
+    qprogrampropertydialog.ui
 

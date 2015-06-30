@@ -15,7 +15,7 @@ bool Qlogdb::createConnection()
 {
     db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName(":memory:");
-    //db.setDatabaseName("logbase");
+//    db.setDatabaseName("logbase.db");
     if (!db.open()) {
        qDebug() << "Cannot open database:" << db.lastError();
        return false;
@@ -23,7 +23,7 @@ bool Qlogdb::createConnection()
     return true;
 }
 
-bool Qlogdb::createTabel()
+bool Qlogdb::createTabelCDR()
 {
     QSqlQuery query("",db);
     QString str = "CREATE TABLE logbase ( "    //проверить if not exists
@@ -44,7 +44,32 @@ bool Qlogdb::createTabel()
                   "type int, "
                   "linelen int, "
                   "callen int , "
-                  "relreason int)" ;
+                  "relreason int, "
+                  "id integer primary key autoincrement)" ;
 
     return query.exec(str);
 }
+
+// создается таблица для кодов выхода на междугороднюю сеть сеть
+bool Qlogdb::createTabelNationalCode()
+{
+    QSqlQuery query("", db);
+    QString str = "create table if not exists NationalCode ( "
+//            "id integer primary key, "
+            "code varchar(28) )";
+    return query.exec(str);
+
+}
+
+
+// создается таблица для кодов выхода на международную сеть
+bool Qlogdb::createTabelInternationalCode()
+{
+    QSqlQuery query("",db);
+    QString str = "create table if not exists InternationalCode ( "
+//            "id integer primary key, "
+            "code varchar(28) )";
+    return query.exec(str);
+
+}
+

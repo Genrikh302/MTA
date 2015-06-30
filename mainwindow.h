@@ -5,7 +5,9 @@
 #include <QDateTime>
 #include "qlogdb.h"
 #include "qcallog.h"
+#include "cdrtablemodel.h"
 #include "filterdialog.h"
+
 namespace Ui {
 class MainWindow;
 }
@@ -22,30 +24,25 @@ public:
     void getfilters(FilterDialog fildial); // получает фильтры из диалогового окна
 
 private slots:
-    void on_actionOpen_triggered();
+    void on_actionOpen_triggered();  // ипорт из файла
+    void on_actionExit_triggered();  // выход из программы
+    void on_actionAbout_triggered(); // открытие окна о программе
+    void on_actionProgramProperty_triggered(); // открытие настроек программы
 
     void on_pushButton_clicked();
 
 
+    void on_pushDelete_clicked();
+
 private:
     Ui::MainWindow *ui;
-    Qlogdb logdb;
+    Qlogdb logdb;    
 
     PropertyFilter propertyFilter;
-//    QString abinf;
-//    QString aboutf;
-//    QString datesincef;
-//    QString datetof;
-//    QString timesincef;
-//    QString timetof;
-//    QString busylenfromf;
-//    QString busylentof;
-//    QString talklenfromf;
-//    QString talklentof;
-//    QString inaonf;
-//    QString innumf;
-//    QString outaonf;
-//    QString outnumf;
+
+    QCDRTableModel *cdrModel;
+    QSqlTableModel *nationalCode;
+    QSqlTableModel *internationalCode;
 };
 
 

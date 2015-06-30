@@ -1,6 +1,7 @@
 #ifndef QCALLOG_H
 #define QCALLOG_H
 #include "mainwindow.h"
+#include "cdrtablemodel.h"
 #include "qlogdb.h"
 
 class Qcallog
@@ -38,6 +39,7 @@ public:
     friend QTextStream &operator >> (QTextStream &in, Qcallog &log);
     //Заполнение БД данными из лога
     friend Qlogdb operator << (Qlogdb &logdb, Qcallog &log);
+    friend void operator << (QCDRTableModel &logdb, Qcallog &log);
     void getval(char &_intype, QString &_indraft, QString &_ininc1, QString &_ininc2,  QString &_ininc3, QString &_innum, QString &_inanum, char &_outtype, QString &_outdraft, QString &_outinc1, QString &_outinc2,  QString &_outinc3, QString &_outnum, QString &_outanum, QDate &_date, QTime &_time, int &_linelen, int &_callen, int &_relreason);
 
     // признаки номера
