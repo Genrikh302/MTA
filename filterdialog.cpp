@@ -15,7 +15,7 @@ FilterDialog::FilterDialog(const PropertyFilter &propertyFilter, QWidget *parent
 
     //установка начальных значений даты и времени
     QDate datesince, dateto;
-    ui->datesince->setDate(datesince.fromString("01-01-1990", "dd-MM-yyyy"));
+    ui->datesince->setDate(datesince.fromString("01-01-2000", "dd-MM-yyyy"));
     ui->dateto->setDate(dateto.currentDate());
     QTime timesince, timeto;
     ui->timesince->setTime(timesince.fromString("00:00:00", "hh:mm:ss"));
@@ -36,6 +36,13 @@ FilterDialog::FilterDialog(const PropertyFilter &propertyFilter, QWidget *parent
     ui->innum->setValidator(validator);
     ui->outaon->setValidator(validator);
     ui->outnum->setValidator(validator);
+
+    regExp = QRegExp("([0-2]{1,1}[0-9]{1,1}[:][0-2]{1,1}[0-9]{1,1}[:][0-2]{1,1}[0-9]{1,1})");
+    validator = new QRegExpValidator(regExp, this);
+    ui->busyfrom->setValidator(validator);
+    ui->busyto->setValidator(validator);
+    ui->talklenfrom->setValidator(validator);
+    ui->talklento->setValidator(validator);
 
     ui->abin->setText(propertyFilter.abinf());
     ui->about->setText(propertyFilter.aboutf());
@@ -126,7 +133,7 @@ void FilterDialog::on_clearbutton_clicked()
     ui->outaon->clear();
     ui->outnum->clear();
     QDate datesince, dateto;
-    ui->datesince->setDate(datesince.fromString("01-01-1990", "dd-MM-yyyy"));
+    ui->datesince->setDate(datesince.fromString("01-01-2000", "dd-MM-yyyy"));
     ui->dateto->setDate(dateto.currentDate());
     QTime timesince, timeto;
     ui->timesince->setTime(timesince.fromString("00:00:00", "hh:mm:ss"));
