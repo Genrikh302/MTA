@@ -3,19 +3,17 @@
 
 #include <QObject>
 #include <QSqlTableModel>
+#include <QSortFilterProxyModel>
 #include <QMap>
 
-class QCDRTableModel : public QSqlTableModel
+
+class QCDRSortFilterModel : public QSortFilterProxyModel
 {
 private:
     int getIntTypeCalls(const QModelIndex &index) const; //
-    QString getQStringTypeCalls(int value) const;
-
 
 public:
-    QCDRTableModel(QObject *parent = 0, QSqlDatabase db = QSqlDatabase());
-    QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const;
-    ~QCDRTableModel();
+    QCDRSortFilterModel(QObject *parent = 0) : QSortFilterProxyModel(parent) {}
 
     static const unsigned char COL_IN_TYPE    = 0;
     static const unsigned char COL_IN_MN      = 1; // In module number
@@ -29,7 +27,7 @@ public:
     static const unsigned char COL_OUT_PORT   = 9;
     static const unsigned char COL_OUT_AON    = 10;
     static const unsigned char COL_OUT_NUMBER = 11;
-    static const unsigned char COL_DATE       = 12;
+    static const unsigned char COL_DATE       = 12;    
     static const unsigned char COL_TIME       = 13;
     static const unsigned char COL_CALL_TYPE  = 14;
     static const unsigned char COL_TIME_SEIZ  = 15;
@@ -37,8 +35,19 @@ public:
     static const unsigned char COL_CRELEASE   = 17;
     static const unsigned char COL_ID         = 18;
 
-
     static QMap <unsigned char, QString> causeValue;
+
+
+};
+
+class QCDRTableModel : public QSqlTableModel
+{
+
+public:
+    QCDRTableModel(QObject *parent = 0, QSqlDatabase db = QSqlDatabase());
+    virtual QVariant data(const QModelIndex & idx, int role = Qt::DisplayRole) const;
+    ~QCDRTableModel();
+
 };
 
 #endif // MYTABLEMODEL_H

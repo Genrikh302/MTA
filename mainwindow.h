@@ -23,6 +23,8 @@ public:
     void addCDRFileToDB(const QString &file); // добавляет CDR file в базу
     void getfilters(FilterDialog fildial); // получает фильтры из диалогового окна
 
+    static const QStringList & getNationalPrefix() {return nationalPrefix;}
+    static const QStringList & getInternationalPrefix() {return internationalPrefix;}
 private slots:
     void on_actionOpen_triggered();  // ипорт из файла
     void on_actionExit_triggered();  // выход из программы
@@ -40,9 +42,15 @@ private:
 
     PropertyFilter propertyFilter;
 
-    QCDRTableModel *cdrModel;
+    QSqlTableModel *cdrModel;
     QSqlTableModel *nationalCode;
     QSqlTableModel *internationalCode;
+
+    static QStringList nationalPrefix;
+    static QStringList internationalPrefix;
+
+    void fillPrefixList(); // заполняет списки префиксов, для ускорения
+    void applyFilter(); // применяет фильтр на таблицу
 };
 
 

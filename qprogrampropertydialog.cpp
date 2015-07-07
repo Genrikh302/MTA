@@ -47,6 +47,9 @@ void QProgramPropertyDialog::on_pushRemoveNationalCode_clicked()
     foreach (auto i, indexes)
         national->removeRow(i.row());
     national->submitAll();
+
+    national->select();
+    ui->listViewNationalCode->reset();
 }
 
 void QProgramPropertyDialog::on_pushClose_clicked()
@@ -66,6 +69,7 @@ void QProgramPropertyDialog::on_pushAddInternationalCode_clicked()
 
     international->setData(international->index(row, 0), prefix);
     international->submitAll();
+
 }
 
 void QProgramPropertyDialog::on_pushRemoveInternationalCode_clicked()
@@ -83,4 +87,7 @@ void QProgramPropertyDialog::on_pushRemoveInternationalCode_clicked()
     foreach (auto i, indexes)
         international->removeRow(i.row());
     international->submitAll();
+
+    international->select();
+    ui->listViewInternationalCode->reset();
 }

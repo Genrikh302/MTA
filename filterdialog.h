@@ -28,6 +28,7 @@ private:
     QString m_outnumf;
 
     qint16  m_releaseCause;
+    qint8   m_typeCalls;
 
 public:
 
@@ -62,6 +63,8 @@ public:
     void setOutnumf(const QString &outnumf);
     qint16 releaseCause() const;
     void setReleaseCause(const qint16 &releaseCause);
+    qint8 typeCalls() const;
+    void setTypeCalls(const qint8 &typeCalls);
 };
 
 class FilterDialog : public QDialog

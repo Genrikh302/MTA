@@ -55,10 +55,8 @@ bool Qlogdb::createTabelNationalCode()
 {
     QSqlQuery query("", db);
     QString str = "create table if not exists NationalCode ( "
-//            "id integer primary key, "
             "code varchar(28) )";
     return query.exec(str);
-
 }
 
 
@@ -67,9 +65,7 @@ bool Qlogdb::createTabelInternationalCode()
 {
     QSqlQuery query("",db);
     QString str = "create table if not exists InternationalCode ( "
-//            "id integer primary key, "
             "code varchar(28) )";
     return query.exec(str);
-
 }
 

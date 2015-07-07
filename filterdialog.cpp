@@ -45,13 +45,19 @@ FilterDialog::FilterDialog(const PropertyFilter &propertyFilter, QWidget *parent
 //    ui->timeto->setText(propertyFilter.timetof());
 
     ui->reason->addItem(QString("%1").arg(tr("не задана")), QVariant(0));
-    foreach (auto v, QCDRTableModel::causeValue.keys())
-        ui->reason->addItem(QString("%1 - %2").arg(QCDRTableModel::causeValue.value(v)).arg(v), QVariant(v));
+    //foreach (auto v, QCDRTableModel::causeValue.keys())
+    //    ui->reason->addItem(QString("%1 - %2").arg(QCDRTableModel::causeValue.value(v)).arg(v), QVariant(v));
+    foreach (auto v, QCDRSortFilterModel::causeValue.keys())
+        ui->reason->addItem(QString("%1 - %2").arg(QCDRSortFilterModel::causeValue.value(v)).arg(v), QVariant(v));
+    int index = ui->reason->findData(propertyFilter.releaseCause());
+    ui->reason->setCurrentIndex(index < 0 ? 0 : index);
 
-    if (QCDRTableModel::causeValue.keys().contains(propertyFilter.releaseCause()))
-        ui->reason->setCurrentIndex(ui->reason->findData(propertyFilter.releaseCause()));
-    else
-        ui->reason->setCurrentIndex(0);
+
+    ui->type->addItem(QString("%1").arg(tr("не задана")), QVariant(0));
+    for (int i = Qcallog::TYPE_LOCAL; i < Qcallog::TYPE_LAST_CODE; i++)
+        ui->type->addItem(QString(Qcallog::getQStringTypeCalls(i)), QVariant(i));
+    index = ui->type->findData(propertyFilter.typeCalls());
+    ui->type->setCurrentIndex(index < 0 ? 0 : index);
 }
 
 FilterDialog::~FilterDialog()
@@ -96,6 +102,7 @@ void FilterDialog::writefil(PropertyFilter &f)
     f.setTimefromf(ui->timesince->text());
     f.setTimetof(ui->timeto->text());
     f.setReleaseCause(ui->reason->currentData().toInt());
+    f.setTypeCalls(ui->type->currentData().toInt());
 }
 
 void FilterDialog::on_clearbutton_clicked()
@@ -116,7 +123,7 @@ void FilterDialog::on_clearbutton_clicked()
     ui->outnum->clear();
 
     ui->reason->setCurrentIndex(0);
-    //qDebug() << abinf << "-";
+    ui->type->setCurrentIndex(0);
 }
 
 
@@ -258,6 +265,16 @@ qint16 PropertyFilter::releaseCause() const
 void PropertyFilter::setReleaseCause(const qint16 &releaseCause)
 {
     m_releaseCause = releaseCause;
+}
+
+qint8 PropertyFilter::typeCalls() const
+{
+    return m_typeCalls;
+}
+
+void PropertyFilter::setTypeCalls(const qint8 &typeCalls)
+{
+    m_typeCalls = typeCalls;
 }
 QString PropertyFilter::aboutf() const
 {

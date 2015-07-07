@@ -128,8 +128,6 @@ Qlogdb operator << (Qlogdb &logdb, Qcallog &log)
     log.getval(intype, indraft, ininc1, ininc2, ininc3, innum, inanum, outtype, outdraft, outinc1, outinc2, outinc3, outnum, outanum, date, time, linelen, callen, relreason);
     QSqlQuery query;
 
-    int calltype = Qcallog::getIntTypeCalls(QStringList() << QString(intype) << QString(outtype) << innum << outnum);
-
     query.prepare("INSERT INTO  logbase (intype, ininc1, ininc2, ininc3, innum, inanum, outtype, outinc1, outinc2, outinc3, outnum, outanum, date, time, type, linelen, callen, relreason) "
                                "VALUES (:intype, :ininc1, :ininc2, :ininc3, :innum, :inanum, :outtype, :outinc1, :outinc2, :outinc3, :outnum, :outanum, :date, :time, :type, :linelen, :callen, :relreason)");
     query.bindValue(":intype", QString(intype));
@@ -146,65 +144,65 @@ Qlogdb operator << (Qlogdb &logdb, Qcallog &log)
     query.bindValue(":outanum", outanum);
     query.bindValue(":date", date.toJulianDay()); //преобразовать в нормальную дату
     query.bindValue(":time", QTime(0,0).secsTo(time));
-    query.bindValue(":type", calltype);
+    query.bindValue(":type", 0);
     query.bindValue(":linelen", linelen);
     query.bindValue(":callen", callen);
     query.bindValue(":relreason", relreason);
     if (!query.exec())
-        qDebug() << "Unable to insert value" << logdb.lastError();
+        qDebug() << "Unable to insert value" << query.lastError();
 
     return logdb;
 }
 
-void operator << (QCDRTableModel &m, Qcallog &log)
-{
-    char intype, outtype;
-    QString indraft, ininc1, ininc2, ininc3, innum, inanum, outdraft, outinc1, outinc2, outinc3, outnum, outanum;
-    QDate date;
-    QTime time;
-    int linelen;
-    int callen;
-    int relreason;
-    bool ok;
-    log.getval(intype, indraft, ininc1, ininc2, ininc3, innum, inanum, outtype, outdraft, outinc1, outinc2, outinc3, outnum, outanum, date, time, linelen, callen, relreason);
-    QSqlQuery query;
+//void operator << (QCDRTableModel &m, Qcallog &log)
+//{
+//    char intype, outtype;
+//    QString indraft, ininc1, ininc2, ininc3, innum, inanum, outdraft, outinc1, outinc2, outinc3, outnum, outanum;
+//    QDate date;
+//    QTime time;
+//    int linelen;
+//    int callen;
+//    int relreason;
+//    bool ok;
+//    log.getval(intype, indraft, ininc1, ininc2, ininc3, innum, inanum, outtype, outdraft, outinc1, outinc2, outinc3, outnum, outanum, date, time, linelen, callen, relreason);
+//    QSqlQuery query;
 
-    int calltype = Qcallog::getIntTypeCalls(QStringList() << QString(intype) << QString(outtype) << innum << outnum);
+//    int calltype = Qcallog::getIntTypeCalls(QStringList() << QString(intype) << QString(outtype) << innum << outnum);
 
-    int row = m.rowCount();
-    if (!m.insertRow(row))
-        qDebug() << "insertRow nationalCode" << m.lastError().text();
-    m.setData(m.index(row, m.fieldIndex("intype")), QString(intype));
-    m.setData(m.index(row, m.fieldIndex("ininc1")), ininc1.toInt(&ok, 10));
-    m.setData(m.index(row, m.fieldIndex("ininc2")), ininc2.toInt(&ok, 10));
-    m.setData(m.index(row, m.fieldIndex("ininc3")), ininc3.toInt(&ok, 10));
-    m.setData(m.index(row, m.fieldIndex("innum")), innum);
-    m.setData(m.index(row, m.fieldIndex("inanum")), inanum);
-    m.setData(m.index(row, m.fieldIndex("outtype")), QString(outtype));
-    m.setData(m.index(row, m.fieldIndex("outinc1")), outinc1.toInt(&ok, 10));
-    m.setData(m.index(row, m.fieldIndex("outinc2")), outinc2.toInt(&ok, 10));
-    m.setData(m.index(row, m.fieldIndex("outinc3")), outinc3.toInt(&ok, 10));
-    m.setData(m.index(row, m.fieldIndex("outnum")), outnum);
-    m.setData(m.index(row, m.fieldIndex("outanum")), outanum);
-    m.setData(m.index(row, m.fieldIndex("date")), date.toJulianDay());
-    m.setData(m.index(row, m.fieldIndex("time")), QTime(0,0).secsTo(time));
-    m.setData(m.index(row, m.fieldIndex("type")), calltype);
-    m.setData(m.index(row, m.fieldIndex("linelen")), linelen);
-    m.setData(m.index(row, m.fieldIndex("callen")), callen);
-    m.setData(m.index(row, m.fieldIndex("relreason")), relreason);
-}
+//    int row = m.rowCount();
+//    if (!m.insertRow(row))
+//        qDebug() << "insertRow nationalCode" << m.lastError().text();
+//    m.setData(m.index(row, m.fieldIndex("intype")), QString(intype));
+//    m.setData(m.index(row, m.fieldIndex("ininc1")), ininc1.toInt(&ok, 10));
+//    m.setData(m.index(row, m.fieldIndex("ininc2")), ininc2.toInt(&ok, 10));
+//    m.setData(m.index(row, m.fieldIndex("ininc3")), ininc3.toInt(&ok, 10));
+//    m.setData(m.index(row, m.fieldIndex("innum")), innum);
+//    m.setData(m.index(row, m.fieldIndex("inanum")), inanum);
+//    m.setData(m.index(row, m.fieldIndex("outtype")), QString(outtype));
+//    m.setData(m.index(row, m.fieldIndex("outinc1")), outinc1.toInt(&ok, 10));
+//    m.setData(m.index(row, m.fieldIndex("outinc2")), outinc2.toInt(&ok, 10));
+//    m.setData(m.index(row, m.fieldIndex("outinc3")), outinc3.toInt(&ok, 10));
+//    m.setData(m.index(row, m.fieldIndex("outnum")), outnum);
+//    m.setData(m.index(row, m.fieldIndex("outanum")), outanum);
+//    m.setData(m.index(row, m.fieldIndex("date")), date.toJulianDay());
+//    m.setData(m.index(row, m.fieldIndex("time")), QTime(0,0).secsTo(time));
+//    m.setData(m.index(row, m.fieldIndex("type")), calltype);
+//    m.setData(m.index(row, m.fieldIndex("linelen")), linelen);
+//    m.setData(m.index(row, m.fieldIndex("callen")), callen);
+//    m.setData(m.index(row, m.fieldIndex("relreason")), relreason);
+//}
 
 int Qcallog::getTypeCall(const QString &num)
 {
-    QStringList prefix_national = QStringList() << "8";
-    QStringList prefix_international = QStringList() << "810";
+    const QStringList prefix_national = MainWindow::getNationalPrefix();
+    const QStringList prefix_international = MainWindow::getInternationalPrefix();
 
     // возможно еще длину проверим
-    foreach (QString prefix, prefix_international)
+    foreach (const QString prefix, prefix_international)
         if (num.startsWith(prefix))
             return CALL_TYPE_INTERNATIONAL;
 
-    foreach (QString prefix, prefix_national)
+    foreach (const QString prefix, prefix_national)
         if (num.startsWith(prefix))
             return CALL_TYPE_NATIONAL;
 
@@ -255,4 +253,19 @@ int Qcallog::getIntTypeCalls(const QStringList &l)
         }
     }
     return TYPE_OUT_LOCAL;
+}
+
+QString Qcallog::getQStringTypeCalls(int value)
+{
+    switch (value) {
+        case Qcallog::TYPE_LOCAL: return "Внутренний";
+        case Qcallog::TYPE_IN_LOCAL: return "Вход местный";
+        case Qcallog::TYPE_OUT_INTERNATIONAL: return "Исход международный";
+        case Qcallog::TYPE_OUT_NATIONAL: return "Исход междугородный";
+        case Qcallog::TYPE_OUT_LOCAL: return "Исход местный";
+        case Qcallog::TYPE_TRANZIT_INTERNATIONAL: return "Международный транзит";
+        case Qcallog::TYPE_TRANZIT_NATIONAL: return "Междугородный транзит";
+        case Qcallog::TYPE_TRANZIT_LOCAL: return "Транзит";
+        default: return "unknown";
+    }
 }
