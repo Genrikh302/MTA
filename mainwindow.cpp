@@ -18,7 +18,6 @@
 #define VERSION "1.0.0b"
 
 
-
 QStringList MainWindow::nationalPrefix;
 QStringList MainWindow::internationalPrefix;
 
@@ -220,32 +219,6 @@ void MainWindow::on_actionProgramProperty_triggered()
 
 void MainWindow::applyFilter()
 {
-    QString filter;
-    if (!propertyFilter.abinf().isEmpty()) {
-        QString abinf = propertyFilter.abinf();
-        QTextStream str(&abinf);
-        Qcallog::s log;
-        str >> log;
-
-        // фильтр по входящему каналу
-        const char type = log.getType();
-        if (type == 'A')
-            filter.append(QString(" intype = '%1' and ininc1 = %2").arg(type).arg(log.getInc1()));
-
-        if (type == 'C') {
-            filter = QString(" intype = '%1'").arg(type);
-            if (log.getInc1() != "*") {// все модули
-                filter.append(QString(" and ininc1 = %1").arg(log.getInc1()));
-                if (log.getInc2() != "*") { // все потоки
-                    filter.append(QString(" and ininc2 = %1").arg(log.getInc2()));
-                    if (log.getInc3() != "*") // все каналы
-                        filter.append(QString(" and ininc3 = %1").arg(log.getInc3()));
-                }
-            }
-        }
-    }
-
-
     // лямбда для фмльтра по нумерам
     auto appendLikeFilter = [] (QString &f, const QString &filterStr, const QString &paramName) {
         if (filterStr.isEmpty())
@@ -272,11 +245,93 @@ void MainWindow::applyFilter()
         return likePrefix;
     };
 
+    QString filter;
+    if (!propertyFilter.abinf().isEmpty()) {
+        QString abinf = propertyFilter.abinf();
+        QTextStream str(&abinf);
+        Qcallog::s log;
+        str >> log;
+
+        // фильтр по входящему каналу
+        const char intype = log.getType();
+        if (intype == 'A')
+            filter.append(QString(" intype = '%1' and ininc1 = %2").arg(intype).arg(log.getInc1()));
+
+        if (intype == 'C') {
+            filter = QString(" intype = '%1'").arg(intype);
+            if (log.getInc1() != "*") {// все модули
+                filter.append(QString(" and ininc1 = %1").arg(log.getInc1()));
+                if (log.getInc2() != "*") { // все потоки
+                    filter.append(QString(" and ininc2 = %1").arg(log.getInc2()));
+                    if (log.getInc3() != "*") // все каналы
+                        filter.append(QString(" and ininc3 = %1").arg(log.getInc3()));
+                }
+            }
+        }
+    }
+
     appendLikeFilter(filter, propertyFilter.inaonf(), "inanum");
     appendLikeFilter(filter, propertyFilter.innumf(), "innum");
 
 
-    // филльтр по признаку завершения
+    if (!propertyFilter.aboutf().isEmpty()) {
+        QString aboutf = propertyFilter.aboutf();
+        QTextStream str(&aboutf);
+        Qcallog::s log;
+        str >> log;
+
+        // фильтр по исходящему каналу
+        const char outtype = log.getType();
+        if (outtype == 'A')
+            filter.append(QString(" outtype = '%1' and outinc1 = %2").arg(outtype).arg(log.getInc1()));
+
+        if (outtype == 'C') {
+            if (!filter.isEmpty())
+                filter.append(" and ");
+            filter.append(QString("outtype = '%1'").arg(outtype));
+            if (log.getInc1() != "*") {// все модули
+                filter.append(QString(" and outinc1 = %1").arg(log.getInc1()));
+                if (log.getInc2() != "*") { // все потоки
+                    filter.append(QString(" and outinc2 = %1").arg(log.getInc2()));
+                    if (log.getInc3() != "*") // все каналы
+                        filter.append(QString(" and outinc3 = %1").arg(log.getInc3()));
+                }
+            }
+        }
+    }
+
+    appendLikeFilter(filter, propertyFilter.outaonf(), "outanum");
+    appendLikeFilter(filter, propertyFilter.outnumf(), "outnum");
+
+    if ( !propertyFilter.busylenfromf().isEmpty()) {
+        if (!filter.isEmpty())
+            filter.append(" and ");
+        filter.append(QString(" linelen >= %1").arg(propertyFilter.busylenfromf()));
+    }
+    if ( !propertyFilter.busylentof().isEmpty()) {
+        if (!filter.isEmpty())
+            filter.append(" and ");
+        filter.append(QString(" linelen <= %1").arg(propertyFilter.busylentof()));
+    }
+    if ( !propertyFilter.talklenfromf().isEmpty()) {
+        if (!filter.isEmpty())
+            filter.append(" and ");
+        filter.append(QString(" callen >= %1").arg(propertyFilter.talklenfromf()));
+    }
+    if ( !propertyFilter.talklentof().isEmpty()) {
+        if (!filter.isEmpty())
+            filter.append(" and ");
+        filter.append(QString(" callen <= %1").arg(propertyFilter.talklentof()));
+    }
+
+    //!!!!!
+    if ( !propertyFilter.timefromf().isEmpty()) {
+        //if (!filter.isEmpty())
+            //filter.append(" and ");
+        qDebug() << propertyFilter.timefromf() << propertyFilter.datesincef();
+    }
+
+    // фильтр по признаку завершения
     if (propertyFilter.releaseCause()) {
         if (!filter.isEmpty())
             filter.append(" and ");
@@ -309,7 +364,6 @@ void MainWindow::on_pushButton_clicked()
 
     if (Form->exec() == QDialog::Accepted)
     {
-
         Form->writefil(propertyFilter);
         applyFilter();
     }

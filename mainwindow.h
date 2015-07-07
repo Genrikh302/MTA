@@ -33,7 +33,6 @@ private slots:
 
     void on_pushButton_clicked();
 
-
     void on_pushDelete_clicked();
 
 private:

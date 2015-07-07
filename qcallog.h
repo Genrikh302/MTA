@@ -10,7 +10,7 @@ public:
     Qcallog();
     ~Qcallog();
     class s{
-        private: //заменить на private и написать методы для доступа
+        private:
             char type;
             QString draft;
             QString inc1;
