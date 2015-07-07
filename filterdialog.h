@@ -15,7 +15,6 @@ private:
     QString m_aboutf;
     QString m_datesincef;
     QString m_datetof;
-
     QString m_timefromf;
     QString m_timetof;
     QString m_busylenfromf;

@@ -211,7 +211,6 @@ void MainWindow::on_pushButton_clicked()
 
     if (Form->exec() == QDialog::Accepted)
     {
-        qDebug() << "Ok";
 //        PropertyFilter p;
         //Form->writefil(abinf, aboutf, datesincef, datetof, timesincef, timetof, busylenfromf, busylentof, talklenfromf, talklentof, inaonf, innumf, outaonf, outnumf);
         Form->writefil(propertyFilter);
@@ -227,12 +226,12 @@ void MainWindow::on_pushButton_clicked()
             str >> log;
 
             // фильтр по входящему каналу
-            const char type = log.getType();
-            if (type == 'A')
-                filter.append(QString(" intype = '%1' and ininc1 = %2").arg(type).arg(log.getInc1()));
+            const char intype = log.getType();
+            if (intype == 'A')
+                filter.append(QString(" intype = '%1' and ininc1 = %2").arg(intype).arg(log.getInc1()));
 
-            if (type == 'C') {
-                filter = QString(" intype = '%1'").arg(type);
+            if (intype == 'C') {
+                filter = QString(" intype = '%1'").arg(intype);
                 if (log.getInc1() != "*") {// все модули
                     filter.append(QString(" and ininc1 = %1").arg(log.getInc1()));
                     if (log.getInc2() != "*") { // все потоки
@@ -259,13 +258,84 @@ void MainWindow::on_pushButton_clicked()
             QString innumf = propertyFilter.innumf();
             if (!filter.isEmpty())
                 filter.append(" and ");
-
             // заменяем из человеческого формама в SqlLiteовский
             innumf.replace('?', QString("_"));
             innumf.replace('*', QString("%"));
             filter.append(QString(" innum like '%1'").arg(innumf));
         }
 
+        if (!propertyFilter.aboutf().isEmpty()) {
+            QString aboutf = propertyFilter.aboutf();
+            QTextStream str(&aboutf);
+            Qcallog::s log;
+            str >> log;
+
+            // фильтр по исходящему каналу
+            const char outtype = log.getType();
+            if (outtype == 'A')
+                filter.append(QString(" outtype = '%1' and outinc1 = %2").arg(outtype).arg(log.getInc1()));
+
+            if (outtype == 'C') {
+                if (!filter.isEmpty())
+                    filter.append(" and ");
+                filter.append(QString("outtype = '%1'").arg(outtype));
+                if (log.getInc1() != "*") {// все модули
+                    filter.append(QString(" and outinc1 = %1").arg(log.getInc1()));
+                    if (log.getInc2() != "*") { // все потоки
+                        filter.append(QString(" and outinc2 = %1").arg(log.getInc2()));
+                        if (log.getInc3() != "*") // все каналы
+                            filter.append(QString(" and outinc3 = %1").arg(log.getInc3()));
+                    }
+                }
+            }
+        }
+        if (!propertyFilter.outaonf().isEmpty()) {
+            QString outaonf = propertyFilter.outaonf();
+            if (!filter.isEmpty())
+                filter.append(" and ");
+
+            // заменяем из человеческого формама в SqlLiteовский
+            outaonf.replace('?', QString("_"));
+            outaonf.replace('*', QString("%"));
+            filter.append(QString(" outanum like '%1'").arg(outaonf));
+        }
+
+        if (!propertyFilter.outnumf().isEmpty()) {
+            QString outnumf = propertyFilter.outnumf();
+            if (!filter.isEmpty())
+                filter.append(" and ");
+            // заменяем из человеческого формама в SqlLiteовский
+            outnumf.replace('?', QString("_"));
+            outnumf.replace('*', QString("%"));
+            filter.append(QString(" outnum like '%1'").arg(outnumf));
+        }
+        if ( !propertyFilter.busylenfromf().isEmpty()) {
+            if (!filter.isEmpty())
+                filter.append(" and ");
+            filter.append(QString(" linelen >= %1").arg(propertyFilter.busylenfromf()));
+        }
+        if ( !propertyFilter.busylentof().isEmpty()) {
+            if (!filter.isEmpty())
+                filter.append(" and ");
+            filter.append(QString(" linelen <= %1").arg(propertyFilter.busylentof()));
+        }
+        if ( !propertyFilter.talklenfromf().isEmpty()) {
+            if (!filter.isEmpty())
+                filter.append(" and ");
+            filter.append(QString(" callen >= %1").arg(propertyFilter.talklenfromf()));
+        }
+        if ( !propertyFilter.talklentof().isEmpty()) {
+            if (!filter.isEmpty())
+                filter.append(" and ");
+            filter.append(QString(" callen <= %1").arg(propertyFilter.talklentof()));
+        }
+        //!!!!!
+        if ( !propertyFilter.timefromf().isEmpty()) {
+            //if (!filter.isEmpty())
+                //filter.append(" and ");
+            qDebug() << propertyFilter.timefromf() << propertyFilter.datesincef();
+        }
+        //!!!!!!
         if (propertyFilter.releaseCause()) {
             if (!filter.isEmpty())
                 filter.append(" and ");
@@ -274,6 +344,7 @@ void MainWindow::on_pushButton_clicked()
         }
 
         cdrModel->setFilter(filter);
+        qDebug() << filter;
     }
 }
 

@@ -13,6 +13,14 @@ FilterDialog::FilterDialog(const PropertyFilter &propertyFilter, QWidget *parent
 {
     ui->setupUi(this);
 
+    //установка начальных значений даты и времени
+    QDate datesince, dateto;
+    ui->datesince->setDate(datesince.fromString("01-01-1990", "dd-MM-yyyy"));
+    ui->dateto->setDate(dateto.currentDate());
+    QTime timesince, timeto;
+    ui->timesince->setTime(timesince.fromString("00:00:00", "hh:mm:ss"));
+    ui->timeto->setTime(timeto.fromString("23:59:59", "hh:mm:ss"));
+
     // валидаторы на ввод каналов и абонентов
     //QRegExp regExp = QRegExp("(([C,c][0-9]{9,9})|([C,c][0-9]{0,8}[*]{1,1})|([A,a][0-9]{1,10}))");
     QRegExp regExp = QRegExp("(([C,c][0-9]{9,9})|([C,c](([*]{1,1})|([0-9]{3,3}[*]{1,1})|([0-9]{6,6}[*]{1,1})))|([A,a][0-9]{1,10}))");
@@ -102,10 +110,6 @@ void FilterDialog::on_clearbutton_clicked()
 {
     ui->abin->clear();
     ui->about->clear();
-    ui->datesince->clear();
-    ui->dateto->clear();
-    ui->timesince->clear();
-    ui->timeto->clear();
     ui->busyfrom->clear();
     ui->busyto->clear();
     ui->talklenfrom->clear();
@@ -114,6 +118,12 @@ void FilterDialog::on_clearbutton_clicked()
     ui->innum->clear();
     ui->outaon->clear();
     ui->outnum->clear();
+    QDate datesince, dateto;
+    ui->datesince->setDate(datesince.fromString("01-01-1990", "dd-MM-yyyy"));
+    ui->dateto->setDate(dateto.currentDate());
+    QTime timesince, timeto;
+    ui->timesince->setTime(timesince.fromString("00:00:00", "hh:mm:ss"));
+    ui->timeto->setTime(timeto.fromString("23:59:59", "hh:mm:ss"));
 
     ui->reason->setCurrentIndex(0);
     //qDebug() << abinf << "-";
