@@ -14,6 +14,9 @@ public:
     bool createTabelCDR(); // создаем таблицу
     bool createTabelInternationalCode();
     bool createTabelNationalCode();
+    bool createTabelDirectionName();
+    bool createTabelDirectionChannel();
+
 
     QSqlDatabase &getDB() {return db;}
 private:

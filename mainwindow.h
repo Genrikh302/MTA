@@ -3,6 +3,7 @@
 #include <QMainWindow>
 #include <QtSql>
 #include <QDateTime>
+#include <QSqlRelationalTableModel>
 #include "qlogdb.h"
 #include "qcallog.h"
 #include "cdrtablemodel.h"
@@ -44,6 +45,10 @@ private:
     QSqlTableModel *cdrModel;
     QSqlTableModel *nationalCode;
     QSqlTableModel *internationalCode;
+
+    QSqlTableModel *directionName;
+    QSqlRelationalTableModel *channelModel;
+
 
     static QStringList nationalPrefix;
     static QStringList internationalPrefix;

@@ -13,7 +13,7 @@ class QProgramPropertyDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit QProgramPropertyDialog(QSqlTableModel *national, QSqlTableModel *international, QWidget *parent = 0);
+    explicit QProgramPropertyDialog(QSqlTableModel *national, QSqlTableModel *international, QSqlTableModel *directionName, QWidget *parent = 0);
     ~QProgramPropertyDialog();
 
 private slots:
@@ -27,10 +27,19 @@ private slots:
 
     void on_pushRemoveInternationalCode_clicked();
 
+    void on_pushButtonAddName_clicked();
+
+    void on_pushButtonDeleteName_clicked();
+
+    void on_listViewDirectionName_activated(const QModelIndex &index);
+
+    void on_listViewDirectionName_clicked(const QModelIndex &index);
+
 private:
     Ui::QProgramPropertyDialog *ui;
     QSqlTableModel *national;
     QSqlTableModel *international;
+    QSqlTableModel *directionName;
 };
 
 #endif // QPROGRAMPROPERTYDIALOG_H

@@ -41,6 +41,12 @@ MainWindow::MainWindow(QWidget *parent) :
         qDebug() << "Unable to create a international code table";
 
 
+    if (!logdb.createTabelDirectionName())
+        qDebug() << "Unable to create a direction name table";
+
+    if (!logdb.createTabelDirectionChannel())
+        qDebug() << "Unable to create a direction channel table";
+
     // сразу скормим файл с тектстовой инфой
 
 
@@ -132,6 +138,32 @@ MainWindow::MainWindow(QWidget *parent) :
 //    ui->tableView->setColumnWidth(QCDRTableModel::COL_CRELEASE, 150);
 
     fillPrefixList();
+
+
+    directionName = new QSqlTableModel();
+    directionName->setTable("DirectionName");
+
+    directionName->setEditStrategy(QSqlTableModel::OnManualSubmit);
+    directionName->select();
+    row = directionName->rowCount();
+    if (!row) {
+        QSqlQuery query;
+        query.prepare("INSERT INTO  DirectionName (name) "
+                                   "VALUES (:name)");
+        query.bindValue(":name", QString("Супер канал"));
+        if (!query.exec())
+            qDebug() << "Unable to insert value" << query.lastError();
+
+        directionName->select();
+
+    }
+
+
+
+//    channelModel = QSqlRelationalTableModel();
+//    channelModel->setTable("DirectionChannel");
+//    channelModel->setRelation(2,  QSqlRelation("DirectionName", ""));
+//model->setRelation(2, QSqlRelation("city", "id", "name"));
 }
 
 MainWindow::~MainWindow()
@@ -209,7 +241,7 @@ void MainWindow::on_actionAbout_triggered()
 // открытие окна настрое программы
 void MainWindow::on_actionProgramProperty_triggered()
 {
-    QProgramPropertyDialog propertyDialog(nationalCode, internationalCode);
+    QProgramPropertyDialog propertyDialog(nationalCode, internationalCode, directionName);
     propertyDialog.exec();
 
     fillPrefixList();
@@ -247,7 +279,7 @@ void MainWindow::applyFilter()
 
     QString filter;
     if (!propertyFilter.abinf().isEmpty()) {
-        QString abinf = propertyFilter.abinf();
+        QString abinf = propertyFilter.abinf().toUpper();
         QTextStream str(&abinf);
         Qcallog::s log;
         str >> log;
@@ -275,7 +307,7 @@ void MainWindow::applyFilter()
 
 
     if (!propertyFilter.aboutf().isEmpty()) {
-        QString aboutf = propertyFilter.aboutf();
+        QString aboutf = propertyFilter.aboutf().toUpper();
         QTextStream str(&aboutf);
         Qcallog::s log;
         str >> log;

@@ -1,17 +1,28 @@
 #include "qprogrampropertydialog.h"
 #include "ui_qprogrampropertydialog.h"
 
-QProgramPropertyDialog::QProgramPropertyDialog(QSqlTableModel *national, QSqlTableModel *international, QWidget *parent) :
+#include <QRegExpValidator>
+
+QProgramPropertyDialog::QProgramPropertyDialog(QSqlTableModel *national, QSqlTableModel *international, QSqlTableModel *directionName, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::QProgramPropertyDialog),
     national(national),
-    international(international)
+    international(international),
+    directionName(directionName)
 {
     ui->setupUi(this);
 
     ui->listViewNationalCode->setModel(national);
     ui->listViewInternationalCode->setModel(international);
+    ui->listViewDirectionName->setModel(directionName);
 
+//    QRegExp regExp = QRegExp("(([C,c][0-9]{9,9})|([C,c](([*]{1,1})|([0-9]{3,3}[*]{1,1})|([0-9]{6,6}[*]{1,1})))|([A,a][0-9]{1,10}))");
+//    QRegExpValidator *validator = new QRegExpValidator(regExp, this);
+
+//    ui->lineEditFrom->setValidator(validator);
+//    ui->lineEditBy->setValidator(validator);
+
+    ui->listViewDirectionName->setColumnHidden(0, true); // id
 }
 
 QProgramPropertyDialog::~QProgramPropertyDialog()
@@ -90,4 +101,55 @@ void QProgramPropertyDialog::on_pushRemoveInternationalCode_clicked()
 
     international->select();
     ui->listViewInternationalCode->reset();
+}
+
+
+void QProgramPropertyDialog::on_pushButtonAddName_clicked()
+{
+    QSqlQuery query;
+    query.prepare("INSERT INTO  DirectionName (name) "
+                               "VALUES (:name)");
+    query.bindValue(":name", QString("unknown"));
+    if (!query.exec())
+        qDebug() << "Unable to insert value" << query.lastError();
+
+    directionName->select();
+
+    int row = directionName->rowCount();
+    ui->listViewDirectionName->reset();
+
+    ui->listViewDirectionName->edit(directionName->index(row - 1, 1));
+
+}
+
+void QProgramPropertyDialog::on_pushButtonDeleteName_clicked()
+{
+    QItemSelectionModel *selModel = ui->listViewDirectionName->selectionModel();
+
+    if (!selModel)
+        return;
+
+    QModelIndexList indexes = selModel->selectedRows();
+
+    if (indexes.isEmpty())
+        return;
+
+    foreach (auto i, indexes)
+        directionName->removeRow(i.row());
+    directionName->submitAll();
+
+    directionName->select();
+    ui->listViewDirectionName->reset();
+
+}
+
+void QProgramPropertyDialog::on_listViewDirectionName_activated(const QModelIndex &index)
+{
+    qDebug() << "listViewDirectionName_activated";
+}
+
+void QProgramPropertyDialog::on_listViewDirectionName_clicked(const QModelIndex &index)
+{
+    qDebug() << "listViewDirectionName_clicked";
+
 }

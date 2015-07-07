@@ -69,3 +69,23 @@ bool Qlogdb::createTabelInternationalCode()
     return query.exec(str);
 }
 
+// создается таблица для имен направлений
+bool Qlogdb::createTabelDirectionName()
+{
+    QSqlQuery query("",db);
+    QString str = "create table if not exists DirectionName ( "
+            "id integer primary key autoincrement, "
+            "name varchar(28) )";
+    return query.exec(str);
+}
+
+// создается таблица содержимого направлений
+bool Qlogdb::createTabelDirectionChannel()
+{
+    QSqlQuery query("",db);
+    QString str = "create table if not exists DirectionChannel ( "
+                  "key interger, "   // ключ к имени
+                  "from integer, "   // канал с
+                  "by integer )";    // кнала по
+    return query.exec(str);
+}
