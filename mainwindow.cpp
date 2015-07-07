@@ -338,29 +338,59 @@ void MainWindow::applyFilter()
     if ( !propertyFilter.busylenfromf().isEmpty()) {
         if (!filter.isEmpty())
             filter.append(" and ");
-        filter.append(QString(" linelen >= %1").arg(propertyFilter.busylenfromf()));
+        int busylenfrom = QTime(0,0).secsTo(QTime::fromString(propertyFilter.busylenfromf(), "hh:mm:ss"));
+        filter.append(QString(" linelen >= %1").arg(busylenfrom));
+        qDebug() << busylenfrom;
     }
     if ( !propertyFilter.busylentof().isEmpty()) {
         if (!filter.isEmpty())
             filter.append(" and ");
-        filter.append(QString(" linelen <= %1").arg(propertyFilter.busylentof()));
+        int busylento = QTime(0,0).secsTo(QTime::fromString(propertyFilter.busylentof(), "hh:mm:ss"));
+        filter.append(QString(" linelen <= %1").arg(busylento));
+        qDebug() << busylento;
     }
     if ( !propertyFilter.talklenfromf().isEmpty()) {
         if (!filter.isEmpty())
             filter.append(" and ");
-        filter.append(QString(" callen >= %1").arg(propertyFilter.talklenfromf()));
+        int talklenfrom = QTime(0,0).secsTo(QTime::fromString(propertyFilter.talklenfromf(), "hh:mm:ss"));
+        filter.append(QString(" callen >= %1").arg(talklenfrom));
     }
     if ( !propertyFilter.talklentof().isEmpty()) {
         if (!filter.isEmpty())
             filter.append(" and ");
-        filter.append(QString(" callen <= %1").arg(propertyFilter.talklentof()));
+        int talklento= QTime(0,0).secsTo(QTime::fromString(propertyFilter.talklentof(), "hh:mm:ss"));
+        filter.append(QString(" callen <= %1").arg(talklento));
     }
 
-    //!!!!!
-    if ( !propertyFilter.timefromf().isEmpty()) {
-        //if (!filter.isEmpty())
-            //filter.append(" and ");
-        qDebug() << propertyFilter.timefromf() << propertyFilter.datesincef();
+    //фильтр по дате
+    if ( !propertyFilter.datesincef().isEmpty()) {
+        if (!filter.isEmpty())
+            filter.append(" and ");
+        int datesince = QDate::fromString(propertyFilter.datesincef(), "dd.MM.yy").addYears(100).toJulianDay();
+        filter.append(QString(" date >= %1").arg(datesince));
+    }
+    if ( !propertyFilter.datetof().isEmpty()) {
+        if (!filter.isEmpty())
+            filter.append(" and ");
+        int dateto = QDate::fromString(propertyFilter.datetof(), "dd.MM.yy").addYears(100).toJulianDay();
+        filter.append(QString(" date <= %1").arg(dateto));
+    }
+
+    //фильтр по времени
+    if ( !propertyFilter.timefromf().isEmpty()){
+        if (!filter.isEmpty())
+            filter.append(" and ");
+        int timefrom = QTime(0,0).secsTo(QTime::fromString(propertyFilter.timefromf(), "hh:mm:ss"));
+        filter.append(QString(" time >= %1").arg(timefrom));
+        qDebug() << timefrom;
+    }
+
+    if ( !propertyFilter.timetof().isEmpty()){
+        if (!filter.isEmpty())
+            filter.append(" and ");
+        int timeto = QTime(0,0).secsTo(QTime::fromString(propertyFilter.timetof(), "hh:mm:ss"));
+        filter.append(QString(" time <= %1").arg(timeto));
+        qDebug() << timeto;
     }
 
     // фильтр по признаку завершения
@@ -388,6 +418,7 @@ void MainWindow::applyFilter()
     }
 
     cdrModel->setFilter(filter);
+    qDebug() << filter;
 }
 
 void MainWindow::on_pushButton_clicked()

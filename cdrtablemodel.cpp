@@ -118,13 +118,13 @@ QVariant QCDRTableModel::data(const QModelIndex & idx, int role) const
             return QDate::fromJulianDay(QSqlTableModel::data(idx, role).toLongLong()).toString("dd-MM-yyyy");
 
         if (idx.column() == QCDRSortFilterModel::COL_TIME)
-            return QTime(0, 0).addSecs(QSqlTableModel::data(idx, role).toLongLong()).toString("hh-mm-ss");
+            return QTime(0, 0).addSecs(QSqlTableModel::data(idx, role).toLongLong()).toString("hh:mm:ss");
 
         if (idx.column() == QCDRSortFilterModel::COL_TIME_SEIZ)
-            return QTime(0, 0).addSecs(QSqlTableModel::data(idx, role).toLongLong()).toString("hh-mm-ss");
+            return QTime(0, 0).addSecs(QSqlTableModel::data(idx, role).toLongLong()).toString("hh:mm:ss");
 
         if (idx.column() == QCDRSortFilterModel::COL_TIME_TALK)
-            return QTime(0, 0).addSecs(QSqlTableModel::data(idx, role).toLongLong()).toString("hh-mm-ss");
+            return QTime(0, 0).addSecs(QSqlTableModel::data(idx, role).toLongLong()).toString("hh:mm:ss");
 
         if (idx.column() == QCDRSortFilterModel::COL_CALL_TYPE)
             return Qcallog::getQStringTypeCalls(data(idx, Qt::UserRole).toInt());
