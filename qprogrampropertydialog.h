@@ -3,17 +3,32 @@
 
 #include <QDialog>
 #include <QSqlTableModel>
+#include <QItemDelegate>
 
 namespace Ui {
 class QProgramPropertyDialog;
 }
+
+class QChannelDelegate : public QItemDelegate
+{
+    Q_OBJECT
+
+public:
+    QChannelDelegate(QObject *parent = 0);
+    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &,
+                              const QModelIndex &index) const ;
+    void setEditorData(QWidget *editor, const QModelIndex &index) const;
+    void setModelData(QWidget *editor, QAbstractItemModel *model,
+                          const QModelIndex &index) const;
+
+};
 
 class QProgramPropertyDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit QProgramPropertyDialog(QSqlTableModel *national, QSqlTableModel *international, QSqlTableModel *directionName, QWidget *parent = 0);
+    explicit QProgramPropertyDialog(QSqlTableModel *national, QSqlTableModel *international, QSqlTableModel *directionName, QSqlTableModel *directionChannel, QWidget *parent = 0);
     ~QProgramPropertyDialog();
 
 private slots:
@@ -31,15 +46,18 @@ private slots:
 
     void on_pushButtonDeleteName_clicked();
 
-    void on_listViewDirectionName_activated(const QModelIndex &index);
-
     void on_listViewDirectionName_clicked(const QModelIndex &index);
+
+    void on_pushButtonAddChannel_clicked();
+
+    void on_pushButtonDeleteChannel_clicked();
 
 private:
     Ui::QProgramPropertyDialog *ui;
     QSqlTableModel *national;
     QSqlTableModel *international;
     QSqlTableModel *directionName;
+    QSqlTableModel *directionChannel;
 };
 
 #endif // QPROGRAMPROPERTYDIALOG_H

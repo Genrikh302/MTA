@@ -14,8 +14,8 @@ Qlogdb::~Qlogdb()
 bool Qlogdb::createConnection()
 {
     db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName(":memory:");
-//    db.setDatabaseName("logbase.db");
+//    db.setDatabaseName(":memory:");
+    db.setDatabaseName("logbase.db");
     if (!db.open()) {
        qDebug() << "Cannot open database:" << db.lastError();
        return false;
@@ -83,9 +83,11 @@ bool Qlogdb::createTabelDirectionName()
 bool Qlogdb::createTabelDirectionChannel()
 {
     QSqlQuery query("",db);
-    QString str = "create table if not exists DirectionChannel ( "
-                  "key interger, "   // ключ к имени
-                  "from integer, "   // канал с
-                  "by integer )";    // кнала по
-    return query.exec(str);
+    bool result = query.exec("create table if not exists DirectionChannel ( "
+                        "key int, "   // ключ к имени
+                        "fr int, "   // канал с
+                        "by int)");
+    if (!result)
+        qDebug() << query.lastError().text();
+    return result;
 }

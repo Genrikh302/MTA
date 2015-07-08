@@ -3,11 +3,11 @@
 #include <QMainWindow>
 #include <QtSql>
 #include <QDateTime>
-#include <QSqlRelationalTableModel>
 #include "qlogdb.h"
 #include "qcallog.h"
 #include "cdrtablemodel.h"
 #include "filterdialog.h"
+#include "qchanneltablemodel.h"
 
 namespace Ui {
 class MainWindow;
@@ -47,7 +47,7 @@ private:
     QSqlTableModel *internationalCode;
 
     QSqlTableModel *directionName;
-    QSqlRelationalTableModel *channelModel;
+    QChannelTableModel *channelModel;
 
 
     static QStringList nationalPrefix;

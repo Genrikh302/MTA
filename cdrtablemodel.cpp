@@ -75,10 +75,6 @@ QCDRTableModel::QCDRTableModel(QObject *parent, QSqlDatabase db) : QSqlTableMode
 
 }
 
-QCDRTableModel::~QCDRTableModel()
-{
-
-}
 
 QVariant QCDRTableModel::data(const QModelIndex & idx, int role) const
 {
@@ -104,11 +100,25 @@ QVariant QCDRTableModel::data(const QModelIndex & idx, int role) const
     if (role == Qt::DisplayRole || role == Qt::UserRole) {
         if (idx.column() == QCDRSortFilterModel::COL_IN_TYPE || idx.column() == QCDRSortFilterModel::COL_OUT_TYPE) {
             QString strtype = QSqlTableModel::data(idx, Qt::DisplayRole).toString();
-            QString str1 = QString("%1").arg(QSqlTableModel::data(QSqlTableModel::index(idx.row(), idx.column() + 1), Qt::DisplayRole).toInt(), 3, 10, QLatin1Char('0'));
-            QString str2 = QString("%1").arg(QSqlTableModel::data(QSqlTableModel::index(idx.row(), idx.column() + 2), Qt::DisplayRole).toInt(), 3, 10, QLatin1Char('0'));
-            QString str3 = QString("%1").arg(QSqlTableModel::data(QSqlTableModel::index(idx.row(), idx.column() + 3), Qt::DisplayRole).toInt(), 3, 10, QLatin1Char('0'));
+            int module = QSqlTableModel::data(QSqlTableModel::index(idx.row(), idx.column() + 1), Qt::DisplayRole).toInt();
+            int pcm = QSqlTableModel::data(QSqlTableModel::index(idx.row(), idx.column() + 2), Qt::DisplayRole).toInt();
+            int ch = QSqlTableModel::data(QSqlTableModel::index(idx.row(), idx.column() + 3), Qt::DisplayRole).toInt();
+
+            QString str1 = QString("%1").arg(module, 3, 10, QLatin1Char('0'));
+            QString str2 = QString("%1").arg(pcm, 3, 10, QLatin1Char('0'));
+            QString str3 = QString("%1").arg(ch, 3, 10, QLatin1Char('0'));
 
             QString val = QString("%1%2%3%4").arg(strtype).arg(str1).arg(strtype == "A" ? "" : str2).arg(strtype == "A" ? "" : str3);
+            if (strtype == "C") {
+                // попытаемся найти имя этого канала по базу
+                qint64 address = ((qint64)module << 32) | (pcm << 16) | ch;
+                QSqlQuery query;
+                if (query.exec(QString("select name from DirectionChannel, DirectionName where key = id and fr <= %1 and by >= %1").arg(address))) {
+                    if (query.next())
+                        return query.value(0).toString();
+                }
+            }
+
             return val;
         }
     }

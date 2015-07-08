@@ -25,7 +25,8 @@ SOURCES += main.cpp\
     qlogdb.cpp \
     filterdialog.cpp \
     cdrtablemodel.cpp \
-    qprogrampropertydialog.cpp
+    qprogrampropertydialog.cpp \
+    qchanneltablemodel.cpp
 
 HEADERS  += \
     mainwindow.h \
@@ -33,7 +34,8 @@ HEADERS  += \
     qlogdb.h \
     filterdialog.h \
     cdrtablemodel.h \
-    qprogrampropertydialog.h
+    qprogrampropertydialog.h \
+    qchanneltablemodel.h
 
 HEADERS += stable.h
 

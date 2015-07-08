@@ -50,7 +50,6 @@ MainWindow::MainWindow(QWidget *parent) :
     // сразу скормим файл с тектстовой инфой
 
 
-
     cdrModel = new QCDRTableModel(this, logdb.getDB());
     cdrModel->setTable("logbase");
     //cdrModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
@@ -140,10 +139,12 @@ MainWindow::MainWindow(QWidget *parent) :
     fillPrefixList();
 
 
-    directionName = new QSqlTableModel();
+    directionName = new QSqlTableModel();    
     directionName->setTable("DirectionName");
+    directionName->setHeaderData(0, Qt::Horizontal, "id");
+    directionName->setHeaderData(1, Qt::Horizontal, "Имя");
 
-    directionName->setEditStrategy(QSqlTableModel::OnManualSubmit);
+    //directionName->setEditStrategy(QSqlTableModel::OnManualSubmit);
     directionName->select();
     row = directionName->rowCount();
     if (!row) {
@@ -155,15 +156,29 @@ MainWindow::MainWindow(QWidget *parent) :
             qDebug() << "Unable to insert value" << query.lastError();
 
         directionName->select();
-
     }
 
+    channelModel = new QChannelTableModel();
+    channelModel->setTable("DirectionChannel");
+    channelModel->setHeaderData(0, Qt::Horizontal, "key");
+    channelModel->setHeaderData(1, Qt::Horizontal, "C");
+    channelModel->setHeaderData(2, Qt::Horizontal, "По");
 
+    channelModel->select();
+    row = channelModel->rowCount();
 
-//    channelModel = QSqlRelationalTableModel();
-//    channelModel->setTable("DirectionChannel");
-//    channelModel->setRelation(2,  QSqlRelation("DirectionName", ""));
-//model->setRelation(2, QSqlRelation("city", "id", "name"));
+    if (!row) {
+        QSqlQuery query;
+        query.prepare("INSERT INTO  DirectionChannel (key, fr, by) "
+                                   "VALUES (:key, :fr, :by)");
+        query.bindValue(":key", 1);
+        query.bindValue(":fr", (100ULL << 32) | (128 << 16) | 1);
+        query.bindValue(":by", (100ULL << 32) | (128 << 16) | 32);
+        if (!query.exec())
+            qDebug() << "Unable to insert value" << query.lastError();
+
+        channelModel->select();
+    }
 }
 
 MainWindow::~MainWindow()
@@ -241,7 +256,7 @@ void MainWindow::on_actionAbout_triggered()
 // открытие окна настрое программы
 void MainWindow::on_actionProgramProperty_triggered()
 {
-    QProgramPropertyDialog propertyDialog(nationalCode, internationalCode, directionName);
+    QProgramPropertyDialog propertyDialog(nationalCode, internationalCode, directionName, channelModel);
     propertyDialog.exec();
 
     fillPrefixList();

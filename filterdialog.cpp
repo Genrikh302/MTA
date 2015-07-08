@@ -37,6 +37,7 @@ FilterDialog::FilterDialog(const PropertyFilter &propertyFilter, QWidget *parent
     ui->outaon->setValidator(validator);
     ui->outnum->setValidator(validator);
 
+    // валидатор для времени
     regExp = QRegExp("([0-2]{1,1}[0-9]{1,1}[:][0-2]{1,1}[0-9]{1,1}[:][0-2]{1,1}[0-9]{1,1})");
     validator = new QRegExpValidator(regExp, this);
     ui->busyfrom->setValidator(validator);
@@ -44,30 +45,39 @@ FilterDialog::FilterDialog(const PropertyFilter &propertyFilter, QWidget *parent
     ui->talklenfrom->setValidator(validator);
     ui->talklento->setValidator(validator);
 
+    // каналы
     ui->abin->setText(propertyFilter.abinf());
     ui->about->setText(propertyFilter.aboutf());
-//    ui->datesince->setText(propertyFilter.datesincef());
-//    ui->dateto->setText(propertyFilter.datetof());
+
+    // выход
     ui->outaon->setText(propertyFilter.outaonf());
     ui->outnum->setText(propertyFilter.outnumf());
+
+    // вход
     ui->inaon->setText(propertyFilter.inaonf());
     ui->innum->setText(propertyFilter.innumf());
+
+    // время разговора
     ui->talklenfrom->setText(propertyFilter.talklenfromf());
     ui->talklento->setText(propertyFilter.talklentof());
+
+    // длительность занятия
     ui->busyfrom->setText(propertyFilter.busylenfromf());
     ui->busyto->setText(propertyFilter.busylentof());
-//    ui->timesince->setText(propertyFilter.timefromf());
-//    ui->timeto->setText(propertyFilter.timetof());
 
+    // даты
+    ui->datesince->setDate(QDate::fromString(propertyFilter.datesincef(),"dd.MM.yy"));
+    ui->dateto->setDate(QDate::fromString(propertyFilter.datetof(),"dd.MM.yy"));
+
+    //причины отбоя
     ui->reason->addItem(QString("%1").arg(tr("не задана")), QVariant(0));
-    //foreach (auto v, QCDRTableModel::causeValue.keys())
-    //    ui->reason->addItem(QString("%1 - %2").arg(QCDRTableModel::causeValue.value(v)).arg(v), QVariant(v));
     foreach (auto v, QCDRSortFilterModel::causeValue.keys())
         ui->reason->addItem(QString("%1 - %2").arg(QCDRSortFilterModel::causeValue.value(v)).arg(v), QVariant(v));
     int index = ui->reason->findData(propertyFilter.releaseCause());
     ui->reason->setCurrentIndex(index < 0 ? 0 : index);
 
 
+    // типы вызова
     ui->type->addItem(QString("%1").arg(tr("не задана")), QVariant(0));
     for (int i = Qcallog::TYPE_LOCAL; i < Qcallog::TYPE_LAST_CODE; i++)
         ui->type->addItem(QString(Qcallog::getQStringTypeCalls(i)), QVariant(i));
@@ -79,26 +89,6 @@ FilterDialog::~FilterDialog()
 {
     delete ui;
 }
-
-
-/*void FilterDialog::getfil()
-{
-    abinf = ui->abin->text();
-    aboutf = ui->about->text();
-    datesincef = ui->datesince->text();
-    datetof = ui->dateto->text();
-    timesincef = ui->timesince->text();
-    timetof = ui->timeto->text();
-    busylenfromf = ui->busyfrom->text();
-    busylentof = ui->busyto->text();
-    talklenfromf = ui->talklenfrom->text();
-    talklentof = ui->talklento->text();
-    inaonf = ui->inaon->text();
-    innumf = ui->innum->text();
-    outaonf = ui->outaon->text();
-    outnumf = ui->outnum->text();
-    qDebug() << abinf << "+";
-}*/
 
 void FilterDialog::writefil(PropertyFilter &f)
 {

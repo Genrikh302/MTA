@@ -31,7 +31,7 @@ private:
 
 public:
 
-    PropertyFilter() : QObject(), m_releaseCause(0) {}
+    PropertyFilter() : QObject(), /*_busylentof("23:59:59"), m_talklentof("23:59:59"),*/ m_releaseCause(0) {}
     QString aboutf() const ;
     void setAboutf(const QString &aboutf);
     QString abinf() const;

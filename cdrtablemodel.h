@@ -9,11 +9,14 @@
 
 class QCDRSortFilterModel : public QSortFilterProxyModel
 {
+    Q_OBJECT
+
 private:
     int getIntTypeCalls(const QModelIndex &index) const; //
 
 public:
-    QCDRSortFilterModel(QObject *parent = 0) : QSortFilterProxyModel(parent) {}
+    explicit QCDRSortFilterModel(QObject *parent = 0) : QSortFilterProxyModel(parent) {}
+    virtual ~QCDRSortFilterModel() {}
 
     static const unsigned char COL_IN_TYPE    = 0;
     static const unsigned char COL_IN_MN      = 1; // In module number
@@ -42,12 +45,12 @@ public:
 
 class QCDRTableModel : public QSqlTableModel
 {
+    Q_OBJECT
 
 public:
     QCDRTableModel(QObject *parent = 0, QSqlDatabase db = QSqlDatabase());
+    virtual ~QCDRTableModel() {}
     virtual QVariant data(const QModelIndex & idx, int role = Qt::DisplayRole) const;
-    ~QCDRTableModel();
-
 };
 
 #endif // MYTABLEMODEL_H
