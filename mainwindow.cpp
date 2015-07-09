@@ -220,7 +220,7 @@ void MainWindow::addCDRFileToDB(const QString &file) {
 void MainWindow::on_actionOpen_triggered()
 {
     //Выбор нескольких файлов для обработки
-    QStringList filesway = QFileDialog::getOpenFileNames(0, "Open Dialog", "", "*.log *.txt");
+    QStringList filesway = QFileDialog::getOpenFileNames(0, tr("Открыть"), "", "*.log *.txt");
     if (filesway.empty())
         return;
 
@@ -492,4 +492,52 @@ void MainWindow::fillPrefixList()
     for (int i = 0; i < internationalCode->rowCount(); i++)
         internationalPrefix << internationalCode->data(internationalCode->index(i, 0)).toString();
 
+}
+
+void MainWindow::on_pushSave_clicked()
+{
+    // выбираем имя файла
+    QString filesave = QFileDialog::getSaveFileName(0, tr("Сохранение"), "", "*.csv");
+    if (filesave.isEmpty())
+        return;
+
+    QItemSelectionModel *selModel = ui->tableView->selectionModel();
+
+    if (!selModel)
+        return;
+
+    QModelIndexList indexes = selModel->selectedRows();
+
+
+    auto s = [] (QTextStream &s, const QSqlTableModel *m, const int row) {
+        for (int j = 0; j < m->columnCount(); j++) {
+            int role = Qt::DisplayRole;
+            if (j == QCDRSortFilterModel::COL_ID)
+                continue;
+            if (j == QCDRSortFilterModel::COL_CRELEASE)
+                role = Qt::EditRole;
+            s << m->data(m->index(row, j), role).toString() << ';';
+        }
+        s << endl;
+    };
+
+    QFile csv(filesave);
+    if (csv.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QTextStream csvstram(&csv);
+
+        if (indexes.isEmpty()) {
+            // записываем все что видим в таблице
+            cdrModel->select();
+            while (cdrModel->canFetchMore())
+                cdrModel->fetchMore();
+            for (int i = 0; i < cdrModel->rowCount(); i++)
+                s(csvstram, cdrModel, i);
+        }
+        else {
+            // записываем только выделенные
+            foreach (auto i, indexes)
+                s(csvstram, cdrModel, i.row());
+        }
+    }
+    csv.close();
 }

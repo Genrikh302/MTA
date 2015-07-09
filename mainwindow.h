@@ -36,6 +36,8 @@ private slots:
 
     void on_pushDelete_clicked();
 
+    void on_pushSave_clicked();
+
 private:
     Ui::MainWindow *ui;
     Qlogdb logdb;    

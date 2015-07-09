@@ -83,20 +83,6 @@ private slots:
 
 private:
     Ui::FilterDialog *ui;
-    /*QString abinf; ненужные фильтры
-    QString aboutf;
-    QString datesincef;
-    QString datetof;
-    QString timesincef;
-    QString timetof;
-    QString busylenfromf;
-    QString busylentof;
-    QString talklenfromf;
-    QString talklentof;
-    QString inaonf;
-    QString innumf;
-    QString outaonf;
-    QString outnumf;*/
 };
 
 #endif // FILTERDIALOG_H
