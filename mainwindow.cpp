@@ -550,7 +550,7 @@ void MainWindow::on_pushSave_clicked()
     if (csv.open(QIODevice::WriteOnly | QIODevice::Text)) {
         QTextStream csvstram(&csv);
 
-        if (indexes.isEmpty()) {
+        if (indexes.count() <= 1) {
             // записываем все что видим в таблице
             cdrModel->select();
             while (cdrModel->canFetchMore())
