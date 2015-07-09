@@ -66,8 +66,8 @@ FilterDialog::FilterDialog(const PropertyFilter &propertyFilter, QWidget *parent
     ui->busyto->setText(propertyFilter.busylentof());
 
     // даты
-    ui->datesince->setDate(QDate::fromString(propertyFilter.datesincef(),"dd.MM.yy"));
-    ui->dateto->setDate(QDate::fromString(propertyFilter.datetof(),"dd.MM.yy"));
+    ui->datesince->setDate(QDate::fromString(propertyFilter.datesincef(),"dd.MM.yy").addYears(100));
+    ui->dateto->setDate(QDate::fromString(propertyFilter.datetof(),"dd.MM.yy").addYears(100));
 
     //причины отбоя
     ui->reason->addItem(QString("%1").arg(tr("не задана")), QVariant(0));
