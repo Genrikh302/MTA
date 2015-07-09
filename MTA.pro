@@ -19,6 +19,8 @@ TARGET = MTA
 TEMPLATE = app
 
 
+win32:RC_ICONS += resources/MTA.ico
+
 SOURCES += main.cpp\
     mainwindow.cpp \
     qcallog.cpp \

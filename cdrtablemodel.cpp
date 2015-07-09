@@ -85,7 +85,7 @@ QVariant QCDRTableModel::data(const QModelIndex & idx, int role) const
         int typecall = data(index(idx.row(), QCDRSortFilterModel::COL_CALL_TYPE), Qt::UserRole).toInt();
 
         switch (typecall) {
-            case Qcallog::TYPE_LOCAL: return QBrush(QColor(255, 255, 255));;
+            case Qcallog::TYPE_LOCAL: return QBrush(QColor(90, 90, 90));;
             case Qcallog::TYPE_IN_LOCAL: return QBrush(QColor(50, 255, 50));
             case Qcallog::TYPE_OUT_INTERNATIONAL: return QBrush(QColor(20, 20, 20));;
             case Qcallog::TYPE_OUT_NATIONAL: return QBrush(QColor(20, 20, 20));;

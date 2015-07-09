@@ -27,6 +27,9 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+#ifdef Q_OS_WIN
+    setWindowFlags(windowFlags() | Qt::CustomizeWindowHint);
+#endif
 
     if (!logdb.createConnection())
         qDebug() << "Problem creating db";
@@ -56,7 +59,7 @@ MainWindow::MainWindow(QWidget *parent) :
     cdrModel = new QCDRTableModel(this, logdb.getDB());
     cdrModel->setTable("logbase");
     //cdrModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
-    //cdrModel->select();
+    cdrModel->select();
 
 
     QCDRSortFilterModel *sortFilterModel = new QCDRSortFilterModel();
