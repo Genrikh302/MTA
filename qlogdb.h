@@ -12,11 +12,11 @@ public:
     QSqlError lastError() const {return db.lastError();}
 
     bool createTabelCDR(); // создаем таблицу
-    bool createTabelInternationalCode();
-    bool createTabelNationalCode();
-    bool createTabelDirectionName();
-    bool createTabelDirectionChannel();
-
+    bool createTabelInternationalCode(); // коды выхода на межнар
+    bool createTabelNationalCode(); // коды выхода на междугородку
+    bool createTabelDirectionName(); // имена направлений
+    bool createTabelDirectionChannel(); // каналы в направлениях
+    bool createTabelLoadedFile(); // загруженые файлы
 
     QSqlDatabase &getDB() {return db;}
 private:

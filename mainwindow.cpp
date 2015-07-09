@@ -47,20 +47,24 @@ MainWindow::MainWindow(QWidget *parent) :
     if (!logdb.createTabelDirectionChannel())
         qDebug() << "Unable to create a direction channel table";
 
+    if (!logdb.createTabelLoadedFile())
+        qDebug() << "Unable to create a loaded file table";
+
     // сразу скормим файл с тектстовой инфой
 
 
     cdrModel = new QCDRTableModel(this, logdb.getDB());
     cdrModel->setTable("logbase");
     //cdrModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
-    cdrModel->select();
+    //cdrModel->select();
 
 
     QCDRSortFilterModel *sortFilterModel = new QCDRSortFilterModel();
     sortFilterModel->setSourceModel(cdrModel);
 
 
-    addCDRFileToDB(QApplication::instance()->applicationDirPath()+QString("/CDR/cdr_log_17_03_2015.log"));
+    if (!cdrModel->rowCount())
+        addCDRFileToDB(QApplication::instance()->applicationDirPath()+QString("/CDR/cdr_log_17_03_2015.log"));
     //cdrModel->submitAll();
     cdrModel->select();
 
@@ -146,17 +150,17 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //directionName->setEditStrategy(QSqlTableModel::OnManualSubmit);
     directionName->select();
-    row = directionName->rowCount();
-    if (!row) {
-        QSqlQuery query;
-        query.prepare("INSERT INTO  DirectionName (name) "
-                                   "VALUES (:name)");
-        query.bindValue(":name", QString("Супер канал"));
-        if (!query.exec())
-            qDebug() << "Unable to insert value" << query.lastError();
+//    row = directionName->rowCount();
+//    if (!row) {
+//        QSqlQuery query;
+//        query.prepare("INSERT INTO  DirectionName (name) "
+//                                   "VALUES (:name)");
+//        query.bindValue(":name", QString("Супер канал"));
+//        if (!query.exec())
+//            qDebug() << "Unable to insert value" << query.lastError();
 
-        directionName->select();
-    }
+//        directionName->select();
+//    }
 
     channelModel = new QChannelTableModel();
     channelModel->setTable("DirectionChannel");
@@ -165,20 +169,20 @@ MainWindow::MainWindow(QWidget *parent) :
     channelModel->setHeaderData(2, Qt::Horizontal, "По");
 
     channelModel->select();
-    row = channelModel->rowCount();
+//    row = channelModel->rowCount();
 
-    if (!row) {
-        QSqlQuery query;
-        query.prepare("INSERT INTO  DirectionChannel (key, fr, by) "
-                                   "VALUES (:key, :fr, :by)");
-        query.bindValue(":key", 1);
-        query.bindValue(":fr", (100ULL << 32) | (128 << 16) | 1);
-        query.bindValue(":by", (100ULL << 32) | (128 << 16) | 32);
-        if (!query.exec())
-            qDebug() << "Unable to insert value" << query.lastError();
+//    if (!row) {
+//        QSqlQuery query;
+//        query.prepare("INSERT INTO  DirectionChannel (key, fr, by) "
+//                                   "VALUES (:key, :fr, :by)");
+//        query.bindValue(":key", 1);
+//        query.bindValue(":fr", (100ULL << 32) | (128 << 16) | 1);
+//        query.bindValue(":by", (100ULL << 32) | (128 << 16) | 32);
+//        if (!query.exec())
+//            qDebug() << "Unable to insert value" << query.lastError();
 
-        channelModel->select();
-    }
+//        channelModel->select();
+//    }
 }
 
 MainWindow::~MainWindow()
@@ -225,8 +229,26 @@ void MainWindow::on_actionOpen_triggered()
         return;
 
     //Последовательная обработка файлов
-    foreach (QString str, filesway)
-        addCDRFileToDB(str);
+    foreach (QString str, filesway) {
+        QFileInfo fileInfo(str);
+
+        QSqlQuery q;
+        if (!q.exec(QString("select id from LoadedFile where name = '%1'").arg(fileInfo.fileName())))
+            qDebug() << q.lastError().text();
+
+        if (q.next())
+            continue;
+        else {// в базе нет
+            addCDRFileToDB(str);
+            // добавляем в базу
+            q.prepare("insert into LoadedFile (name) "
+                      "values (:name)");
+            q.bindValue(":name", QString(fileInfo.fileName()));
+            if (!q.exec())
+                qDebug() << q.lastError().text();
+        }
+
+    }
 
 //    QCDRTableModel *model = static_cast<QCDRTableModel *>(ui->tableView->model());
 //    cdrModel->submitAll();

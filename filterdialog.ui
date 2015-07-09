@@ -332,6 +332,9 @@
      </item>
      <item>
       <widget class="QDateEdit" name="datesince">
+       <property name="displayFormat">
+        <string>dd.MM.yy</string>
+       </property>
        <property name="calendarPopup">
         <bool>true</bool>
        </property>
@@ -346,6 +349,9 @@
      </item>
      <item>
       <widget class="QDateEdit" name="dateto">
+       <property name="displayFormat">
+        <string>dd.MM.yy</string>
+       </property>
        <property name="calendarPopup">
         <bool>true</bool>
        </property>

@@ -26,7 +26,7 @@ bool Qlogdb::createConnection()
 bool Qlogdb::createTabelCDR()
 {
     QSqlQuery query("",db);
-    QString str = "CREATE TABLE logbase ( "    //проверить if not exists
+    QString str = "CREATE TABLE if not exists logbase ( "    //проверить if not exists
                   "intype VARCHAR(1),"
                   "ininc1 int, "
                   "ininc2 int, "
@@ -91,3 +91,14 @@ bool Qlogdb::createTabelDirectionChannel()
         qDebug() << query.lastError().text();
     return result;
 }
+
+// создается таблица для имен загруженых файлов
+bool Qlogdb::createTabelLoadedFile()
+{
+    QSqlQuery query("",db);
+    QString str = "create table if not exists LoadedFile ( "
+            "id integer primary key autoincrement, "
+            "name varchar(28) )";
+    return query.exec(str);
+}
+
