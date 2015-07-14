@@ -570,6 +570,6 @@ void MainWindow::on_pushSave_clicked()
 void MainWindow::on_pushGraph_clicked()
 {
     Graph* graphic = new Graph();
-    graphic->build();
+    graphic->build(cdrModel);
     graphic->show();
 }

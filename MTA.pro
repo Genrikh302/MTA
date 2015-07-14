@@ -7,7 +7,7 @@
 QT       += core gui
 QT       += sql
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
 CONFIG += C++11 precompile_header
 
@@ -28,7 +28,10 @@ SOURCES += main.cpp\
     filterdialog.cpp \
     cdrtablemodel.cpp \
     qprogrampropertydialog.cpp \
-    qchanneltablemodel.cpp
+    qchanneltablemodel.cpp \
+    qcustomplot.cpp \
+    graph.cpp
+
 
 HEADERS  += \
     mainwindow.h \
@@ -37,12 +40,15 @@ HEADERS  += \
     filterdialog.h \
     cdrtablemodel.h \
     qprogrampropertydialog.h \
-    qchanneltablemodel.h
+    qchanneltablemodel.h \
+    qcustomplot.h \
+    graph.h
 
 HEADERS += stable.h
 
 FORMS    += \
     mainwindow.ui \
     filterdialog.ui \
-    qprogrampropertydialog.ui
+    qprogrampropertydialog.ui \
+    graph.ui
 

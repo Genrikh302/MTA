@@ -38,7 +38,7 @@ FilterDialog::FilterDialog(const PropertyFilter &propertyFilter, QWidget *parent
     ui->outnum->setValidator(validator);
 
     // валидатор для времени
-    regExp = QRegExp("([0-2]{1,1}[0-9]{1,1}[:][0-2]{1,1}[0-9]{1,1}[:][0-2]{1,1}[0-9]{1,1})");
+    regExp = QRegExp("([0-2]{1,1}[0-9]{1,1}[:][0-5]{1,1}[0-9]{1,1}[:][0-5]{1,1}[0-9]{1,1})");
     validator = new QRegExpValidator(regExp, this);
     ui->busyfrom->setValidator(validator);
     ui->busyto->setValidator(validator);

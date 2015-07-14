@@ -2,6 +2,7 @@
 #define GRAPH_H
 
 #include <QDialog>
+#include <QSqlTableModel>
 
 namespace Ui {
 class Graph;
@@ -13,11 +14,13 @@ class Graph : public QDialog
 
 public:
     explicit Graph(QWidget *parent = 0);
-    void build(void);
+    void build(QSqlTableModel *cdrModel);
     ~Graph();
 
 private:
     Ui::Graph *ui;
+    int relindex;
+    int columnum;
 };
 
 #endif // GRAPH_H

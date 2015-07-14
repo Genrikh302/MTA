@@ -14,9 +14,64 @@ Graph::~Graph()
 {
     delete ui;
 }
- void Graph::build()
+ void Graph::build(QSqlTableModel *cdrModel)
  {
-     QCPBars *regen = new QCPBars(customPlot->xAxis, customPlot->yAxis);
+     cdrModel->select();
+     QCustomPlot* plot = ui->Plot;
+     int idIndex = cdrModel->fieldIndex("relreason");
+     int m[256];
+
+     columnum = 0;
+     memset(m, 0, sizeof(m));
+     while (cdrModel->canFetchMore())
+         cdrModel->fetchMore();
+     for (int i = 0; i < cdrModel->rowCount(); i++){
+         m[cdrModel->data(cdrModel->index(i, idIndex), Qt::EditRole).toInt()]++;
+     }
+     QCPBars *bar = new QCPBars(plot->xAxis, plot->yAxis);
+     int ymax = 0;
+     QVector<double> data;
+     QVector<double> ticks;
+     QVector<QString> labels;
+     plot->addPlottable(bar);
+     for(relindex = 0; relindex < sizeof(m) / sizeof(int); relindex++){
+         if(m[relindex]){
+             columnum++;
+             ticks << columnum;
+             qDebug() << relindex << "=" << m[relindex] << columnum;
+             data << m[relindex];
+             labels << QString("%1").arg(relindex);
+             if(ymax < m[relindex])
+                 ymax = m[relindex];
+         }
+     }
+     bar->setData(ticks, data);
+
+     customPlot->xAxis->setAutoTicks(false);
+     customPlot->xAxis->setAutoTickLabels(false);
+     customPlot->xAxis->setTickVector(ticks);
+     customPlot->xAxis->setTickVectorLabels(labels);
+     customPlot->xAxis->setTickLabelRotation(60);
+     customPlot->xAxis->setSubTickCount(0);
+     customPlot->xAxis->setTickLength(0, 4);
+     customPlot->xAxis->grid()->setVisible(true);
+     customPlot->xAxis->setRange(0, columnum + 1);
+
+     // prepare y axis:
+     customPlot->yAxis->setRange(0, ymax);
+     customPlot->yAxis->setPadding(5); // a bit more space to the left border
+     customPlot->yAxis->setLabel("Количество вызовов");
+     customPlot->yAxis->grid()->setSubGridVisible(true);
+     QPen gridPen;
+     gridPen.setStyle(Qt::SolidLine);
+     gridPen.setColor(QColor(0, 0, 0, 25));
+     customPlot->yAxis->grid()->setPen(gridPen);
+     gridPen.setStyle(Qt::DotLine);
+     customPlot->yAxis->grid()->setSubGridPen(gridPen);
+
+
+     qDebug() << columnum;
+     /*QCPBars *regen = new QCPBars(customPlot->xAxis, customPlot->yAxis);
      QCPBars *nuclear = new QCPBars(customPlot->xAxis, customPlot->yAxis);
      QCPBars *fossil = new QCPBars(customPlot->xAxis, customPlot->yAxis);
      customPlot->addPlottable(regen);
@@ -87,5 +142,5 @@ Graph::~Graph()
      QFont legendFont = font();
      legendFont.setPointSize(10);
      customPlot->legend->setFont(legendFont);
-     customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
+     customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);*/
  }
