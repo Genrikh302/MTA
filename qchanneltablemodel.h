@@ -1,7 +1,7 @@
 #ifndef QCHANNELTABLEMODEL_H
 #define QCHANNELTABLEMODEL_H
 
-#include <QSqlRelationalTableModel>
+#include <QSqlTableModel>
 
 class QChannelTableModel : public QSqlTableModel
 {

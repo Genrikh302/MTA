@@ -2,6 +2,12 @@
 #include "ui_qprogrampropertydialog.h"
 
 #include <QRegExpValidator>
+#include <QSqlQuery>
+#include <QSqlError>
+#include <QDebug>
+
+//TODO Сделать выбор цвтов для расскрашивания типов вызовов
+//TODO Сделать работу по старому формату xx-xx-xx, а не xxx-xxx-xxx
 
 QProgramPropertyDialog::QProgramPropertyDialog(QSqlTableModel *national, QSqlTableModel *international, QSqlTableModel *directionName, QSqlTableModel *directionChannel, QWidget *parent) :
     QDialog(parent),
@@ -236,7 +242,7 @@ QChannelDelegate::QChannelDelegate(QObject *parent)
     : QItemDelegate(parent) {}
 
 
-QWidget *QChannelDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &, const QModelIndex &index) const
+QWidget *QChannelDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &, const QModelIndex &) const
 {
     QLineEdit *editor = new QLineEdit(parent);
 
