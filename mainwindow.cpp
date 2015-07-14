@@ -566,3 +566,10 @@ void MainWindow::on_pushSave_clicked()
     }
     csv.close();
 }
+//Построение графика
+void MainWindow::on_pushGraph_clicked()
+{
+    Graph* graphic = new Graph();
+    graphic->build();
+    graphic->show();
+}

@@ -8,6 +8,7 @@
 #include "cdrtablemodel.h"
 #include "filterdialog.h"
 #include "qchanneltablemodel.h"
+#include "graph.h"
 
 namespace Ui {
 class MainWindow;
@@ -37,6 +38,8 @@ private slots:
     void on_pushDelete_clicked();
 
     void on_pushSave_clicked();
+
+    void on_pushGraph_clicked();
 
 private:
     Ui::MainWindow *ui;
