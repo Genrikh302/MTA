@@ -14,8 +14,8 @@ Qlogdb::~Qlogdb()
 bool Qlogdb::createConnection()
 {
     db = QSqlDatabase::addDatabase("QSQLITE");
-//    db.setDatabaseName(":memory:");
-    db.setDatabaseName("logbase.db");
+    db.setDatabaseName(":memory:");
+//    db.setDatabaseName("logbase.db");
     if (!db.open()) {
        qDebug() << "Cannot open database:" << db.lastError();
        return false;

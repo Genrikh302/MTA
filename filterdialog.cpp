@@ -32,7 +32,7 @@ FilterDialog::FilterDialog(const PropertyFilter &propertyFilter, QWidget *parent
     ui->abin->setValidator(validator);
     ui->about->setValidator(validator);
 
-    // нужны валидаторы на ввод нумеров возможны цыфры и буквы A-F
+    // нужны валидаторы на ввод нумеров возможны цифры и буквы A-F
     regExp = QRegExp("((([0-9,A-F,?]|([0-9,a-f,?])){0,28}[*]))");
     validator = new QRegExpValidator(regExp, this);
     ui->inaon->setValidator(validator);
