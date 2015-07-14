@@ -7,6 +7,9 @@
 #include <QRegExpValidator>
 #include "cdrtablemodel.h"
 
+
+//TODO Сделать выбор не только по каналам, но и по обозванным направлениям
+
 FilterDialog::FilterDialog(const PropertyFilter &propertyFilter, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::FilterDialog)

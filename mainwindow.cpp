@@ -66,10 +66,12 @@ MainWindow::MainWindow(QWidget *parent) :
     sortFilterModel->setSourceModel(cdrModel);
 
 
+#ifdef QT_DEBUG
     if (!cdrModel->rowCount())
         addCDRFileToDB(QApplication::instance()->applicationDirPath()+QString("/CDR/cdr_log_17_03_2015.log"));
     //cdrModel->submitAll();
     cdrModel->select();
+#endif
 
 
     nationalCode = new QSqlTableModel(this, logdb.getDB());

@@ -6,6 +6,7 @@
 
 QT       += core gui
 QT       += sql
+QT       += printsupport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
@@ -33,6 +34,7 @@ SOURCES += main.cpp\
     graph.cpp
 
 
+
 HEADERS  += \
     mainwindow.h \
     qcallog.h \
@@ -43,6 +45,7 @@ HEADERS  += \
     qchanneltablemodel.h \
     qcustomplot.h \
     graph.h
+
 
 HEADERS += stable.h
 
