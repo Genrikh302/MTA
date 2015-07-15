@@ -70,7 +70,7 @@ void QProgramPropertyDialog::on_pushRemoveNationalCode_clicked()
     if (indexes.isEmpty())
         return;
 
-    foreach (auto i, indexes)
+    for (auto i : indexes)
         national->removeRow(i.row());
     national->submitAll();
 
@@ -110,7 +110,7 @@ void QProgramPropertyDialog::on_pushRemoveInternationalCode_clicked()
     if (indexes.isEmpty())
         return;
 
-    foreach (auto i, indexes)
+    for (auto i : indexes)
         international->removeRow(i.row());
     international->submitAll();
 
@@ -151,7 +151,7 @@ void QProgramPropertyDialog::on_pushButtonDeleteName_clicked()
     if (indexes.isEmpty())
         return;
 
-    foreach (auto i, indexes) {
+    for (auto i : indexes) {
         int id = directionName->data(directionName->index(i.row(), 0)).toInt();
         // нужно удалить все каналы связанные с этим именем
         QSqlQuery query;
@@ -229,7 +229,7 @@ void QProgramPropertyDialog::on_pushButtonDeleteChannel_clicked()
 
     QModelIndexList indexes = selModel->selectedRows();
 
-    foreach (auto i, indexes)
+    for (auto i : indexes)
         directionChannel->removeRow(i.row());
     directionChannel->submitAll();
 

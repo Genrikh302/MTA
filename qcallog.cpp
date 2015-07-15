@@ -198,11 +198,11 @@ int Qcallog::getTypeCall(const QString &num)
     const QStringList prefix_international = MainWindow::getInternationalPrefix();
 
     // возможно еще длину проверим
-    foreach (const QString prefix, prefix_international)
+    for (const QString prefix : prefix_international)
         if (num.startsWith(prefix))
             return CALL_TYPE_INTERNATIONAL;
 
-    foreach (const QString prefix, prefix_national)
+    for (const QString prefix : prefix_national)
         if (num.startsWith(prefix))
             return CALL_TYPE_NATIONAL;
 

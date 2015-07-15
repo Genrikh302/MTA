@@ -26,7 +26,13 @@ FilterDialog::FilterDialog(const PropertyFilter &propertyFilter, QWidget *parent
 
     // валидаторы на ввод каналов и абонентов
     //QRegExp regExp = QRegExp("(([C,c][0-9]{9,9})|([C,c][0-9]{0,8}[*]{1,1})|([A,a][0-9]{1,10}))");
-    QRegExp regExp = QRegExp("(([C,c][0-9]{9,9})|([C,c](([*]{1,1})|([0-9]{3,3}[*]{1,1})|([0-9]{6,6}[*]{1,1})))|([A,a][0-9]{1,10}))");
+    QRegExp regExp = QRegExp("("
+                             "("
+                             "([Cc](([0-9]{9,9})|([0-9]{9,9}[-]{1,1}[Cc][0-9]{9,9})))|"
+                             "([Cc](([*]{1,1})|([0-9]{3,3}[*]{1,1})|([0-9]{6,6}[*]{1,1})))|"
+                             "([Aa](([0-9]{1,10})|([0-9]{1,10}[-]{1,1}[Aa][0-9]{1,10})))"
+                             ")"
+                             "[,]{1,1})+");
     QRegExpValidator *validator = new QRegExpValidator(regExp, this);
 
     ui->abin->setValidator(validator);
@@ -74,7 +80,7 @@ FilterDialog::FilterDialog(const PropertyFilter &propertyFilter, QWidget *parent
 
     //причины отбоя
     ui->reason->addItem(QString("%1").arg(tr("не задана")), QVariant(0));
-    foreach (auto v, QCDRSortFilterModel::causeValue.keys())
+    for (auto v : QCDRSortFilterModel::causeValue.keys())
         ui->reason->addItem(QString("%1 - %2").arg(QCDRSortFilterModel::causeValue.value(v)).arg(v), QVariant(v));
     int index = ui->reason->findData(propertyFilter.releaseCause());
     ui->reason->setCurrentIndex(index < 0 ? 0 : index);

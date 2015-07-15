@@ -234,7 +234,7 @@ void MainWindow::on_actionOpen_triggered()
         return;
 
     //Последовательная обработка файлов
-    foreach (QString str, filesway) {
+    for (QString str : filesway) {
         QFileInfo fileInfo(str);
 
         QSqlQuery q;
@@ -319,60 +319,83 @@ void MainWindow::applyFilter()
         return likePrefix;
     };
 
-    QString filter;
-    if (!propertyFilter.abinf().isEmpty()) {
-        QString abinf = propertyFilter.abinf().toUpper();
-        QTextStream str(&abinf);
-        Qcallog::s log;
-        str >> log;
+    auto appendAdressFilter = [] (QString &f, const QString &filterStr, const QString &paramName) {
 
-        // фильтр по входящему каналу
-        const char intype = log.getType();
-        if (intype == 'A')
-            filter.append(QString(" intype = '%1' and ininc1 = %2").arg(intype).arg(log.getInc1()));
+        if (filterStr.isEmpty())
+            return;
 
-        if (intype == 'C') {
-            filter = QString(" intype = '%1'").arg(intype);
-            if (log.getInc1() != "*") {// все модули
-                filter.append(QString(" and ininc1 = %1").arg(log.getInc1()));
-                if (log.getInc2() != "*") { // все потоки
-                    filter.append(QString(" and ininc2 = %1").arg(log.getInc2()));
-                    if (log.getInc3() != "*") // все каналы
-                        filter.append(QString(" and ininc3 = %1").arg(log.getInc3()));
+        if (!f.isEmpty())
+            f.append(" and ");
+
+        QStringList addressList = filterStr.split(',');
+
+        bool firstElementList = true;
+        for (auto address : addressList) {
+            bool isRanged = false;
+
+            Qcallog::s a1;
+            Qcallog::s a2;
+            // адрес может быть еще диапазоном
+            if (address.contains('-')) {
+                isRanged = true;
+                QStringList fromto = address.split('-');
+                QTextStream str(&fromto[0]);
+                str >> a1;
+
+                str.setString(&fromto[1]);
+                str >> a2;
+            } else {
+                QTextStream str(&address);
+                str >> a1;
+            }
+
+            if (!firstElementList)
+                f.append(" or ");
+            firstElementList = false;
+
+            const char type = a1.getType();
+
+            if (type == 'A') {
+                f.append(QString("(%1type = '%2'").arg(paramName).arg(type));
+                if (!isRanged)
+                    f.append(QString(" and %1inc1 = %2").arg(paramName).arg(a1.getInc1()));
+                else
+                    f.append(QString(" and %1inc1 >= %2 and %1inc1 <= %3").arg(paramName).arg(a1.getInc1()).arg(a2.getInc1()));
+                f.append(")");
+
+            }
+
+            if (type == 'C') {
+                f.append(QString("(%1type = '%2'").arg(paramName).arg(type));
+                if (!isRanged) {
+                    if (a1.getInc1() != "*") {// все модули
+                        f.append(QString(" and %1inc1 = %2").arg(paramName).arg(a1.getInc1()));
+                        if (a1.getInc2() != "*") { // все потоки
+                            f.append(QString(" and %1inc2 = %2").arg(paramName).arg(a1.getInc2()));
+                            if (a1.getInc3() != "*") // все каналы
+                                f.append(QString(" and %1inc3 = %2").arg(paramName).arg(a1.getInc3()));
+                        }
+                    }
+                } else {
+                    f.append(QString(" and %1inc1 >= %2 and %1inc1 <= %3").arg(paramName).arg(a1.getInc1()).arg(a2.getInc1()));
+                    f.append(QString(" and %1inc2 >= %2 and %1inc2 <= %3").arg(paramName).arg(a1.getInc2()).arg(a2.getInc2()));
+                    f.append(QString(" and %1inc3 >= %2 and %1inc3 <= %3").arg(paramName).arg(a1.getInc3()).arg(a2.getInc3()));
                 }
+
+                f.append(")");
             }
         }
-    }
+    };
+
+    QString filter;
+//    if (!propertyFilter.abinf().isEmpty()) {
+
+    appendAdressFilter(filter, propertyFilter.abinf().toUpper(), "in");
 
     appendLikeFilter(filter, propertyFilter.inaonf(), "inanum");
     appendLikeFilter(filter, propertyFilter.innumf(), "innum");
 
-
-    if (!propertyFilter.aboutf().isEmpty()) {
-        QString aboutf = propertyFilter.aboutf().toUpper();
-        QTextStream str(&aboutf);
-        Qcallog::s log;
-        str >> log;
-
-        // фильтр по исходящему каналу
-        const char outtype = log.getType();
-        if (outtype == 'A')
-            filter.append(QString(" outtype = '%1' and outinc1 = %2").arg(outtype).arg(log.getInc1()));
-
-        if (outtype == 'C') {
-            if (!filter.isEmpty())
-                filter.append(" and ");
-            filter.append(QString("outtype = '%1'").arg(outtype));
-            if (log.getInc1() != "*") {// все модули
-                filter.append(QString(" and outinc1 = %1").arg(log.getInc1()));
-                if (log.getInc2() != "*") { // все потоки
-                    filter.append(QString(" and outinc2 = %1").arg(log.getInc2()));
-                    if (log.getInc3() != "*") // все каналы
-                        filter.append(QString(" and outinc3 = %1").arg(log.getInc3()));
-                }
-            }
-        }
-    }
+    appendAdressFilter(filter, propertyFilter.aboutf().toUpper(), "out");
 
     appendLikeFilter(filter, propertyFilter.outaonf(), "outanum");
     appendLikeFilter(filter, propertyFilter.outnumf(), "outnum");
@@ -491,7 +514,7 @@ void MainWindow::on_pushDelete_clicked()
     QSqlDatabase::database().transaction();
 
     int idIndex = cdrModel->fieldIndex("id");
-    foreach (auto i, indexes) {
+    for (auto i : indexes) {
 
         int v = cdrModel->data(cdrModel->index(i.row(), idIndex)).toInt();
 
@@ -562,7 +585,7 @@ void MainWindow::on_pushSave_clicked()
         }
         else {
             // записываем только выделенные
-            foreach (auto i, indexes)
+            for (auto i : indexes)
                 s(csvstram, cdrModel, i.row());
         }
     }
