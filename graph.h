@@ -14,13 +14,14 @@ class Graph : public QDialog
 
 public:
     explicit Graph(QWidget *parent = 0);
-    void build(QSqlTableModel *cdrModel);
+    void buildReportReleaseCause(QSqlTableModel *cdrModel);
+    void buildReportSucessCalls(QSqlTableModel *cdrModel);
     ~Graph();
 
 private:
     Ui::Graph *ui;
-    int relindex;
-    int columnum;
+    //int relindex;
+    //int columnum;
 };
 
 #endif // GRAPH_H

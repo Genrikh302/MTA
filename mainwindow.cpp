@@ -568,10 +568,35 @@ void MainWindow::on_pushSave_clicked()
     }
     csv.close();
 }
-//Построение графика
-void MainWindow::on_pushGraph_clicked()
+
+//Построение графика по причинам отбоя
+void MainWindow::on_pushDrawReleaseCause_clicked()
 {
     Graph* graphic = new Graph();
-    graphic->build(cdrModel);
+    graphic->buildReportReleaseCause(cdrModel);
+    graphic->show();
+}
+
+//Построение графика по причинам отбоя
+void MainWindow::on_actionReleaseCause_triggered()
+{
+    Graph* graphic = new Graph();
+    graphic->buildReportReleaseCause(cdrModel);
+    graphic->show();
+}
+
+//Построение графика по успешности вызоов
+void MainWindow::on_pushDrawSucessCalls_clicked()
+{
+    Graph* graphic = new Graph();
+    graphic->buildReportSucessCalls(cdrModel);
+    graphic->show();
+}
+
+//Построение графика по успешности вызоов
+void MainWindow::on_actionSucessCalls_triggered()
+{
+    Graph* graphic = new Graph();
+    graphic->buildReportSucessCalls(cdrModel);
     graphic->show();
 }

@@ -32,6 +32,8 @@ private slots:
     void on_actionExit_triggered();  // выход из программы
     void on_actionAbout_triggered(); // открытие окна о программе
     void on_actionProgramProperty_triggered(); // открытие настроек программы
+    void on_actionReleaseCause_triggered(); //
+    void on_actionSucessCalls_triggered(); //
 
     void on_pushButton_clicked();
 
@@ -39,7 +41,9 @@ private slots:
 
     void on_pushSave_clicked();
 
-    void on_pushGraph_clicked();
+    void on_pushDrawReleaseCause_clicked();
+
+    void on_pushDrawSucessCalls_clicked();
 
 private:
     Ui::MainWindow *ui;
