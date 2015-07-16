@@ -1,8 +1,12 @@
 #ifndef QCALLOG_H
 #define QCALLOG_H
+
+#include <stdexcept>
+
 #include "mainwindow.h"
 #include "cdrtablemodel.h"
 #include "qlogdb.h"
+
 
 class Qcallog
 {
@@ -30,13 +34,13 @@ public:
             QString sPrint();
 
             //Заполнение лога данными из потока
-            friend QTextStream &operator >> (QTextStream &in, s &log);
+            friend QTextStream &operator >> (QTextStream &in, s &log) throw(std::invalid_argument);
 
     } in, out;
 
     void print();
     //Заполнение лога данными из потока
-    friend QTextStream &operator >> (QTextStream &in, Qcallog &log);
+    friend QTextStream &operator >> (QTextStream &in, Qcallog &log) throw(std::invalid_argument);
     //Заполнение БД данными из лога
     friend Qlogdb operator << (Qlogdb &logdb, Qcallog &log);
     //friend void operator << (QCDRTableModel &logdb, Qcallog &log);

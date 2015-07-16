@@ -2,6 +2,7 @@
 #define FILTERDIALOG_H
 
 #include <QDialog>
+#include <QComboBox>
 
 namespace Ui {
 class FilterDialog;
@@ -66,12 +67,15 @@ public:
     void setTypeCalls(const qint8 &typeCalls);
 };
 
+
 class FilterDialog : public QDialog
 {
     Q_OBJECT
-
+    QString addr1;
+    QString addr2;
+    bool highlighted;
 public:
-    explicit FilterDialog(const PropertyFilter &propertyFilter, QWidget *parent = 0);
+    explicit FilterDialog(const PropertyFilter &propertyFilter, const QStringList &names, QWidget *parent = 0);
     //void getfil(void); метод для занесения текста из окна фильтра в местные фильтры
     void writefil(PropertyFilter &f);
     //занесение текста из полей для фильтров в указаные стринги
@@ -80,6 +84,15 @@ public:
 private slots:
 
     void on_clearbutton_clicked();
+
+    void on_abin_currentTextChanged(const QString &arg1);
+
+    void on_abin_highlighted(const QString &arg1);
+
+    void on_about_currentTextChanged(const QString &arg1);
+
+    void on_about_highlighted(const QString &arg1);
+
 
 private:
     Ui::FilterDialog *ui;

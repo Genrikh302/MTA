@@ -67,7 +67,10 @@ QMap <unsigned char, QString> QCDRSortFilterModel::causeValue =
    {101, "Message not compatible"},
    {102, "Recovery on timer expiry"},
    {111, "Protocol error unspecified"},
-   {127, "Interworking unspecified"}
+   {127, "Interworking unspecified"},
+   {133, "MTA: оборвалось подключение"},
+   {134, "MTA: переполнение буфера передачи"},
+   {135, "MTA: обнаружен двойной идентификатор вызова"}
 };
 
 QCDRTableModel::QCDRTableModel(QObject *parent, QSqlDatabase db) : QSqlTableModel(parent, db)

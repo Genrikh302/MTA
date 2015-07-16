@@ -43,6 +43,7 @@ public:
 
 };
 
+
 class QCDRTableModel : public QSqlTableModel
 {
     Q_OBJECT

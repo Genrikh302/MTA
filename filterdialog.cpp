@@ -10,7 +10,7 @@
 
 //TODO Сделать выбор не только по каналам, но и по обозванным направлениям
 
-FilterDialog::FilterDialog(const PropertyFilter &propertyFilter, QWidget *parent) :
+FilterDialog::FilterDialog(const PropertyFilter &propertyFilter, const QStringList &names, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::FilterDialog)
 {
@@ -26,17 +26,30 @@ FilterDialog::FilterDialog(const PropertyFilter &propertyFilter, QWidget *parent
 
     // валидаторы на ввод каналов и абонентов
     //QRegExp regExp = QRegExp("(([C,c][0-9]{9,9})|([C,c][0-9]{0,8}[*]{1,1})|([A,a][0-9]{1,10}))");
-    QRegExp regExp = QRegExp("("
+    QRegExp regExp = QRegExp(QString("("
                              "("
                              "([Cc](([0-9]{9,9})|([0-9]{9,9}[-]{1,1}[Cc][0-9]{9,9})))|"
                              "([Cc](([*]{1,1})|([0-9]{3,3}[*]{1,1})|([0-9]{6,6}[*]{1,1})))|"
-                             "([Aa](([0-9]{1,10})|([0-9]{1,10}[-]{1,1}[Aa][0-9]{1,10})))"
+                             "([Aa](([0-9]{1,10})|([0-9]{1,10}[-]{1,1}[Aa][0-9]{1,10})))|"
+                             "(%1)"
                              ")"
-                             "[,]{1,1})+");
+                             "[,]{1,1})+").arg(names.join("|")));
     QRegExpValidator *validator = new QRegExpValidator(regExp, this);
+
+    ui->abin->addItem("");
+    ui->abin->addItems(names);
+
+    ui->about->addItem("");
+    ui->about->addItems(names);
 
     ui->abin->setValidator(validator);
     ui->about->setValidator(validator);
+//    ui->comboBox->setValidator(validator);
+
+
+    ui->abin->lineEdit()->setPlaceholderText("C000000000");
+    ui->about->lineEdit()->setPlaceholderText("C000000000");
+
 
     // нужны валидаторы на ввод нумеров возможны цифры и буквы A-F
     regExp = QRegExp("((([0-9,A-F,?]|([0-9,a-f,?])){0,28}[*]))");
@@ -55,8 +68,14 @@ FilterDialog::FilterDialog(const PropertyFilter &propertyFilter, QWidget *parent
     ui->talklento->setValidator(validator);
 
     // каналы
-    ui->abin->setText(propertyFilter.abinf());
-    ui->about->setText(propertyFilter.aboutf());
+    //ui->abin->setText(propertyFilter.abinf());
+    addr1 = propertyFilter.abinf();
+    ui->abin->lineEdit()->setText(addr1);
+
+
+    //ui->about->setText(propertyFilter.aboutf());
+    addr2 = propertyFilter.aboutf();
+    ui->about->lineEdit()->setText(addr2);
 
     // выход
     ui->outaon->setText(propertyFilter.outaonf());
@@ -92,6 +111,8 @@ FilterDialog::FilterDialog(const PropertyFilter &propertyFilter, QWidget *parent
         ui->type->addItem(QString(Qcallog::getQStringTypeCalls(i)), QVariant(i));
     index = ui->type->findData(propertyFilter.typeCalls());
     ui->type->setCurrentIndex(index < 0 ? 0 : index);
+
+    highlighted = false;
 }
 
 FilterDialog::~FilterDialog()
@@ -101,8 +122,10 @@ FilterDialog::~FilterDialog()
 
 void FilterDialog::writefil(PropertyFilter &f)
 {
-    f.setAbinf(ui->abin->text());
-    f.setAboutf(ui->about->text());
+    //f.setAbinf(ui->abin->text());
+    f.setAbinf(ui->abin->lineEdit()->text());
+    //f.setAboutf(ui->about->text());
+    f.setAboutf(ui->about->lineEdit()->text());
     f.setDatesincef(ui->datesince->text());
     f.setDatetof(ui->dateto->text());
     f.setOutaonf(ui->outaon->text());
@@ -121,8 +144,8 @@ void FilterDialog::writefil(PropertyFilter &f)
 
 void FilterDialog::on_clearbutton_clicked()
 {
-    ui->abin->clear();
-    ui->about->clear();
+    ui->abin->lineEdit()->clear();
+    ui->about->lineEdit()->clear();
     ui->busyfrom->clear();
     ui->busyto->clear();
     ui->talklenfrom->clear();
@@ -300,4 +323,46 @@ QString PropertyFilter::aboutf() const
 void PropertyFilter::setAboutf(const QString &aboutf)
 {
     m_aboutf = aboutf;
+}
+
+void FilterDialog::on_abin_currentTextChanged(const QString &arg1)
+{
+    if (highlighted) {
+        if (!arg1.isEmpty())
+            if (!addr1.contains(arg1))
+                addr1.append(QString("%1%2").arg(addr1.isEmpty() ? "" : addr1.right(1) == "," ? "" : ",").arg(arg1));
+        ui->abin->lineEdit()->blockSignals(true);
+        ui->abin->lineEdit()->setText(addr1);
+        ui->abin->lineEdit()->blockSignals(false);
+    } else
+        addr1 = arg1;
+    highlighted = false;
+
+}
+
+void FilterDialog::on_abin_highlighted(const QString &arg1)
+{
+    Q_UNUSED(arg1);
+
+    highlighted = true;
+}
+
+void FilterDialog::on_about_currentTextChanged(const QString &arg1)
+{
+    if (highlighted) {
+        if (!arg1.isEmpty())
+            if (!addr2.contains(arg1))
+                addr2.append(QString("%1%2").arg(addr2.isEmpty() ? "" : addr2.right(1) == "," ? "" : ",").arg(arg1));
+        ui->about->lineEdit()->blockSignals(true);
+        ui->about->lineEdit()->setText(addr2);
+        ui->about->lineEdit()->blockSignals(false);
+    } else
+        addr2 = arg1;
+    highlighted = false;
+}
+
+void FilterDialog::on_about_highlighted(const QString &arg1)
+{
+    Q_UNUSED(arg1);
+    highlighted = true;
 }

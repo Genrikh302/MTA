@@ -78,6 +78,8 @@ MainWindow::MainWindow(QWidget *parent) :
     nationalCode->setTable("NationalCode");
     //nationalCode->setEditStrategy(QSqlTableModel::OnManualSubmit);
     nationalCode->select();
+
+#ifdef QT_DEBUG
     int row = nationalCode->rowCount();
     if (!row) {
         if (!nationalCode->insertRow(row))
@@ -86,12 +88,13 @@ MainWindow::MainWindow(QWidget *parent) :
         if (!nationalCode->submitAll())
             qDebug() << "submit nationalCode" << nationalCode->lastError().text();
     }
-//    nationalCode->setEditStrategy(QSqlTableModel::OnFieldChange);
+#endif
 
     internationalCode = new QSqlTableModel(this, logdb.getDB());
     internationalCode->setTable("InternationalCode");
     internationalCode->setEditStrategy(QSqlTableModel::OnManualSubmit);
     internationalCode->select();
+#ifdef QT_DEBUG
     row = internationalCode->rowCount();
     if (!row) {
         if (!internationalCode->insertRow(row))
@@ -100,7 +103,7 @@ MainWindow::MainWindow(QWidget *parent) :
         if (!internationalCode->submitAll())
             qDebug() << "submit internationalCode" << internationalCode->lastError().text();
     }
-
+#endif
 
     //ui->tableView->setModel(cdrModel);
     ui->tableView->setModel(sortFilterModel);
@@ -330,12 +333,17 @@ void MainWindow::applyFilter()
         QStringList addressList = filterStr.split(',');
 
         bool firstElementList = true;
-        for (auto address : addressList) {
+        //for (auto address : addressList) {
+        while(!addressList.isEmpty()) {
+            QString address = addressList.front();
+            addressList.pop_front();
+
             bool isRanged = false;
 
             Qcallog::s a1;
             Qcallog::s a2;
             // адрес может быть еще диапазоном
+
             if (address.contains('-')) {
                 isRanged = true;
                 QStringList fromto = address.split('-');
@@ -346,7 +354,42 @@ void MainWindow::applyFilter()
                 str >> a2;
             } else {
                 QTextStream str(&address);
-                str >> a1;
+                try {
+                    str >> a1;
+                }
+                catch (std::invalid_argument& e) // возможно это имя направления
+                {
+                    //qDebug() << e.what() << endl;
+                    QSqlQuery q;
+                    if (!q.exec(QString("select id from DirectionName where name = '%1'").arg(address))) {
+                        qDebug() << "error select from table DirectionName";
+                        continue;
+                    }
+
+                    if (q.next()) { // отбираем id имени
+                        int id = q.value("id").toInt();
+                        if (!q.exec(QString("select fr, by from DirectionChannel where key = %1").arg(id))) {
+                            qDebug() << "error select from table DirectionChannel";
+                            continue;
+                        }
+
+                        while (q.next()) {
+                            qint64 fr = q.value("fr").toLongLong();
+                            qint64 by = q.value("by").toLongLong();
+
+                            QString addressName = QString("C%1%2%3-C%4%5%6")
+                                    .arg((fr >> 32) & 0xff, 3, 10, QLatin1Char('0'))
+                                    .arg((fr >> 16) & 0xff, 3, 10, QLatin1Char('0'))
+                                    .arg((fr >> 00) & 0xff, 3, 10, QLatin1Char('0'))
+                                    .arg((by >> 32) & 0xff, 3, 10, QLatin1Char('0'))
+                                    .arg((by >> 16) & 0xff, 3, 10, QLatin1Char('0'))
+                                    .arg((by >> 00) & 0xff, 3, 10, QLatin1Char('0'));
+                            addressList.push_back(addressName);
+                        }
+                    }
+
+                    continue;
+                }
             }
 
             if (!firstElementList)
@@ -390,12 +433,12 @@ void MainWindow::applyFilter()
     QString filter;
 //    if (!propertyFilter.abinf().isEmpty()) {
 
-    appendAdressFilter(filter, propertyFilter.abinf().toUpper(), "in");
+    appendAdressFilter(filter, propertyFilter.abinf(), "in");
 
     appendLikeFilter(filter, propertyFilter.inaonf(), "inanum");
     appendLikeFilter(filter, propertyFilter.innumf(), "innum");
 
-    appendAdressFilter(filter, propertyFilter.aboutf().toUpper(), "out");
+    appendAdressFilter(filter, propertyFilter.aboutf(), "out");
 
     appendLikeFilter(filter, propertyFilter.outaonf(), "outanum");
     appendLikeFilter(filter, propertyFilter.outnumf(), "outnum");
@@ -488,7 +531,19 @@ void MainWindow::applyFilter()
 
 void MainWindow::on_pushButton_clicked()
 {
-    FilterDialog* Form = new FilterDialog(propertyFilter);
+
+    directionName->select();
+    int nameIndex = directionName->fieldIndex("name");
+    directionName->select();
+
+    while (directionName->canFetchMore())
+        directionName->fetchMore();
+
+    QStringList names;
+    for (int i = 0; i < directionName->rowCount(); i++)
+        names << directionName->data(directionName->index(i, nameIndex)).toString();
+
+    FilterDialog* Form = new FilterDialog(propertyFilter, names);
 
     if (Form->exec() == QDialog::Accepted)
     {

@@ -31,7 +31,8 @@ SOURCES += main.cpp\
     qprogrampropertydialog.cpp \
     qchanneltablemodel.cpp \
     qcustomplot.cpp \
-    graph.cpp
+    graph.cpp \
+    qfiltercombobox.cpp
 
 
 
@@ -44,7 +45,8 @@ HEADERS  += \
     qprogrampropertydialog.h \
     qchanneltablemodel.h \
     qcustomplot.h \
-    graph.h
+    graph.h \
+    qfiltercombobox.h
 
 
 HEADERS += stable.h

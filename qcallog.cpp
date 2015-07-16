@@ -15,12 +15,12 @@ Qcallog::~Qcallog()
 
 }
 
-QTextStream &operator>>(QTextStream &in, Qcallog &log)
+QTextStream &operator>>(QTextStream &in, Qcallog &log) throw(std::invalid_argument)
 {
     //сделать stringstream, считать целую строку, сделать по ней хэш в базу
     //Разбираем данные о первом абоненте
 
-    //разбираем данные о первом абоненте
+    //разбираем данные о первом абоненте    
     in >> log.in;
 
     //разбираем данные о втором абоненте
@@ -80,24 +80,26 @@ void Qcallog::s::getval(char &_type, QString &_draft, QString &_inc1, QString &_
 }
 
 //Заполнение лога данными из потока
-QTextStream &operator >> (QTextStream &in, Qcallog::s &log)
+QTextStream &operator >> (QTextStream &in, Qcallog::s &log) throw(std::invalid_argument)
 {
     QString draft;
     in.skipWhiteSpace();
     in >> log.type;
     in >> draft;
-    if (log.type == 'C') {
+    if (log.type == 'C' || log.type == 'c') {
+        log.type = 'C';
         log.inc1 = draft.mid(0,3);
         log.inc2 = draft.mid(3,3);
         log.inc3 = draft.mid(6);
     }
-    else if (log.type == 'A') {
+    else if (log.type == 'A' || log.type == 'a') {
+        log.type = 'A';
         log.inc1 = draft;
         log.inc2 = log.inc3 = "-";
     }
-    else {
-        qDebug() << "Error reading files";
-    }
+    else
+        throw(std::invalid_argument("Ошибка чтения из потока, не известное значение типа канала"));
+
     in >> log.anum;
     in >> log.num;
     return in;
