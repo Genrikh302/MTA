@@ -1,6 +1,5 @@
 #include "qlogdb.h"
-//#include "qcallog.h"
-//#include "mainwindow.h"
+
 Qlogdb::Qlogdb()
 {
 
@@ -49,6 +48,7 @@ bool Qlogdb::createTabelCDR()
                   "linelen int, "
                   "callen int , "
                   "relreason int, "
+                  "filekey int, "
                   "id integer primary key autoincrement)" ;
 
     return query.exec(str);
