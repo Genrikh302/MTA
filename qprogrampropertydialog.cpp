@@ -19,7 +19,6 @@ QProgramPropertyDialog::QProgramPropertyDialog(QSqlTableModel *national, QSqlTab
 {
     ui->setupUi(this);
 
-
     ui->listViewNationalCode->setModel(national);
     ui->listViewInternationalCode->setModel(international);
     ui->listViewDirectionName->setModel(directionName);
@@ -27,17 +26,18 @@ QProgramPropertyDialog::QProgramPropertyDialog(QSqlTableModel *national, QSqlTab
     directionChannel->setFilter("key = -1");
     ui->tableViewDirectionChannel->setModel(directionChannel);
 
-//    QRegExp regExp = QRegExp("(([C,c][0-9]{9,9})|([C,c](([*]{1,1})|([0-9]{3,3}[*]{1,1})|([0-9]{6,6}[*]{1,1})))|([A,a][0-9]{1,10}))");
-//    QRegExpValidator *validator = new QRegExpValidator(regExp, this);
-
-//    ui->lineEditFrom->setValidator(validator);
-//    ui->lineEditBy->setValidator(validator);
-
     ui->listViewDirectionName->setColumnHidden(0, true); // id
     ui->tableViewDirectionChannel->setColumnHidden(0, true); // key
 
-
     ui->tableViewDirectionChannel->setItemDelegate(new QChannelDelegate());
+
+    addedFiles = new QSqlTableModel();
+    addedFiles->setTable("LoadedFile");
+    addedFiles->setHeaderData(addedFiles->fieldIndex("name"), Qt::Horizontal, "Имя файла");
+    addedFiles->select();
+
+    ui->listAddedFiles->setModel(addedFiles);
+    ui->listAddedFiles->setColumnHidden(addedFiles->fieldIndex("id"), true); // id
 }
 
 QProgramPropertyDialog::~QProgramPropertyDialog()
@@ -130,13 +130,14 @@ void QProgramPropertyDialog::on_pushButtonAddName_clicked()
 
     directionName->select();
 
-    int row = directionName->rowCount();
+    int row = directionName->rowCount() - 1;
     ui->listViewDirectionName->reset();
 
-    ui->listViewDirectionName->edit(directionName->index(row - 1, 1));
-    ui->listViewDirectionName->selectRow(row - 1);
+    ui->listViewDirectionName->edit(directionName->index(row, 1));
+    ui->listViewDirectionName->selectRow(row);
 
-    directionChannel->setFilter(QString("key = -1"));
+    // типа кликнули на него
+    on_listViewDirectionName_clicked(directionName->index(row, 1));
 }
 
 void QProgramPropertyDialog::on_pushButtonDeleteName_clicked()
@@ -155,8 +156,8 @@ void QProgramPropertyDialog::on_pushButtonDeleteName_clicked()
         int id = directionName->data(directionName->index(i.row(), 0)).toInt();
         // нужно удалить все каналы связанные с этим именем
         QSqlQuery query;
-        if (query.exec(QString("delete from DirectionChannel where key = %1").arg(id)))
-            qDebug() << "Unable to insert value" << query.lastError();
+        if (!query.exec(QString("delete from DirectionChannel where key = %1").arg(id)))
+            qDebug() << "Unable to delete value" << query.lastError();
 
         directionName->removeRow(i.row());
     }
@@ -186,9 +187,7 @@ void QProgramPropertyDialog::on_listViewDirectionName_clicked(const QModelIndex 
         return;
     }
 
-
     int id = directionName->data(directionName->index(idx.row(), 0)).toInt();
-
 
     directionChannel->setFilter(QString("key = %1").arg(id));
 }
@@ -208,13 +207,32 @@ void QProgramPropertyDialog::on_pushButtonAddChannel_clicked()
 
     int id = directionName->data(directionName->index(indexes[0].row(), 0)).toInt();
 
-    int row = directionChannel->rowCount();
-    if (!directionChannel->insertRow(row))
-        qDebug() << "insertRow QProgramPropertyDialog::directionChannel" << directionChannel->lastError().text();
+    QSqlQuery query;
+    query.prepare("insert into DirectionChannel (key, by, fr) "
+                               "values (:key, :by, :fr)");
+    query.bindValue(":key", id);
+    query.bindValue(":by", 0);
+    query.bindValue(":fr", 0);
+    if (!query.exec())
+        qDebug() << "Unable to insert value" << query.lastError();
 
-    directionChannel->setData(directionChannel->index(row, 0), id);
-    directionChannel->setData(directionChannel->index(row, 1), 0);
-    directionChannel->setData(directionChannel->index(row, 2), 0);
+//    int row = directionChannel->rowCount();
+//    if (!directionChannel->insertRow(row))
+//        qDebug() << "insertRow QProgramPropertyDialog::directionChannel" << directionChannel->lastError().text();
+
+//    if (!directionChannel->setData(directionChannel->index(row, 0), id, Qt::EditRole))
+//        qDebug() << "error set data 1" << directionChannel->lastError().text();
+//    if (!directionChannel->setData(directionChannel->index(row, 1), 0, Qt::EditRole))
+//        qDebug() << "error set data 2" << directionChannel->lastError().text();
+//    if (!directionChannel->setData(directionChannel->index(row, 2), 0, Qt::EditRole))
+//        qDebug() << "error set data 3" << directionChannel->lastError().text();
+
+    //directionChannel->submitAll();
+
+    directionChannel->select();
+    ui->tableViewDirectionChannel->reset();
+
+    int row = directionChannel->rowCount() - 1;
 
     ui->tableViewDirectionChannel->selectRow(row);
     ui->tableViewDirectionChannel->edit(directionChannel->index(row, 1));
@@ -231,7 +249,8 @@ void QProgramPropertyDialog::on_pushButtonDeleteChannel_clicked()
 
     for (auto i : indexes)
         directionChannel->removeRow(i.row());
-    directionChannel->submitAll();
+
+    //directionChannel->submitAll();
 
     directionChannel->select();
     ui->tableViewDirectionChannel->reset();
@@ -246,7 +265,7 @@ QWidget *QChannelDelegate::createEditor(QWidget *parent, const QStyleOptionViewI
 {
     QLineEdit *editor = new QLineEdit(parent);
 
-    QRegExp regExp = QRegExp("(([C,c][0-9]{9,9})|([C,c](([*]{1,1})|([0-9]{3,3}[*]{1,1})|([0-9]{6,6}[*]{1,1}))))");
+    QRegExp regExp = QRegExp("([Cc][0-9]{9,9})");
     QRegExpValidator *validator = new QRegExpValidator(regExp);
     editor->setValidator(validator);
 
@@ -266,9 +285,14 @@ void QChannelDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, 
 {
     QLineEdit *edit = qobject_cast<QLineEdit *>(editor);
 
+    if (!index.isValid())
+        return;
+
+    //qDebug() << "setModelData " << index;
+
     if (edit) {
         QString value = edit->text();
-        QRegularExpression r("([C,c](\\d{3,3})(\\d{3,3})(\\d{3,3}))");
+        QRegularExpression r("([Cc](\\d{3,3})(\\d{3,3})(\\d{3,3}))");
         QRegularExpressionMatch m = r.match(value);
 //        QString sa1 = m.captured(2);
 //        QString sa2 = m.captured(3);
@@ -276,8 +300,35 @@ void QChannelDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, 
 //        qint64 a1 = m.captured(2).toLongLong();
 //        qint64 a2 = m.captured(3).toLongLong();
 //        qint64 a3 = m.captured(4).toLongLong();
-        if (m.hasMatch())
-            model->setData(index, (m.captured(2).toLongLong() << 32) | (m.captured(3).toLongLong() << 16) | m.captured(4).toLongLong());
+        if (m.hasMatch()) {
+            if (!model->setData(index, (m.captured(2).toLongLong() << 32) | (m.captured(3).toLongLong() << 16) | m.captured(4).toLongLong()))
+                qDebug() << "error set data 4" <<  qobject_cast<QSqlTableModel*>(model)->lastError().text();
+        }
+        else
+            qDebug() << "error capture delegate " << value;
 
     }
+}
+
+void QProgramPropertyDialog::on_pushButton_clicked()
+{
+    QItemSelectionModel *selModel = ui->listAddedFiles->selectionModel();
+
+    if (!selModel)
+        return;
+
+    QModelIndexList indexes = selModel->selectedRows();
+
+    int idFieldIndex = addedFiles->fieldIndex("id");
+    for (auto i : indexes) {
+        int deletedIndex = addedFiles->data(addedFiles->index(i.row(), idFieldIndex)).toInt();
+        QSqlQuery q;
+        if (!q.exec(QString("delete from logbase where filekey = %1").arg(deletedIndex)))
+            qDebug() << q.lastError().text();
+
+        if (!q.exec(QString("delete from LoadedFile where id = %1").arg(deletedIndex)))
+            qDebug() << q.lastError().text();
+    }
+    addedFiles->select();
+    ui->listAddedFiles->reset();
 }

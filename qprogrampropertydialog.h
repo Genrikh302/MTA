@@ -52,12 +52,15 @@ private slots:
 
     void on_pushButtonDeleteChannel_clicked();
 
+    void on_pushButton_clicked();
+
 private:
     Ui::QProgramPropertyDialog *ui;
     QSqlTableModel *national;
     QSqlTableModel *international;
     QSqlTableModel *directionName;
     QSqlTableModel *directionChannel;
+    QSqlTableModel *addedFiles;
 };
 
 #endif // QPROGRAMPROPERTYDIALOG_H
