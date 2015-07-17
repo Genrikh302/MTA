@@ -68,8 +68,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 #ifdef QT_DEBUG
     if (!cdrModel->rowCount())
-        addCDRFileToDB(QApplication::instance()->applicationDirPath()+QString("/CDR/cdr_log_17_03_2015.log"));
-    //cdrModel->submitAll();
+        addFileListToCDRbase(QStringList() << QApplication::instance()->applicationDirPath()+QString("/CDR/cdr_log_17_03_2015.log") );
     cdrModel->select();
 #endif
 
@@ -172,6 +171,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     channelModel = new QChannelTableModel();
     channelModel->setTable("DirectionChannel");
+    //channelModel->setEditStrategy(QSqlTableModel::OnFieldChange);
     channelModel->setHeaderData(0, Qt::Horizontal, "key");
     channelModel->setHeaderData(1, Qt::Horizontal, "C");
     channelModel->setHeaderData(2, Qt::Horizontal, "По");
@@ -198,7 +198,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::addCDRFileToDB(const QString &file) {
+void MainWindow::addCDRFileToDB(const QString &file, int fileid) {
     QFile inputFile(file);
 
     statusBar()->showMessage(tr("Loaded %1").arg(file), 2000);
@@ -218,6 +218,7 @@ void MainWindow::addCDRFileToDB(const QString &file) {
         //QString line = inputFile.readLine();
         Qcallog logstr;
         in >> logstr;
+        logstr.setFilekey(fileid);
         //l.push_back(logstr);
         logdb << logstr;
         //(*cdrModel) << logstr;
@@ -229,15 +230,11 @@ void MainWindow::addCDRFileToDB(const QString &file) {
     inputFile.close();
 }
 
-void MainWindow::on_actionOpen_triggered()
-{
-    //Выбор нескольких файлов для обработки
-    QStringList filesway = QFileDialog::getOpenFileNames(0, tr("Открыть"), "", "*.log *.txt");
-    if (filesway.empty())
-        return;
 
+void MainWindow::addFileListToCDRbase(const QStringList &files)
+{
     //Последовательная обработка файлов
-    for (QString str : filesway) {
+    for (QString str : files) {
         QFileInfo fileInfo(str);
 
         QSqlQuery q;
@@ -247,17 +244,31 @@ void MainWindow::on_actionOpen_triggered()
         if (q.next())
             continue;
         else {// в базе нет
-            addCDRFileToDB(str);
             // добавляем в базу
             q.prepare("insert into LoadedFile (name) "
                       "values (:name)");
             q.bindValue(":name", QString(fileInfo.fileName()));
             if (!q.exec())
                 qDebug() << q.lastError().text();
+
+            if (q.exec(QString("select id from LoadedFile where name = '%1'").arg(fileInfo.fileName()))) {
+                if (q.next()) {
+                    int fileid = q.value(0).toInt();
+                    addCDRFileToDB(str, fileid);
+                }
+            }
         }
-
     }
+}
 
+void MainWindow::on_actionOpen_triggered()
+{
+    //Выбор нескольких файлов для обработки
+    QStringList filesway = QFileDialog::getOpenFileNames(0, tr("Открыть"), "", "*.log *.txt");
+    if (filesway.empty())
+        return;
+
+    addFileListToCDRbase(filesway);
 //    QCDRTableModel *model = static_cast<QCDRTableModel *>(ui->tableView->model());
 //    cdrModel->submitAll();
 
@@ -286,7 +297,7 @@ void MainWindow::on_actionAbout_triggered()
 // открытие окна настрое программы
 void MainWindow::on_actionProgramProperty_triggered()
 {
-    QProgramPropertyDialog propertyDialog(nationalCode, internationalCode, directionName, channelModel);
+    QProgramPropertyDialog propertyDialog(nationalCode, internationalCode, directionName, channelModel );
     propertyDialog.exec();
 
     fillPrefixList();

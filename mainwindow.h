@@ -22,7 +22,7 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     //QSqlTableModel *model;
     ~MainWindow();
-    void addCDRFileToDB(const QString &file); // добавляет CDR file в базу
+    void addCDRFileToDB(const QString &file, int fileid); // добавляет CDR file в базу
     void getfilters(FilterDialog fildial); // получает фильтры из диалогового окна
 
     static const QStringList & getNationalPrefix() {return nationalPrefix;}
@@ -58,12 +58,12 @@ private:
     QSqlTableModel *directionName;
     QChannelTableModel *channelModel;
 
-
     static QStringList nationalPrefix;
     static QStringList internationalPrefix;
 
     void fillPrefixList(); // заполняет списки префиксов, для ускорения
     void applyFilter(); // применяет фильтр на таблицу
+    void addFileListToCDRbase(const QStringList &files); // добавление файлов в базу
 };
 
 
