@@ -126,12 +126,14 @@ Qlogdb operator << (Qlogdb &logdb, Qcallog &log)
     int linelen;
     int callen;
     int relreason;
+    int filekey;
     bool ok;
     log.getval(intype, indraft, ininc1, ininc2, ininc3, innum, inanum, outtype, outdraft, outinc1, outinc2, outinc3, outnum, outanum, date, time, linelen, callen, relreason);
+    filekey = log.getFilekey();
     QSqlQuery query;
 
-    query.prepare("INSERT INTO  logbase (intype, ininc1, ininc2, ininc3, innum, inanum, outtype, outinc1, outinc2, outinc3, outnum, outanum, date, time, type, linelen, callen, relreason) "
-                               "VALUES (:intype, :ininc1, :ininc2, :ininc3, :innum, :inanum, :outtype, :outinc1, :outinc2, :outinc3, :outnum, :outanum, :date, :time, :type, :linelen, :callen, :relreason)");
+    query.prepare("INSERT INTO  logbase (intype, ininc1, ininc2, ininc3, innum, inanum, outtype, outinc1, outinc2, outinc3, outnum, outanum, date, time, type, linelen, callen, relreason, filekey) "
+                               "VALUES (:intype, :ininc1, :ininc2, :ininc3, :innum, :inanum, :outtype, :outinc1, :outinc2, :outinc3, :outnum, :outanum, :date, :time, :type, :linelen, :callen, :relreason, :filekey)");
     query.bindValue(":intype", QString(intype));
     query.bindValue(":ininc1", ininc1.toInt(&ok, 10));
     query.bindValue(":ininc2", ininc2.toInt(&ok, 10));
@@ -150,6 +152,7 @@ Qlogdb operator << (Qlogdb &logdb, Qcallog &log)
     query.bindValue(":linelen", linelen);
     query.bindValue(":callen", callen);
     query.bindValue(":relreason", relreason);
+    query.bindValue(":filekey", filekey);
     if (!query.exec())
         qDebug() << "Unable to insert value" << query.lastError();
 
@@ -271,3 +274,13 @@ QString Qcallog::getQStringTypeCalls(int value)
         default: return "unknown";
     }
 }
+void Qcallog::setFilekey(int value)
+{
+    filekey = value;
+}
+int Qcallog::getFilekey() const
+{
+    return filekey;
+}
+
+

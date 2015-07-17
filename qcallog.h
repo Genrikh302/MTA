@@ -69,6 +69,9 @@ public:
     static QString getQStringTypeCalls(int value);
 
 
+    void setFilekey(int value);
+    int getFilekey() const;
+
 private:
     QString wholelog;
     QDate date;
@@ -76,6 +79,7 @@ private:
     int linelen;
     int callen;
     int relreason;
+    int filekey;
 };
 
 #endif // QCALLOG_H
