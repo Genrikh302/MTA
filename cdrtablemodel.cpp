@@ -147,8 +147,8 @@ QVariant QCDRTableModel::data(const QModelIndex & idx, int role) const
 
     }
     if (role == Qt::UserRole) {
-        if (idx.column() == QCDRSortFilterModel::COL_CRELEASE)
-            return QSqlTableModel::data(idx, Qt::DisplayRole);
+//        if (idx.column() == QCDRSortFilterModel::COL_CRELEASE)
+//            return QSqlTableModel::data(idx, Qt::DisplayRole);
 
         if (idx.column() == QCDRSortFilterModel::COL_CALL_TYPE) {
             QString strTypeIn = QSqlTableModel::data(index(idx.row(), QCDRSortFilterModel::COL_IN_TYPE), Qt::DisplayRole).toString();
