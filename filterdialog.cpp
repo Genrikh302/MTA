@@ -8,8 +8,6 @@
 #include "cdrtablemodel.h"
 
 
-//TODO Сделать выбор не только по каналам, но и по обозванным направлениям
-
 FilterDialog::FilterDialog(const PropertyFilter &propertyFilter, const QStringList &names, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::FilterDialog)
@@ -24,16 +22,15 @@ FilterDialog::FilterDialog(const PropertyFilter &propertyFilter, const QStringLi
     ui->timesince->setTime(timesince.fromString("00:00:00", "hh:mm:ss"));
     ui->timeto->setTime(timeto.fromString("23:59:59", "hh:mm:ss"));
 
-    // валидаторы на ввод каналов и абонентов
-    //QRegExp regExp = QRegExp("(([C,c][0-9]{9,9})|([C,c][0-9]{0,8}[*]{1,1})|([A,a][0-9]{1,10}))");
     QRegExp regExp = QRegExp(QString("("
                              "("
-                             "([Cc](([0-9]{9,9})|([0-9]{9,9}[-]{1,1}[Cc][0-9]{9,9})))|"
-                             "([Cc](([*]{1,1})|([0-9]{3,3}[*]{1,1})|([0-9]{6,6}[*]{1,1})))|"
-                             "([Aa](([0-9]{1,10})|([0-9]{1,10}[-]{1,1}[Aa][0-9]{1,10})))|"
+                             "([Cc](([0-9]{9,9})|([0-9]{9,9}-[Cc][0-9]{9,9})))|"
+                             "([Cc]([*]|([0-9]{3,3}[*])|([0-9]{6,6}[*])))|"
+                             "([Aa](([0-9]{1,10})|([0-9]{1,10}-[Aa][0-9]{1,10})))|"
                              "(%1)"
                              ")"
-                             "[,]{1,1})+").arg(names.join("|")));
+                             ",)+").arg(names.join("|")));
+
     QRegExpValidator *validator = new QRegExpValidator(regExp, this);
 
     ui->abin->addItem("");
@@ -47,8 +44,8 @@ FilterDialog::FilterDialog(const PropertyFilter &propertyFilter, const QStringLi
 //    ui->comboBox->setValidator(validator);
 
 
-    ui->abin->lineEdit()->setPlaceholderText("C000000000");
-    ui->about->lineEdit()->setPlaceholderText("C000000000");
+    ui->abin->lineEdit()->setPlaceholderText("C000000000,A00000");
+    ui->about->lineEdit()->setPlaceholderText("C000000000,A00000");
 
 
     // нужны валидаторы на ввод нумеров возможны цифры и буквы A-F
@@ -60,7 +57,7 @@ FilterDialog::FilterDialog(const PropertyFilter &propertyFilter, const QStringLi
     ui->outnum->setValidator(validator);
 
     // валидатор для времени
-    regExp = QRegExp("([0-2]{1,1}[0-9]{1,1}[:][0-5]{1,1}[0-9]{1,1}[:][0-5]{1,1}[0-9]{1,1})");
+    regExp = QRegExp("((([0-1]{1,1}[0-9]{1,1})|([2]{1,1}[0-3]{1,1})):[0-5]{1,1}[0-9]{1,1}:[0-5]{1,1}[0-9]{1,1})");
     validator = new QRegExpValidator(regExp, this);
     ui->busyfrom->setValidator(validator);
     ui->busyto->setValidator(validator);
