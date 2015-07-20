@@ -677,15 +677,27 @@ void MainWindow::on_actionReleaseCause_triggered()
 //Построение графика по успешности вызоов
 void MainWindow::on_pushDrawSucessCalls_clicked()
 {
-    Graph* graphic = new Graph();
-    graphic->buildReportSucessCalls(cdrModel);
-    graphic->show();
+//    Graph* graphic = new Graph();
+//    graphic->buildReportSucessCalls(cdrModel);
+//    graphic->show();
+    SuccessDialog* sucdial = new SuccessDialog();
+    sucdial->show();
+    if (sucdial->exec() == QDialog::Accepted){
+        Graph* graphic = new Graph();
+        graphic->buildReportSucessCalls(cdrModel, sucdial->getdate());
+    }
 }
 
 //Построение графика по успешности вызоов
 void MainWindow::on_actionSucessCalls_triggered()
 {
-    Graph* graphic = new Graph();
-    graphic->buildReportSucessCalls(cdrModel);
-    graphic->show();
+    //    Graph* graphic = new Graph();
+    //    graphic->buildReportSucessCalls(cdrModel);
+    //    graphic->show();
+        SuccessDialog* sucdial = new SuccessDialog();
+        sucdial->show();
+        if (sucdial->exec() == QDialog::Accepted){
+            Graph* graphic = new Graph();
+            graphic->buildReportSucessCalls(cdrModel, sucdial->getdate());
+        }
 }

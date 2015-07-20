@@ -46,7 +46,7 @@ void Graph::buildReportReleaseCause(QSqlTableModel *cdrModel)
         if(m[relindex]) {
              columnum++;
              ticks << columnum;
-             qDebug() << relindex << "=" << m[relindex] << columnum;
+             //qDebug() << relindex << "=" << m[relindex] << columnum;
              data << m[relindex];
              labels << QString("%1").arg(relindex);
              if(ymax < m[relindex])
@@ -79,7 +79,7 @@ void Graph::buildReportReleaseCause(QSqlTableModel *cdrModel)
     customPlot->yAxis->grid()->setSubGridPen(gridPen);
 
 
-    qDebug() << columnum;
+    //qDebug() << columnum;
 
     customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
     /*QCPBars *regen = new QCPBars(customPlot->xAxis, customPlot->yAxis);
@@ -157,7 +157,97 @@ void Graph::buildReportReleaseCause(QSqlTableModel *cdrModel)
  }
 
 
-void Graph::buildReportSucessCalls(QSqlTableModel *cdrModel)
+void Graph::buildReportSucessCalls(QSqlTableModel *cdrModel, QDate date)
 {
-    Q_UNUSED(cdrModel);
+    QString title = "Успешность вызовов за" + date.toString(" MMM yyyy");
+    setWindowTitle(title);
+    QCustomPlot* plot = ui->Plot;
+    //int daysnum = date.daysInMonth();
+    int sucals[date.daysInMonth()];
+    int othercals[date.daysInMonth()];
+    memset(othercals, 0, sizeof(othercals));
+    memset(sucals, 0, sizeof(sucals));
+    int reasIndex = cdrModel->fieldIndex("relreason");
+    int dateIndex = cdrModel->fieldIndex("date");
+    QCPBars *sucbar = new QCPBars(plot->xAxis, plot->yAxis);
+    QCPBars *otherbar = new QCPBars(plot->xAxis, plot->yAxis);
+    cdrModel->select();
+    while (cdrModel->canFetchMore())
+        cdrModel->fetchMore();
+    for (int i = 0; i < cdrModel->rowCount(); i++){
+        if((cdrModel->data(cdrModel->index(i, dateIndex), Qt::EditRole).toInt() >= date.toJulianDay()) && (cdrModel->data(cdrModel->index(i, dateIndex), Qt::EditRole).toInt() <= (date.toJulianDay() + date.daysInMonth()))){
+        //надо бы остановить цикл, чтобы не брейкался после последнего дня
+            if(cdrModel->data(cdrModel->index(i, reasIndex), Qt::EditRole).toInt() == 16){
+                sucals[QDate::fromJulianDay(cdrModel->data(cdrModel->index(i, dateIndex), Qt::EditRole).toInt()).day()]++;
+            }
+            else{
+                othercals[QDate::fromJulianDay(cdrModel->data(cdrModel->index(i, dateIndex), Qt::EditRole).toInt()).day()]++;
+            }
+        }
+    }
+    int ymax = 0;
+    QVector<double> sucdata;
+    QVector<double> otherdata;
+    QVector<double> ticks;
+    QVector<QString> labels;
+    plot->addPlottable(sucbar);
+    plot->addPlottable(otherbar);
+    for(int i = 0; i < date.daysInMonth(); i++){
+        ticks << i + 1;
+        sucdata << sucals[i];
+        otherdata << othercals[i];
+        labels << QString("%1").arg(i);
+        if(ymax < sucals[i] + othercals[i])
+            ymax = sucals[i] + othercals[i];
+    }
+    sucbar->setData(ticks, sucdata);
+    otherbar->setData(ticks, otherdata);
+
+    // set names and colors:
+    QPen pen;
+    pen.setWidthF(1.2);
+    sucbar->setName("Успешные вызовы");
+    pen.setColor(QColor(1, 92, 191));
+    sucbar->setPen(pen);
+    sucbar->setBrush(QColor(1, 92, 191, 50));
+    otherbar->setName("Неуспешные вызовы");
+    pen.setColor(QColor(255, 131, 0));
+    otherbar->setPen(pen);
+    otherbar->setBrush(QColor(255, 131, 0, 50));
+
+    otherbar->moveAbove(sucbar);
+    customPlot->xAxis->setAutoTicks(false);
+    customPlot->xAxis->setAutoTickLabels(false);
+    customPlot->xAxis->setTickVector(ticks);
+    customPlot->xAxis->setTickVectorLabels(labels);
+    customPlot->xAxis->setTickLabelRotation(60);
+    customPlot->xAxis->setSubTickCount(0);
+    customPlot->xAxis->setTickLength(0, 4);
+    customPlot->xAxis->grid()->setVisible(true);
+    customPlot->xAxis->setRange(0, date.daysInMonth() + 1);
+
+    // prepare y axis:
+    customPlot->yAxis->setRange(0, ymax + ymax / 10);
+    customPlot->yAxis->setPadding(5); // a bit more space to the left border
+    customPlot->yAxis->setLabel("Количество вызовов в день");
+    customPlot->yAxis->grid()->setSubGridVisible(true);
+    QPen gridPen;
+    gridPen.setStyle(Qt::SolidLine);
+    gridPen.setColor(QColor(0, 0, 0, 25));
+    customPlot->yAxis->grid()->setPen(gridPen);
+    gridPen.setStyle(Qt::DotLine);
+    customPlot->yAxis->grid()->setSubGridPen(gridPen);
+
+    // setup legend:
+    customPlot->legend->setVisible(true);
+    customPlot->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignTop|Qt::AlignRight);
+    customPlot->legend->setBrush(QColor(255, 255, 255, 200));
+    QPen legendPen;
+    legendPen.setColor(QColor(130, 130, 130, 200));
+    customPlot->legend->setBorderPen(legendPen);
+    QFont legendFont = font();
+    legendFont.setPointSize(10);
+    customPlot->legend->setFont(legendFont);
+    customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
+    this->show();
 }

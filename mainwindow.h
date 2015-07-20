@@ -9,6 +9,7 @@
 #include "filterdialog.h"
 #include "qchanneltablemodel.h"
 #include "graph.h"
+#include "successdialog.h"
 
 namespace Ui {
 class MainWindow;

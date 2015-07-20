@@ -15,7 +15,7 @@ class Graph : public QDialog
 public:
     explicit Graph(QWidget *parent = 0);
     void buildReportReleaseCause(QSqlTableModel *cdrModel);
-    void buildReportSucessCalls(QSqlTableModel *cdrModel);
+    void buildReportSucessCalls(QSqlTableModel *cdrModel, QDate date);
     ~Graph();
 
 private:
