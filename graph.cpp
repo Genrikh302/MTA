@@ -156,10 +156,10 @@ void Graph::buildReportReleaseCause(QSqlTableModel *cdrModel)
     customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);*/
  }
 
-
+//TODO строим по выборке, не запрашиваем параметры построения
 void Graph::buildReportSucessCalls(QSqlTableModel *cdrModel, QDate date)
 {
-    QString title = "Успешность вызовов за" + date.toString(" MMM yyyy");
+    QString title = "Успешность вызовов за" + date.toString(" MMM yyyy"); // тут можно распечатать параметры выборки
     setWindowTitle(title);
     QCustomPlot* plot = ui->Plot;
     //int daysnum = date.daysInMonth();
@@ -176,13 +176,9 @@ void Graph::buildReportSucessCalls(QSqlTableModel *cdrModel, QDate date)
         cdrModel->fetchMore();
     for (int i = 0; i < cdrModel->rowCount(); i++){
         if((cdrModel->data(cdrModel->index(i, dateIndex), Qt::EditRole).toInt() >= date.toJulianDay()) && (cdrModel->data(cdrModel->index(i, dateIndex), Qt::EditRole).toInt() <= (date.toJulianDay() + date.daysInMonth()))){
-        //надо бы остановить цикл, чтобы не брейкался после последнего дня
-            if(cdrModel->data(cdrModel->index(i, reasIndex), Qt::EditRole).toInt() == 16){
-                sucals[QDate::fromJulianDay(cdrModel->data(cdrModel->index(i, dateIndex), Qt::EditRole).toInt()).day()]++;
-            }
-            else{
-                othercals[QDate::fromJulianDay(cdrModel->data(cdrModel->index(i, dateIndex), Qt::EditRole).toInt()).day()]++;
-            }
+            //надо бы остановить цикл, чтобы не брейкался после последнего дня
+            int index = QDate::fromJulianDay(cdrModel->data(cdrModel->index(i, dateIndex), Qt::EditRole).toInt()).day();
+            cdrModel->data(cdrModel->index(i, reasIndex), Qt::EditRole).toInt() == 16 ? sucals[index]++ : othercals[index]++;
         }
     }
     int ymax = 0;
