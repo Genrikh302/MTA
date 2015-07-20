@@ -15,7 +15,6 @@ bool Qlogdb::createConnection()
     db = QSqlDatabase::addDatabase("QSQLITE");
 #ifdef QT_DEBUG
     db.setDatabaseName(":memory:");
-    //db.setDatabaseName("logbase.db");
 #else
     db.setDatabaseName("logbase.db");
 #endif

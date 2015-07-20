@@ -459,14 +459,12 @@ void MainWindow::applyFilter()
             filter.append(" and ");
         int busylenfrom = QTime(0,0).secsTo(QTime::fromString(propertyFilter.busylenfromf(), "hh:mm:ss"));
         filter.append(QString(" linelen >= %1").arg(busylenfrom));
-        qDebug() << busylenfrom;
     }
     if ( !propertyFilter.busylentof().isEmpty()) {
         if (!filter.isEmpty())
             filter.append(" and ");
         int busylento = QTime(0,0).secsTo(QTime::fromString(propertyFilter.busylentof(), "hh:mm:ss"));
         filter.append(QString(" linelen <= %1").arg(busylento));
-        qDebug() << busylento;
     }
     if ( !propertyFilter.talklenfromf().isEmpty()) {
         if (!filter.isEmpty())
@@ -501,7 +499,6 @@ void MainWindow::applyFilter()
             filter.append(" and ");
         int timefrom = QTime(0,0).secsTo(QTime::fromString(propertyFilter.timefromf(), "hh:mm:ss"));
         filter.append(QString(" time >= %1").arg(timefrom));
-        qDebug() << timefrom;
     }
 
     if ( !propertyFilter.timetof().isEmpty()){
@@ -509,7 +506,6 @@ void MainWindow::applyFilter()
             filter.append(" and ");
         int timeto = QTime(0,0).secsTo(QTime::fromString(propertyFilter.timetof(), "hh:mm:ss"));
         filter.append(QString(" time <= %1").arg(timeto));
-        qDebug() << timeto;
     }
 
     // фильтр по признаку завершения
@@ -537,7 +533,6 @@ void MainWindow::applyFilter()
     }
 
     cdrModel->setFilter(filter);
-    qDebug() << filter;
 }
 
 void MainWindow::on_pushButton_clicked()
@@ -680,12 +675,8 @@ void MainWindow::on_pushDrawSucessCalls_clicked()
 //    Graph* graphic = new Graph();
 //    graphic->buildReportSucessCalls(cdrModel);
 //    graphic->show();
-    SuccessDialog* sucdial = new SuccessDialog();
-    sucdial->show();
-    if (sucdial->exec() == QDialog::Accepted){
-        Graph* graphic = new Graph();
-        graphic->buildReportSucessCalls(cdrModel, sucdial->getdate());
-    }
+    Graph* graphic = new Graph();
+    graphic->buildReportSucessCalls(cdrModel);
 }
 
 //Построение графика по успешности вызоов
@@ -694,10 +685,6 @@ void MainWindow::on_actionSucessCalls_triggered()
     //    Graph* graphic = new Graph();
     //    graphic->buildReportSucessCalls(cdrModel);
     //    graphic->show();
-        SuccessDialog* sucdial = new SuccessDialog();
-        sucdial->show();
-        if (sucdial->exec() == QDialog::Accepted){
-            Graph* graphic = new Graph();
-            graphic->buildReportSucessCalls(cdrModel, sucdial->getdate());
-        }
+    Graph* graphic = new Graph();
+    graphic->buildReportSucessCalls(cdrModel);
 }

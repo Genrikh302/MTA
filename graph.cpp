@@ -1,6 +1,7 @@
 #include "graph.h"
 #include "ui_graph.h"
 #include <QDebug>
+#include <QMap>
 #define customPlot ui->Plot
 
 Graph::Graph(QWidget *parent) :
@@ -55,6 +56,7 @@ void Graph::buildReportReleaseCause(QSqlTableModel *cdrModel)
     }
     bar->setData(ticks, data);
 
+    customPlot->xAxis->setLabel("Коды ошибок");
     customPlot->xAxis->setAutoTicks(false);
     customPlot->xAxis->setAutoTickLabels(false);
     customPlot->xAxis->setTickVector(ticks);
@@ -66,7 +68,7 @@ void Graph::buildReportReleaseCause(QSqlTableModel *cdrModel)
     customPlot->xAxis->setRange(0, columnum + 1);
 
     // prepare y axis:
-    customPlot->yAxis->setRange(0, ymax);
+    customPlot->yAxis->setRange(0, ymax + ymax / 10);
     customPlot->yAxis->setPadding(5); // a bit more space to the left border
     customPlot->yAxis->setLabel("Количество вызовов");
     customPlot->yAxis->grid()->setSubGridVisible(true);
@@ -157,37 +159,67 @@ void Graph::buildReportReleaseCause(QSqlTableModel *cdrModel)
  }
 
 //TODO строим по выборке, не запрашиваем параметры построения
-void Graph::buildReportSucessCalls(QSqlTableModel *cdrModel, QDate date)
+void Graph::buildReportSucessCalls(QSqlTableModel *cdrModel)
 {
-    QString title = "Успешность вызовов за" + date.toString(" MMM yyyy"); // тут можно распечатать параметры выборки
-    setWindowTitle(title);
+    //QString title = "Успешность вызовов за" + date.toString(" MMM yyyy"); // тут можно распечатать параметры выборки
+    //setWindowTitle(title);
     QCustomPlot* plot = ui->Plot;
-    //int daysnum = date.daysInMonth();
-    int sucals[date.daysInMonth()];
-    int othercals[date.daysInMonth()];
-    memset(othercals, 0, sizeof(othercals));
-    memset(sucals, 0, sizeof(sucals));
+//    int daysnum = date.daysInMonth();
+//    int sucals[date.daysInMonth()];
+//    int othercals[date.daysInMonth()];
+//    memset(othercals, 0, sizeof(othercals));
+//    memset(sucals, 0, sizeof(sucals));
+    QMap <QDate,int> sucals;
+    QMap <QDate,int> othercals;
     int reasIndex = cdrModel->fieldIndex("relreason");
     int dateIndex = cdrModel->fieldIndex("date");
     QCPBars *sucbar = new QCPBars(plot->xAxis, plot->yAxis);
     QCPBars *otherbar = new QCPBars(plot->xAxis, plot->yAxis);
     cdrModel->select();
+    int ymax = 0;
+
     while (cdrModel->canFetchMore())
         cdrModel->fetchMore();
     for (int i = 0; i < cdrModel->rowCount(); i++){
-        if((cdrModel->data(cdrModel->index(i, dateIndex), Qt::EditRole).toInt() >= date.toJulianDay()) && (cdrModel->data(cdrModel->index(i, dateIndex), Qt::EditRole).toInt() <= (date.toJulianDay() + date.daysInMonth()))){
-            //надо бы остановить цикл, чтобы не брейкался после последнего дня
-            int index = QDate::fromJulianDay(cdrModel->data(cdrModel->index(i, dateIndex), Qt::EditRole).toInt()).day();
-            cdrModel->data(cdrModel->index(i, reasIndex), Qt::EditRole).toInt() == 16 ? sucals[index]++ : othercals[index]++;
-        }
+        QDate index = QDate::fromJulianDay(cdrModel->data(cdrModel->index(i, dateIndex), Qt::EditRole).toInt());
+        //qDebug() << index;
+        if (cdrModel->data(cdrModel->index(i, reasIndex), Qt::EditRole).toInt() == 16 ) {
+            sucals[index]++;
+            othercals[index] = othercals[index];
+         } else {
+             othercals[index]++;
+             sucals[index] = sucals[index];
+         }
     }
-    int ymax = 0;
+
     QVector<double> sucdata;
     QVector<double> otherdata;
     QVector<double> ticks;
     QVector<QString> labels;
     plot->addPlottable(sucbar);
     plot->addPlottable(otherbar);
+    int tickscount = 0;
+
+    for (auto val : sucals.toStdMap()) {
+        sucdata << val.second;
+        ticks << ++tickscount;
+        labels << val.first.toString("dd.MM.yyyy");
+    }
+
+    for (auto val : othercals.toStdMap()) {
+        otherdata << val.second;
+        if(val.second > ymax)
+            ymax = val.second;
+        //ticks << tickscount++;
+    }
+
+
+    for (auto v : sucals.keys()) {
+        if (sucals[v] + othercals[v] > ymax)
+            ymax = sucals[v] + othercals[v];
+    }
+
+    /*
     for(int i = 0; i < date.daysInMonth(); i++){
         ticks << i + 1;
         sucdata << sucals[i];
@@ -195,23 +227,24 @@ void Graph::buildReportSucessCalls(QSqlTableModel *cdrModel, QDate date)
         labels << QString("%1").arg(i);
         if(ymax < sucals[i] + othercals[i])
             ymax = sucals[i] + othercals[i];
-    }
-    sucbar->setData(ticks, sucdata);
-    otherbar->setData(ticks, otherdata);
+    }*/
 
-    // set names and colors:
+    otherbar->setData(ticks, otherdata);
+    sucbar->setData(ticks, sucdata);
+//раскраска столбцов
+    otherbar->moveAbove(sucbar);
     QPen pen;
     pen.setWidthF(1.2);
     sucbar->setName("Успешные вызовы");
     pen.setColor(QColor(1, 92, 191));
     sucbar->setPen(pen);
-    sucbar->setBrush(QColor(1, 92, 191, 50));
-    otherbar->setName("Неуспешные вызовы");
+    sucbar->setBrush(QColor(1, 92, 191, 100));
+    otherbar->setName("Все вызовы");
     pen.setColor(QColor(255, 131, 0));
     otherbar->setPen(pen);
-    otherbar->setBrush(QColor(255, 131, 0, 50));
+    otherbar->setBrush(QColor(255, 131, 0, 100));
 
-    otherbar->moveAbove(sucbar);
+    customPlot->xAxis->setLabel("Дни месяца");
     customPlot->xAxis->setAutoTicks(false);
     customPlot->xAxis->setAutoTickLabels(false);
     customPlot->xAxis->setTickVector(ticks);
@@ -220,11 +253,11 @@ void Graph::buildReportSucessCalls(QSqlTableModel *cdrModel, QDate date)
     customPlot->xAxis->setSubTickCount(0);
     customPlot->xAxis->setTickLength(0, 4);
     customPlot->xAxis->grid()->setVisible(true);
-    customPlot->xAxis->setRange(0, date.daysInMonth() + 1);
+    customPlot->xAxis->setRange(0, othercals.size() /20);
 
     // prepare y axis:
     customPlot->yAxis->setRange(0, ymax + ymax / 10);
-    customPlot->yAxis->setPadding(5); // a bit more space to the left border
+    customPlot->yAxis->setPadding(5);
     customPlot->yAxis->setLabel("Количество вызовов в день");
     customPlot->yAxis->grid()->setSubGridVisible(true);
     QPen gridPen;
@@ -234,7 +267,7 @@ void Graph::buildReportSucessCalls(QSqlTableModel *cdrModel, QDate date)
     gridPen.setStyle(Qt::DotLine);
     customPlot->yAxis->grid()->setSubGridPen(gridPen);
 
-    // setup legend:
+    //легенда
     customPlot->legend->setVisible(true);
     customPlot->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignTop|Qt::AlignRight);
     customPlot->legend->setBrush(QColor(255, 255, 255, 200));
@@ -244,6 +277,7 @@ void Graph::buildReportSucessCalls(QSqlTableModel *cdrModel, QDate date)
     QFont legendFont = font();
     legendFont.setPointSize(10);
     customPlot->legend->setFont(legendFont);
+
     customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
     this->show();
 }
