@@ -34,7 +34,9 @@ private slots:
     void on_actionAbout_triggered(); // открытие окна о программе
     void on_actionProgramProperty_triggered(); // открытие настроек программы
     void on_actionReleaseCause_triggered(); //
-    void on_actionSucessCalls_triggered(); //
+    void on_actionSucessCallsDate_triggered(); //
+    void on_actionSucessCallsTime_triggered(); //
+    void on_actionSucessWeekDay_triggered();
 
     void on_pushButton_clicked();
 
@@ -44,7 +46,11 @@ private slots:
 
     void on_pushDrawReleaseCause_clicked();
 
-    void on_pushDrawSucessCalls_clicked();
+    void on_pushDrawSucessCallsDate_clicked();
+
+    void on_pushDrawSucessCallsTime_clicked();
+
+    void on_pushDrawSucessCallsWeekDay_clicked();
 
 private:
     Ui::MainWindow *ui;

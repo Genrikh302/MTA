@@ -653,38 +653,56 @@ void MainWindow::on_pushSave_clicked()
     csv.close();
 }
 
+
+#define _GRAPH_(name) \
+    Graph* graphic = new Graph(); \
+    graphic->build##name(cdrModel);
+
 //Построение графика по причинам отбоя
 void MainWindow::on_pushDrawReleaseCause_clicked()
 {
-    Graph* graphic = new Graph();
-    graphic->buildReportReleaseCause(cdrModel);
-    graphic->show();
+    _GRAPH_(ReportReleaseCause);
 }
 
 //Построение графика по причинам отбоя
 void MainWindow::on_actionReleaseCause_triggered()
 {
-    Graph* graphic = new Graph();
-    graphic->buildReportReleaseCause(cdrModel);
-    graphic->show();
+    _GRAPH_(ReportReleaseCause);
 }
 
-//Построение графика по успешности вызоов
-void MainWindow::on_pushDrawSucessCalls_clicked()
+//Построение графика по успешности вызовов по дате
+void MainWindow::on_actionSucessCallsDate_triggered()
 {
-//    Graph* graphic = new Graph();
-//    graphic->buildReportSucessCalls(cdrModel);
-//    graphic->show();
-    Graph* graphic = new Graph();
-    graphic->buildReportSucessCalls(cdrModel);
+    _GRAPH_(ReportSucessCallsDate);
 }
 
-//Построение графика по успешности вызоов
-void MainWindow::on_actionSucessCalls_triggered()
+//Построение графика по успешности вызовов по дате
+void MainWindow::on_pushDrawSucessCallsDate_clicked()
 {
-    //    Graph* graphic = new Graph();
-    //    graphic->buildReportSucessCalls(cdrModel);
-    //    graphic->show();
-    Graph* graphic = new Graph();
-    graphic->buildReportSucessCalls(cdrModel);
+    _GRAPH_(ReportSucessCallsDate);
+}
+
+//Построение графика по успешности вызовов по времени
+void MainWindow::on_pushDrawSucessCallsTime_clicked()
+{
+    _GRAPH_(ReportSucessCallsTime);
+}
+
+//Построение графика по успешности вызовов по времени
+void MainWindow::on_actionSucessCallsTime_triggered()
+{
+    _GRAPH_(ReportSucessCallsTime);
+}
+
+
+//Построение графика по успешности вызовов по дню недели
+void MainWindow::on_pushDrawSucessCallsWeekDay_clicked()
+{
+    _GRAPH_(ReportSucessCallsWeekDay);
+}
+
+//Построение графика по успешности вызовов по дню недели
+void MainWindow::on_actionSucessWeekDay_triggered()
+{
+    _GRAPH_(ReportSucessCallsWeekDay);
 }

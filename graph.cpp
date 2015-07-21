@@ -56,7 +56,7 @@ void Graph::buildReportReleaseCause(QSqlTableModel *cdrModel)
     }
     bar->setData(ticks, data);
 
-    customPlot->xAxis->setLabel("Коды ошибок");
+    customPlot->xAxis->setLabel(tr("Причины отбоя"));
     customPlot->xAxis->setAutoTicks(false);
     customPlot->xAxis->setAutoTickLabels(false);
     customPlot->xAxis->setTickVector(ticks);
@@ -70,7 +70,7 @@ void Graph::buildReportReleaseCause(QSqlTableModel *cdrModel)
     // prepare y axis:
     customPlot->yAxis->setRange(0, ymax + ymax / 10);
     customPlot->yAxis->setPadding(5); // a bit more space to the left border
-    customPlot->yAxis->setLabel("Количество вызовов");
+    customPlot->yAxis->setLabel(tr("Количество вызовов"));
     customPlot->yAxis->grid()->setSubGridVisible(true);
 
     QPen gridPen;
@@ -156,10 +156,11 @@ void Graph::buildReportReleaseCause(QSqlTableModel *cdrModel)
     legendFont.setPointSize(10);
     customPlot->legend->setFont(legendFont);
     customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);*/
- }
+    show();
+}
 
 //TODO строим по выборке, не запрашиваем параметры построения
-void Graph::buildReportSucessCalls(QSqlTableModel *cdrModel)
+void Graph::buildReportSucessCallsDate(QSqlTableModel *cdrModel)
 {
     //QString title = "Успешность вызовов за" + date.toString(" MMM yyyy"); // тут можно распечатать параметры выборки
     //setWindowTitle(title);
@@ -180,16 +181,14 @@ void Graph::buildReportSucessCalls(QSqlTableModel *cdrModel)
 
     while (cdrModel->canFetchMore())
         cdrModel->fetchMore();
-    for (int i = 0; i < cdrModel->rowCount(); i++){
+    for (int i = 0; i < cdrModel->rowCount(); i++) {
         QDate index = QDate::fromJulianDay(cdrModel->data(cdrModel->index(i, dateIndex), Qt::EditRole).toInt());
-        //qDebug() << index;
-        if (cdrModel->data(cdrModel->index(i, reasIndex), Qt::EditRole).toInt() == 16 ) {
-            sucals[index]++;
-            othercals[index] = othercals[index];
-         } else {
-             othercals[index]++;
-             sucals[index] = sucals[index];
-         }
+        if (!sucals.contains(index)) { // если кулюча нет, добавляем
+            sucals[index] = 0;
+            othercals[index] = 0;
+        }
+
+        cdrModel->data(cdrModel->index(i, reasIndex), Qt::EditRole).toInt() == 16  ? sucals[index]++ : othercals[index]++;
     }
 
     QVector<double> sucdata;
@@ -208,8 +207,8 @@ void Graph::buildReportSucessCalls(QSqlTableModel *cdrModel)
 
     for (auto val : othercals.toStdMap()) {
         otherdata << val.second;
-        if(val.second > ymax)
-            ymax = val.second;
+//        if (val.second > ymax)
+//            ymax = val.second;
         //ticks << tickscount++;
     }
 
@@ -235,7 +234,7 @@ void Graph::buildReportSucessCalls(QSqlTableModel *cdrModel)
     otherbar->moveAbove(sucbar);
     QPen pen;
     pen.setWidthF(1.2);
-    sucbar->setName("Успешные вызовы");
+    sucbar->setName(tr("Успешные вызовы"));
     pen.setColor(QColor(1, 92, 191));
     sucbar->setPen(pen);
     sucbar->setBrush(QColor(1, 92, 191, 100));
@@ -244,7 +243,7 @@ void Graph::buildReportSucessCalls(QSqlTableModel *cdrModel)
     otherbar->setPen(pen);
     otherbar->setBrush(QColor(255, 131, 0, 100));
 
-    customPlot->xAxis->setLabel("Дни месяца");
+    customPlot->xAxis->setLabel(tr("Число"));
     customPlot->xAxis->setAutoTicks(false);
     customPlot->xAxis->setAutoTickLabels(false);
     customPlot->xAxis->setTickVector(ticks);
@@ -258,7 +257,7 @@ void Graph::buildReportSucessCalls(QSqlTableModel *cdrModel)
     // prepare y axis:
     customPlot->yAxis->setRange(0, ymax + ymax / 10);
     customPlot->yAxis->setPadding(5);
-    customPlot->yAxis->setLabel("Количество вызовов в день");
+    customPlot->yAxis->setLabel(tr("Количество вызовов в день"));
     customPlot->yAxis->grid()->setSubGridVisible(true);
     QPen gridPen;
     gridPen.setStyle(Qt::SolidLine);
@@ -269,7 +268,7 @@ void Graph::buildReportSucessCalls(QSqlTableModel *cdrModel)
 
     //легенда
     customPlot->legend->setVisible(true);
-    customPlot->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignTop|Qt::AlignRight);
+    customPlot->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignTop | Qt::AlignRight);
     customPlot->legend->setBrush(QColor(255, 255, 255, 200));
     QPen legendPen;
     legendPen.setColor(QColor(130, 130, 130, 200));
@@ -279,5 +278,18 @@ void Graph::buildReportSucessCalls(QSqlTableModel *cdrModel)
     customPlot->legend->setFont(legendFont);
 
     customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
-    this->show();
+    show();
+}
+
+
+void Graph::buildReportSucessCallsTime(QSqlTableModel *cdrModel)
+{
+    Q_UNUSED(cdrModel);
+    show();
+}
+
+void Graph::buildReportSucessCallsWeekDay(QSqlTableModel *cdrModel)
+{
+    Q_UNUSED(cdrModel);
+    show();
 }

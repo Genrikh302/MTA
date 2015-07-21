@@ -45,7 +45,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushDrawSucessCalls">
+       <widget class="QPushButton" name="pushDrawSucessCallsDate">
         <property name="enabled">
          <bool>true</bool>
         </property>
@@ -76,7 +76,89 @@
         <property name="text">
          <string>
 Успешность 
-вызовов</string>
+вызовов
+по дате</string>
+        </property>
+        <property name="flat">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushDrawSucessCallsTime">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>91</width>
+          <height>91</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>91</width>
+          <height>91</height>
+         </size>
+        </property>
+        <property name="baseSize">
+         <size>
+          <width>91</width>
+          <height>91</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <property name="autoFillBackground">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>
+Успешность 
+вызовов
+по времени</string>
+        </property>
+        <property name="flat">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushDrawSucessCallsWeekDay">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>91</width>
+          <height>91</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>91</width>
+          <height>91</height>
+         </size>
+        </property>
+        <property name="baseSize">
+         <size>
+          <width>91</width>
+          <height>91</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <property name="autoFillBackground">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>
+Успешность 
+вызовов
+ по дням 
+недели</string>
         </property>
         <property name="flat">
          <bool>false</bool>
@@ -169,7 +251,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>22</height>
+     <height>19</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -184,7 +266,9 @@
      <string>Отчеты</string>
     </property>
     <addaction name="actionReleaseCause"/>
-    <addaction name="actionSucessCalls"/>
+    <addaction name="actionSucessCallsDate"/>
+    <addaction name="actionSucessCallsTime"/>
+    <addaction name="actionSucessCallsWeekDay"/>
    </widget>
    <widget class="QMenu" name="menuProperty">
     <property name="title">
@@ -229,12 +313,28 @@
     <string>Коды отбоя</string>
    </property>
   </action>
-  <action name="actionSucessCalls">
+  <action name="actionSucessCallsDate">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Успешность вызовов по дате</string>
+   </property>
+  </action>
+  <action name="actionSucessCallsTime">
    <property name="enabled">
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Успешность вызовов</string>
+    <string>Успешность вызовов по времени</string>
+   </property>
+  </action>
+  <action name="actionSucessCallsWeekDay">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Успешность вызова по дням недели</string>
    </property>
   </action>
  </widget>
