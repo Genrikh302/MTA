@@ -252,7 +252,7 @@ void Graph::buildReportSucessCallsDate(QSqlTableModel *cdrModel)
     customPlot->xAxis->setSubTickCount(0);
     customPlot->xAxis->setTickLength(0, 4);
     customPlot->xAxis->grid()->setVisible(true);
-    customPlot->xAxis->setRange(0, othercals.size() /20);
+    customPlot->xAxis->setRange(0, othercals.size());
 
     // prepare y axis:
     customPlot->yAxis->setRange(0, ymax + ymax / 10);
