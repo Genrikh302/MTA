@@ -159,17 +159,11 @@ void Graph::buildReportReleaseCause(QSqlTableModel *cdrModel)
     show();
 }
 
-//TODO строим по выборке, не запрашиваем параметры построения
 void Graph::buildReportSucessCallsDate(QSqlTableModel *cdrModel)
 {
     //QString title = "Успешность вызовов за" + date.toString(" MMM yyyy"); // тут можно распечатать параметры выборки
     //setWindowTitle(title);
     QCustomPlot* plot = ui->Plot;
-//    int daysnum = date.daysInMonth();
-//    int sucals[date.daysInMonth()];
-//    int othercals[date.daysInMonth()];
-//    memset(othercals, 0, sizeof(othercals));
-//    memset(sucals, 0, sizeof(sucals));
     QMap <QDate,int> sucals;
     QMap <QDate,int> othercals;
     int reasIndex = cdrModel->fieldIndex("relreason");
@@ -207,9 +201,6 @@ void Graph::buildReportSucessCallsDate(QSqlTableModel *cdrModel)
 
     for (auto val : othercals.toStdMap()) {
         otherdata << val.second;
-//        if (val.second > ymax)
-//            ymax = val.second;
-        //ticks << tickscount++;
     }
 
 
@@ -217,16 +208,6 @@ void Graph::buildReportSucessCallsDate(QSqlTableModel *cdrModel)
         if (sucals[v] + othercals[v] > ymax)
             ymax = sucals[v] + othercals[v];
     }
-
-    /*
-    for(int i = 0; i < date.daysInMonth(); i++){
-        ticks << i + 1;
-        sucdata << sucals[i];
-        otherdata << othercals[i];
-        labels << QString("%1").arg(i);
-        if(ymax < sucals[i] + othercals[i])
-            ymax = sucals[i] + othercals[i];
-    }*/
 
     otherbar->setData(ticks, otherdata);
     sucbar->setData(ticks, sucdata);
@@ -290,6 +271,92 @@ void Graph::buildReportSucessCallsTime(QSqlTableModel *cdrModel)
 
 void Graph::buildReportSucessCallsWeekDay(QSqlTableModel *cdrModel)
 {
-    Q_UNUSED(cdrModel);
+    setWindowTitle(tr("Успешность вызовов по днм недели"));
+    cdrModel->select();
+    QCustomPlot* plot = ui->Plot;
+    int reasIndex = cdrModel->fieldIndex("relreason");
+    int dateIndex = cdrModel->fieldIndex("date");
+    int sucdays[7]; //QMap не имеет смысла, так как .dayOfWeek() возвращает int, то есть целое служило бы ключом к целому
+    int unsucdays[7];
+    memset(sucdays, 0, sizeof(sucdays));
+    memset(unsucdays, 0, sizeof(unsucdays));
+
+    int columnum = 0;
+    while (cdrModel->canFetchMore())
+        cdrModel->fetchMore();
+
+    for (int i = 0; i < cdrModel->rowCount(); i++)
+        if(cdrModel->data(cdrModel->index(i, reasIndex), Qt::EditRole).toInt() == 16){
+            sucdays[QDate::fromJulianDay(cdrModel->data(cdrModel->index(i, dateIndex), Qt::EditRole).toInt()).dayOfWeek() - 1]++;
+        }
+        else{
+            unsucdays[QDate::fromJulianDay(cdrModel->data(cdrModel->index(i, dateIndex), Qt::EditRole).toInt()).dayOfWeek() - 1]++;
+        }
+
+    QCPBars *sucbar = new QCPBars(plot->xAxis, plot->yAxis);
+    QCPBars *otherbar = new QCPBars(plot->xAxis, plot->yAxis);
+
+    int ymax = 0;
+    QVector<double> sucdata;
+    QVector<double> unsucdata;
+    QVector<double> ticks;
+    QVector<QString> labels;
+    plot->addPlottable(sucbar);
+    plot->addPlottable(otherbar);
+    for(int i = 0; i < 7; i++){
+        ticks << i + 1;
+        sucdata << sucdays[i];
+        unsucdata << unsucdays[i];
+        if(ymax < sucdays[i] + unsucdays[i])
+            ymax = sucdays[i] + unsucdays[i];
+    }
+    labels <<  "Понедельник" << "Вторник" << "Среда" << "Четверг" << "Пятница" << "Суббота" << "Воскресенье";
+
+    otherbar->moveAbove(sucbar);
+    QPen pen;
+    pen.setWidthF(1.2);
+    sucbar->setName(tr("Успешные вызовы"));
+    pen.setColor(QColor(1, 92, 191));
+    sucbar->setPen(pen);
+    sucbar->setBrush(QColor(1, 92, 191, 100));
+    otherbar->setName("Все вызовы");
+    pen.setColor(QColor(255, 131, 0));
+    otherbar->setPen(pen);
+    otherbar->setBrush(QColor(255, 131, 0, 100));
+    sucbar->setData(ticks, sucdata);
+    otherbar->setData(ticks, unsucdata);
+
+    customPlot->xAxis->setLabel(tr("День недели"));
+    customPlot->xAxis->setAutoTicks(false);
+    customPlot->xAxis->setAutoTickLabels(false);
+    customPlot->xAxis->setTickVector(ticks);
+    customPlot->xAxis->setTickVectorLabels(labels);
+    customPlot->xAxis->setTickLabelRotation(60);
+    customPlot->xAxis->setSubTickCount(0);
+    customPlot->xAxis->setTickLength(0, 4);
+    customPlot->xAxis->grid()->setVisible(true);
+    customPlot->xAxis->setRange(0, 8);
+
+    // prepare y axis:
+    customPlot->yAxis->setRange(0, ymax + ymax / 10);
+    customPlot->yAxis->setPadding(5); // a bit more space to the left border
+    customPlot->yAxis->setLabel(tr("Количество вызовов"));
+    customPlot->yAxis->grid()->setSubGridVisible(true);
+
+    customPlot->legend->setVisible(true);
+    customPlot->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignTop | Qt::AlignRight);
+    customPlot->legend->setBrush(QColor(255, 255, 255, 200));
+    QPen legendPen;
+    legendPen.setColor(QColor(130, 130, 130, 200));
+    customPlot->legend->setBorderPen(legendPen);
+    QFont legendFont = font();
+    legendFont.setPointSize(10);
+    customPlot->legend->setFont(legendFont);
+
+
+
+    //qDebug() << columnum;
+
+    customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
     show();
 }
