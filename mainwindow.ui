@@ -185,7 +185,7 @@
       <item>
        <widget class="QPushButton" name="pushButton">
         <property name="text">
-         <string>Показать</string>
+         <string>Выбрать</string>
         </property>
        </widget>
       </item>
