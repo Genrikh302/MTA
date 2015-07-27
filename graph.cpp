@@ -203,7 +203,6 @@ void Graph::buildReportSucessCallsDate(QSqlTableModel *cdrModel)
         otherdata << val.second;
     }
 
-
     for (auto v : sucals.keys()) {
         if (sucals[v] + othercals[v] > ymax)
             ymax = sucals[v] + othercals[v];
@@ -274,24 +273,21 @@ void Graph::buildReportSucessCallsWeekDay(QSqlTableModel *cdrModel)
     setWindowTitle(tr("Успешность вызовов по днм недели"));
     cdrModel->select();
     QCustomPlot* plot = ui->Plot;
+    const int dayOfWeek = 7;
     int reasIndex = cdrModel->fieldIndex("relreason");
     int dateIndex = cdrModel->fieldIndex("date");
-    int sucdays[7]; //QMap не имеет смысла, так как .dayOfWeek() возвращает int, то есть целое служило бы ключом к целому
-    int unsucdays[7];
+    int sucdays[dayOfWeek]; //QMap не имеет смысла, так как .dayOfWeek() возвращает int, то есть целое служило бы ключом к целому
+    int unsucdays[dayOfWeek];
     memset(sucdays, 0, sizeof(sucdays));
     memset(unsucdays, 0, sizeof(unsucdays));
 
-    int columnum = 0;
     while (cdrModel->canFetchMore())
         cdrModel->fetchMore();
 
-    for (int i = 0; i < cdrModel->rowCount(); i++)
-        if(cdrModel->data(cdrModel->index(i, reasIndex), Qt::EditRole).toInt() == 16){
-            sucdays[QDate::fromJulianDay(cdrModel->data(cdrModel->index(i, dateIndex), Qt::EditRole).toInt()).dayOfWeek() - 1]++;
-        }
-        else{
-            unsucdays[QDate::fromJulianDay(cdrModel->data(cdrModel->index(i, dateIndex), Qt::EditRole).toInt()).dayOfWeek() - 1]++;
-        }
+    for (int i = 0; i < cdrModel->rowCount(); i++) {
+        int index = QDate::fromJulianDay(cdrModel->data(cdrModel->index(i, dateIndex), Qt::EditRole).toInt()).dayOfWeek() - 1;
+        cdrModel->data(cdrModel->index(i, reasIndex), Qt::EditRole).toInt() == 16 ? sucdays[index]++ : unsucdays[index]++;
+    }
 
     QCPBars *sucbar = new QCPBars(plot->xAxis, plot->yAxis);
     QCPBars *otherbar = new QCPBars(plot->xAxis, plot->yAxis);
@@ -303,7 +299,7 @@ void Graph::buildReportSucessCallsWeekDay(QSqlTableModel *cdrModel)
     QVector<QString> labels;
     plot->addPlottable(sucbar);
     plot->addPlottable(otherbar);
-    for(int i = 0; i < 7; i++){
+    for(int i = 0; i < dayOfWeek; i++) {
         ticks << i + 1;
         sucdata << sucdays[i];
         unsucdata << unsucdays[i];
@@ -352,8 +348,6 @@ void Graph::buildReportSucessCallsWeekDay(QSqlTableModel *cdrModel)
     QFont legendFont = font();
     legendFont.setPointSize(10);
     customPlot->legend->setFont(legendFont);
-
-
 
     //qDebug() << columnum;
 

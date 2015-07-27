@@ -702,7 +702,7 @@ void MainWindow::on_pushDrawSucessCallsWeekDay_clicked()
 }
 
 //Построение графика по успешности вызовов по дню недели
-void MainWindow::on_actionSucessWeekDay_triggered()
+void MainWindow::on_actionSucessCallsWeekDay_triggered()
 {
     _GRAPH_(ReportSucessCallsWeekDay);
 }
