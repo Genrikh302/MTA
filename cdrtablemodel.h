@@ -30,7 +30,7 @@ public:
     static const unsigned char COL_OUT_PORT   = 9;
     static const unsigned char COL_OUT_AON    = 10;
     static const unsigned char COL_OUT_NUMBER = 11;
-    static const unsigned char COL_DATE       = 12;    
+    static const unsigned char COL_DATE       = 12;
     static const unsigned char COL_TIME       = 13;
     static const unsigned char COL_CALL_TYPE  = 14;
     static const unsigned char COL_TIME_SEIZ  = 15;
