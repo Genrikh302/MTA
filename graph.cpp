@@ -233,7 +233,7 @@ void Graph::buildReportSucessCallsDate(QSqlTableModel *cdrModel)
     customPlot->xAxis->setSubTickCount(0);
     customPlot->xAxis->setTickLength(0, 4);
     customPlot->xAxis->grid()->setVisible(true);
-    customPlot->xAxis->setRange(0, othercals.size() /20);
+    customPlot->xAxis->setRange(0, othercals.size());
 
     // prepare y axis:
     customPlot->yAxis->setRange(0, ymax + ymax / 10);
@@ -265,13 +265,102 @@ void Graph::buildReportSucessCallsDate(QSqlTableModel *cdrModel)
 
 void Graph::buildReportSucessCallsTime(QSqlTableModel *cdrModel)
 {
-    Q_UNUSED(cdrModel);
+    /*Не стал делать график слошной линни, так как для более-менее адекватного отображения с точностью хотя бы до минут нужно ~ несколько сотен
+     более-менее равномерных вызовов, иначе график будет выглядеть как горная панорама, постояяно падая до нулевых отметок.
+     Если нужен именно вид линии - нужно уменьшать точность, пока сделал столбиками
+     */
+    setWindowTitle(tr("Успешность вызовов по часам"));
+    cdrModel->select();
+    QCustomPlot* plot = ui->Plot;
+    int reasIndex = cdrModel->fieldIndex("relreason");
+    int timeIndex = cdrModel->fieldIndex("time");
+    int suchours[24];
+    int unsuchours[24];
+    memset(suchours, 0, sizeof(suchours));
+    memset(unsuchours, 0, sizeof(unsuchours));
+
+    int columnum = 0;
+    while (cdrModel->canFetchMore())
+        cdrModel->fetchMore();
+
+    for (int i = 0; i < cdrModel->rowCount(); i++){
+        if(cdrModel->data(cdrModel->index(i, reasIndex), Qt::EditRole).toInt() == 16){
+            //В базе лежат секунды с начала дня, а методу нужно на вход количество милисекунд, поэтому * 1000
+            suchours[QTime::fromMSecsSinceStartOfDay(cdrModel->data(cdrModel->index(i, timeIndex), Qt::EditRole).toInt() * 1000).hour() - 1]++;
+        }
+        else{
+            unsuchours[QTime::fromMSecsSinceStartOfDay(cdrModel->data(cdrModel->index(i, timeIndex), Qt::EditRole).toInt() * 1000).hour() - 1]++;
+        }
+    }
+    QCPBars *sucbar = new QCPBars(plot->xAxis, plot->yAxis);
+    QCPBars *otherbar = new QCPBars(plot->xAxis, plot->yAxis);
+
+    int ymax = 0;
+    QVector<double> sucdata;
+    QVector<double> unsucdata;
+    QVector<double> ticks;
+    QVector<QString> labels;
+    plot->addPlottable(sucbar);
+    plot->addPlottable(otherbar);
+    for(int i = 0; i < 24; i++){
+        ticks << i + 1;
+        sucdata << suchours[i];
+        unsucdata << unsuchours[i];
+        if(ymax < suchours[i] + unsuchours[i])
+            ymax = suchours[i] + unsuchours[i];
+    }
+    labels << "0:00"<<"1:00"<<"2:00"<<"3:00"<<"4:00"<<"5:00"<<"6:00"<<"7:00"<<"8:00"<<"9:00"<<"10:00"<<"11:00"<<"12:00"<<"13:00"<<"14:00"<<"15:00"<<"16:00"<<"17:00"<<"18:00"<<"19:00"<<"20:00"<<"21:00"<<"22:00"<<"23:00";
+
+    otherbar->moveAbove(sucbar);
+    QPen pen;
+    pen.setWidthF(1.2);
+    sucbar->setName(tr("Успешные вызовы"));
+    pen.setColor(QColor(1, 92, 191));
+    sucbar->setPen(pen);
+    sucbar->setBrush(QColor(1, 92, 191, 100));
+    otherbar->setName("Все вызовы");
+    pen.setColor(QColor(255, 131, 0));
+    otherbar->setPen(pen);
+    otherbar->setBrush(QColor(255, 131, 0, 100));
+    sucbar->setData(ticks, sucdata);
+    otherbar->setData(ticks, unsucdata);
+
+    customPlot->xAxis->setLabel(tr("Время суток"));
+    customPlot->xAxis->setAutoTicks(false);
+    customPlot->xAxis->setAutoTickLabels(false);
+    customPlot->xAxis->setTickVector(ticks);
+    customPlot->xAxis->setTickVectorLabels(labels);
+    customPlot->xAxis->setTickLabelRotation(60);
+    customPlot->xAxis->setSubTickCount(0);
+    customPlot->xAxis->setTickLength(0, 4);
+    customPlot->xAxis->grid()->setVisible(true);
+    customPlot->xAxis->setRange(0, 25);
+
+    // prepare y axis:
+    customPlot->yAxis->setRange(0, ymax + ymax / 10);
+    customPlot->yAxis->setPadding(5); // a bit more space to the left border
+    customPlot->yAxis->setLabel(tr("Количество вызовов"));
+    customPlot->yAxis->grid()->setSubGridVisible(true);
+
+    customPlot->legend->setVisible(true);
+    customPlot->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignTop | Qt::AlignRight);
+    customPlot->legend->setBrush(QColor(255, 255, 255, 200));
+    QPen legendPen;
+    legendPen.setColor(QColor(130, 130, 130, 200));
+    customPlot->legend->setBorderPen(legendPen);
+    QFont legendFont = font();
+    legendFont.setPointSize(10);
+    customPlot->legend->setFont(legendFont);
+
+    //qDebug() << suchours[0];
+
+    customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
     show();
 }
 
 void Graph::buildReportSucessCallsWeekDay(QSqlTableModel *cdrModel)
 {
-    setWindowTitle(tr("Успешность вызовов по днм недели"));
+    setWindowTitle(tr("Успешность вызовов по дням недели"));
     cdrModel->select();
     QCustomPlot* plot = ui->Plot;
     int reasIndex = cdrModel->fieldIndex("relreason");
