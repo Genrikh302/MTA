@@ -232,7 +232,7 @@ void Graph::buildReportSucessCallsDate(QSqlTableModel *cdrModel)
     customPlot->xAxis->setSubTickCount(0);
     customPlot->xAxis->setTickLength(0, 4);
     customPlot->xAxis->grid()->setVisible(true);
-    customPlot->xAxis->setRange(0, othercals.size());
+    customPlot->xAxis->setRange(0, otherdata.size() + 1);
 
     // prepare y axis:
     customPlot->yAxis->setRange(0, ymax + ymax / 10);
@@ -261,7 +261,6 @@ void Graph::buildReportSucessCallsDate(QSqlTableModel *cdrModel)
     show();
 }
 
-
 void Graph::buildReportSucessCallsTime(QSqlTableModel *cdrModel)
 {
     /*Не стал делать график слошной линни, так как для более-менее адекватного отображения с точностью хотя бы до минут нужно ~ несколько сотен
@@ -278,7 +277,6 @@ void Graph::buildReportSucessCallsTime(QSqlTableModel *cdrModel)
     memset(suchours, 0, sizeof(suchours));
     memset(unsuchours, 0, sizeof(unsuchours));
 
-    int columnum = 0;
     while (cdrModel->canFetchMore())
         cdrModel->fetchMore();
 
@@ -439,6 +437,113 @@ void Graph::buildReportSucessCallsWeekDay(QSqlTableModel *cdrModel)
     customPlot->legend->setFont(legendFont);
 
     //qDebug() << columnum;
+
+    customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
+    show();
+}
+
+void Graph::buildReportAbonents(QSqlTableModel *cdrModel){
+    QCustomPlot* plot = ui->Plot;
+    QMap <QString,int> sucals;
+    QMap <QString,int> othercals;
+    int reasIndex = cdrModel->fieldIndex("relreason");
+    int intypeIndex = cdrModel->fieldIndex("intype");
+    int ininc1Index = cdrModel->fieldIndex("ininc1");
+    int ininc2Index = cdrModel->fieldIndex("ininc2");
+    int ininc3Index = cdrModel->fieldIndex("ininc3");
+
+    QCPBars *sucbar = new QCPBars(plot->xAxis, plot->yAxis);
+    QCPBars *otherbar = new QCPBars(plot->xAxis, plot->yAxis);
+    cdrModel->select();
+    int ymax = 0;
+
+    while (cdrModel->canFetchMore())
+        cdrModel->fetchMore();
+    for (int i = 0; i < cdrModel->rowCount(); i++) {
+        QString index = cdrModel->data(cdrModel->index(i, intypeIndex), Qt::EditRole).toString() + cdrModel->data(cdrModel->index(i, ininc1Index), Qt::EditRole).toString();
+        if(cdrModel->data(cdrModel->index(i, ininc2Index), Qt::EditRole).toString() != "0")
+        {
+            index += cdrModel->data(cdrModel->index(i, ininc2Index), Qt::EditRole).toString() + cdrModel->data(cdrModel->index(i, ininc3Index), Qt::EditRole).toString();
+        }
+        if (!sucals.contains(index)) { // если ключа нет, добавляем
+            sucals[index] = 0;
+            othercals[index] = 0;
+        }
+
+        cdrModel->data(cdrModel->index(i, reasIndex), Qt::EditRole).toInt() == 16  ? sucals[index]++ : othercals[index]++;
+    }
+
+    QVector<double> sucdata;
+    QVector<double> otherdata;
+    QVector<double> ticks;
+    QVector<QString> labels;
+    plot->addPlottable(sucbar);
+    plot->addPlottable(otherbar);
+    int tickscount = 0;
+
+    for (auto val : sucals.toStdMap()) {
+        sucdata << val.second;
+        ticks << ++tickscount;
+        labels << val.first;
+    }
+
+    for (auto val : othercals.toStdMap()) {
+        otherdata << val.second;
+    }
+
+    for (auto v : sucals.keys()) {
+        if (sucals[v] + othercals[v] > ymax)
+            ymax = sucals[v] + othercals[v];
+    }
+
+    otherbar->setData(ticks, otherdata);
+    sucbar->setData(ticks, sucdata);
+//раскраска столбцов
+    otherbar->moveAbove(sucbar);
+    QPen pen;
+    pen.setWidthF(1.2);
+    sucbar->setName(tr("Успешные вызовы"));
+    pen.setColor(QColor(1, 92, 191));
+    sucbar->setPen(pen);
+    sucbar->setBrush(QColor(1, 92, 191, 100));
+    otherbar->setName("Все вызовы");
+    pen.setColor(QColor(255, 131, 0));
+    otherbar->setPen(pen);
+    otherbar->setBrush(QColor(255, 131, 0, 100));
+
+    customPlot->xAxis->setLabel(tr("Число"));
+    customPlot->xAxis->setAutoTicks(false);
+    customPlot->xAxis->setAutoTickLabels(false);
+    customPlot->xAxis->setTickVector(ticks);
+    customPlot->xAxis->setTickVectorLabels(labels);
+    customPlot->xAxis->setTickLabelRotation(60);
+    customPlot->xAxis->setSubTickCount(0);
+    customPlot->xAxis->setTickLength(0, 4);
+    customPlot->xAxis->grid()->setVisible(true);
+    customPlot->xAxis->setRange(0, otherdata.size() + 2);
+
+    // prepare y axis:
+    customPlot->yAxis->setRange(0, ymax + ymax / 10);
+    customPlot->yAxis->setPadding(5);
+    customPlot->yAxis->setLabel(tr("Количество вызовов в день"));
+    customPlot->yAxis->grid()->setSubGridVisible(true);
+    QPen gridPen;
+    gridPen.setStyle(Qt::SolidLine);
+    gridPen.setColor(QColor(0, 0, 0, 25));
+    customPlot->yAxis->grid()->setPen(gridPen);
+    gridPen.setStyle(Qt::DotLine);
+    customPlot->yAxis->grid()->setSubGridPen(gridPen);
+
+    //легенда
+    customPlot->legend->setVisible(true);
+    customPlot->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignTop | Qt::AlignRight);
+    customPlot->legend->setBrush(QColor(255, 255, 255, 200));
+    QPen legendPen;
+    legendPen.setColor(QColor(130, 130, 130, 200));
+    customPlot->legend->setBorderPen(legendPen);
+    QFont legendFont = font();
+    legendFont.setPointSize(10);
+    customPlot->legend->setFont(legendFont);
 
     customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
     show();

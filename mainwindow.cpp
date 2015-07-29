@@ -706,3 +706,9 @@ void MainWindow::on_actionSucessCallsWeekDay_triggered()
 {
     _GRAPH_(ReportSucessCallsWeekDay);
 }
+
+
+void MainWindow::on_pushAbonents_clicked()
+{
+    _GRAPH_(ReportAbonents);
+}

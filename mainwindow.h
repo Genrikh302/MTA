@@ -9,7 +9,7 @@
 #include "filterdialog.h"
 #include "qchanneltablemodel.h"
 #include "graph.h"
-#include "successdialog.h"
+
 
 namespace Ui {
 class MainWindow;
@@ -51,6 +51,8 @@ private slots:
     void on_pushDrawSucessCallsTime_clicked();
 
     void on_pushDrawSucessCallsWeekDay_clicked();
+
+    void on_pushAbonents_clicked();
 
 private:
     Ui::MainWindow *ui;

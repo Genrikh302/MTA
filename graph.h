@@ -18,6 +18,7 @@ public:
     void buildReportSucessCallsDate(QSqlTableModel *cdrModel);
     void buildReportSucessCallsTime(QSqlTableModel *cdrModel);
     void buildReportSucessCallsWeekDay(QSqlTableModel *cdrModel);
+    void buildReportAbonents(QSqlTableModel *cdrModel);
     ~Graph();
 
 private:

@@ -30,9 +30,9 @@ bool Qlogdb::createTabelCDR()
     QSqlQuery query("",db);
     QString str = "CREATE TABLE if not exists logbase ( "    //проверить if not exists
                   "intype VARCHAR(1),"
-                  "ininc1 int, "
-                  "ininc2 int, "
-                  "ininc3 int, "
+                  "ininc1 int, "  //модуль
+                  "ininc2 int, "  //поток
+                  "ininc3 int, "  //канал
                   "inanum VARCHAR(28), "
                   "innum VARCHAR(28), "
                   "outtype VARCHAR(1), "
