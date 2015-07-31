@@ -2,6 +2,7 @@
 #include "ui_graph.h"
 #include <QDebug>
 #include <QMap>
+#include <QDateTime>
 #define customPlot ui->Plot
 
 Graph::Graph(QWidget *parent) :
@@ -448,23 +449,15 @@ void Graph::buildReportAbonents(QSqlTableModel *cdrModel){
     QMap <QString,int> othercals;
     int reasIndex = cdrModel->fieldIndex("relreason");
     int intypeIndex = cdrModel->fieldIndex("intype");
-    int ininc1Index = cdrModel->fieldIndex("ininc1");
-    int ininc2Index = cdrModel->fieldIndex("ininc2");
-    int ininc3Index = cdrModel->fieldIndex("ininc3");
 
     QCPBars *sucbar = new QCPBars(plot->xAxis, plot->yAxis);
     QCPBars *otherbar = new QCPBars(plot->xAxis, plot->yAxis);
     cdrModel->select();
     int ymax = 0;
-
     while (cdrModel->canFetchMore())
         cdrModel->fetchMore();
     for (int i = 0; i < cdrModel->rowCount(); i++) {
-        QString index = cdrModel->data(cdrModel->index(i, intypeIndex), Qt::EditRole).toString() + cdrModel->data(cdrModel->index(i, ininc1Index), Qt::EditRole).toString();
-        if(cdrModel->data(cdrModel->index(i, ininc2Index), Qt::EditRole).toString() != "0")
-        {
-            index += cdrModel->data(cdrModel->index(i, ininc2Index), Qt::EditRole).toString() + cdrModel->data(cdrModel->index(i, ininc3Index), Qt::EditRole).toString();
-        }
+        QString index = cdrModel->data(cdrModel->index(i, intypeIndex), Qt::DisplayRole).toString();// + cdrModel->data(cdrModel->index(i, ininc1Index), Qt::EditRole).toString();
         if (!sucals.contains(index)) {
             sucals[index] = 0;
             othercals[index] = 0;
@@ -523,7 +516,7 @@ void Graph::buildReportAbonents(QSqlTableModel *cdrModel){
     customPlot->xAxis->setRange(0, otherdata.size() + 2);
 
     // prepare y axis:
-    customPlot->yAxis->setRange(0, ymax + ymax / 10);
+    customPlot->yAxis->setRange(0, ymax + ymax / 5);
     customPlot->yAxis->setPadding(5);
     customPlot->yAxis->setLabel(tr("Количество вызовов в день"));
     customPlot->yAxis->grid()->setSubGridVisible(true);
@@ -550,5 +543,34 @@ void Graph::buildReportAbonents(QSqlTableModel *cdrModel){
 }
 
 void Graph::buildReportLoad(QSqlTableModel *cdrModel){
+    setWindowTitle(tr("Нагрузка"));
+    cdrModel->select();
+    int timeIndex = cdrModel->fieldIndex("time");
+    int dateIndex = cdrModel->fieldIndex("date");
+    int lenIndex = cdrModel->fieldIndex("linelen");
+    QDateTime dateto = QDateTime::fromString("01-01-1980 00:00:00", "dd-MM-yyyy hh:mm:ss");
+    QDateTime datefrom = QDateTime::fromString("01-01-3000 00:00:00", "dd-MM-yyyy hh:mm:ss");
+    //QDateTime rowdate;
+    QTime rowtime;
+    int sumlinelen = 0;
+    QCustomPlot* plot = ui->Plot;
+    while (cdrModel->canFetchMore())
+        cdrModel->fetchMore();
+    int rowCount = cdrModel->rowCount();
 
+    //QDateTime datefrom(QDate::fromJulianDay(cdrModel->data(cdrModel->index(0, dateIndex), Qt::EditRole).toInt()), QTime::fromMSecsSinceStartOfDay(cdrModel->data(cdrModel->index(0, timeIndex), Qt::EditRole).toInt() * 1000));
+    //QDateTime dateto(QDate::fromJulianDay(cdrModel->data(cdrModel->index(rowCount - 1, dateIndex), Qt::EditRole).toInt()), QTime::fromMSecsSinceStartOfDay(cdrModel->data(cdrModel->index(rowCount - 1, timeIndex), Qt::EditRole).toInt() * 1000));
+    for (int i = 0; i < rowCount; i++) {
+        sumlinelen += cdrModel->data(cdrModel->index(i, lenIndex), Qt::EditRole).toInt();
+        QDateTime rowdate(QDate::fromJulianDay(cdrModel->data(cdrModel->index(i, dateIndex), Qt::EditRole).toInt()), QTime::fromMSecsSinceStartOfDay(cdrModel->data(cdrModel->index(i, timeIndex), Qt::EditRole).toInt() * 1000));
+        //rowtime = QTime::fromMSecsSinceStartOfDay(cdrModel->data(cdrModel->index(0, timeIndex), Qt::EditRole).toInt() * 1000);
+        if(dateto < rowdate){
+             dateto = rowdate;
+        }
+        if (datefrom > rowdate){
+            datefrom = rowdate;
+        }
+    }
+    qDebug() << datefrom.toString("dd-MM-yyyy hh:mm:ss") << dateto;
+    show();
 }
