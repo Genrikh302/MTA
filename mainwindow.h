@@ -54,6 +54,8 @@ private slots:
 
     void on_pushAbonents_clicked();
 
+    void on_pushLoad_clicked();
+
 private:
     Ui::MainWindow *ui;
     Qlogdb logdb;    

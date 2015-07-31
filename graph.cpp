@@ -465,7 +465,7 @@ void Graph::buildReportAbonents(QSqlTableModel *cdrModel){
         {
             index += cdrModel->data(cdrModel->index(i, ininc2Index), Qt::EditRole).toString() + cdrModel->data(cdrModel->index(i, ininc3Index), Qt::EditRole).toString();
         }
-        if (!sucals.contains(index)) { // если ключа нет, добавляем
+        if (!sucals.contains(index)) {
             sucals[index] = 0;
             othercals[index] = 0;
         }
@@ -547,4 +547,8 @@ void Graph::buildReportAbonents(QSqlTableModel *cdrModel){
 
     customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
     show();
+}
+
+void Graph::buildReportLoad(QSqlTableModel *cdrModel){
+
 }
