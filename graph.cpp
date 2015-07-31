@@ -511,7 +511,7 @@ void Graph::buildReportAbonents(QSqlTableModel *cdrModel){
     otherbar->setPen(pen);
     otherbar->setBrush(QColor(255, 131, 0, 100));
 
-    customPlot->xAxis->setLabel(tr("Число"));
+    customPlot->xAxis->setLabel(tr("Абоненты или линии"));
     customPlot->xAxis->setAutoTicks(false);
     customPlot->xAxis->setAutoTickLabels(false);
     customPlot->xAxis->setTickVector(ticks);

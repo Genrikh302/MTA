@@ -36,10 +36,11 @@ public:
     static const unsigned char COL_TIME_SEIZ  = 15;
     static const unsigned char COL_TIME_TALK  = 16;
     static const unsigned char COL_CRELEASE   = 17;
-    static const unsigned char COL_ID         = 18;
+    static const unsigned char COL_FILEKEY    = 18;
+    static const unsigned char COL_ID         = 19;
 
-    static QMap <unsigned char, QString> causeValue;
-
+    //static QMap <unsigned char, QString> causeValue;
+    static QMap <unsigned char, QPair<QString, QString> > causeValue;
 
 };
 

@@ -97,15 +97,37 @@ FilterDialog::FilterDialog(const PropertyFilter &propertyFilter, const QStringLi
     //причины отбоя
     ui->reason->addItem(QString("%1").arg(tr("не задана")), QVariant(0));
     for (auto v : QCDRSortFilterModel::causeValue.keys())
-        ui->reason->addItem(QString("%1 - %2").arg(QCDRSortFilterModel::causeValue.value(v)).arg(v), QVariant(v));
+        ui->reason->addItem(QString("%1 - %2").arg(QCDRSortFilterModel::causeValue.value(v).second).arg(v), QVariant(v));
     int index = ui->reason->findData(propertyFilter.releaseCause());
     ui->reason->setCurrentIndex(index < 0 ? 0 : index);
 
 
     // типы вызова
+
+
+//    QStandardItemModel *model = new QStandardItemModel(Qcallog::TYPE_LAST_CODE, 1);
+//  //  ui->type->addItem(QString("%1").arg(tr("не задана")), QVariant(0));
+
+//    QStandardItem* item = new QStandardItem(QString("aaaa"));
+//    item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
+//    item->setData(Qt::Unchecked, Qt::CheckStateRole);
+//    model->setItem(0, 0, item);
+//    for (int i = Qcallog::TYPE_LOCAL; i < Qcallog::TYPE_LAST_CODE; i++) {
+//        QStandardItem* item = new QStandardItem(QString(Qcallog::getQStringTypeCalls(i)));
+//        //item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
+////        item->setCheckState();
+//        item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
+//        //item->setCheckable(true);
+//        //item->setCheckState(Qt::Checked );
+//        item->setData(Qt::Unchecked, Qt::CheckStateRole);
+//        model->setItem(i, 0, item);
+//    }
+//    ui->type->setModel(model);
+
     ui->type->addItem(QString("%1").arg(tr("не задана")), QVariant(0));
     for (int i = Qcallog::TYPE_LOCAL; i < Qcallog::TYPE_LAST_CODE; i++)
         ui->type->addItem(QString(Qcallog::getQStringTypeCalls(i)), QVariant(i));
+
     index = ui->type->findData(propertyFilter.typeCalls());
     ui->type->setCurrentIndex(index < 0 ? 0 : index);
 

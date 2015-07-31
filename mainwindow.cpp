@@ -12,7 +12,6 @@
 #include <QTableView>
 #include <QTableWidgetItem>
 #include <QMessageBox>
-
 #include "qprogrampropertydialog.h"
 
 #define VERSION "1.0.0b"
@@ -138,6 +137,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tableView->setColumnHidden(QCDRSortFilterModel::COL_OUT_MN, true); // outinc1
     ui->tableView->setColumnHidden(QCDRSortFilterModel::COL_OUT_SLPCM, true); // outinc2
     ui->tableView->setColumnHidden(QCDRSortFilterModel::COL_OUT_PORT, true); // outinc3
+    ui->tableView->setColumnHidden(QCDRSortFilterModel::COL_FILEKEY, true); // file key
     ui->tableView->setColumnHidden(QCDRSortFilterModel::COL_ID, true); // id
 
 
@@ -191,6 +191,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 //        channelModel->select();
 //    }
+    showRecordCount();
 }
 
 MainWindow::~MainWindow()
@@ -258,7 +259,7 @@ void MainWindow::addFileListToCDRbase(const QStringList &files)
                 }
             }
         }
-    }
+    } 
 }
 
 void MainWindow::on_actionOpen_triggered()
@@ -274,6 +275,8 @@ void MainWindow::on_actionOpen_triggered()
 
     cdrModel->select();
     ui->tableView->reset();
+
+    showRecordCount();
 }
 
 
@@ -345,6 +348,8 @@ void MainWindow::applyFilter()
 
         bool firstElementList = true;
         //for (auto address : addressList) {
+        if (!addressList.isEmpty())
+            f.append(" ( ");
         while(!addressList.isEmpty()) {
             QString address = addressList.front();
             addressList.pop_front();
@@ -439,6 +444,8 @@ void MainWindow::applyFilter()
                 f.append(")");
             }
         }
+        if (!firstElementList)
+            f.append(" ) ");
     };
 
     QString filter;
@@ -533,6 +540,8 @@ void MainWindow::applyFilter()
     }
 
     cdrModel->setFilter(filter);
+
+    showRecordCount();
 }
 
 void MainWindow::on_pushButton_clicked()
@@ -586,6 +595,8 @@ void MainWindow::on_pushDelete_clicked()
 
     cdrModel->select();
     ui->tableView->reset();
+
+    showRecordCount();
 }
 
 void MainWindow::fillPrefixList()
@@ -653,6 +664,13 @@ void MainWindow::on_pushSave_clicked()
     csv.close();
 }
 
+void MainWindow::showRecordCount()
+{
+    while (cdrModel->canFetchMore())
+        cdrModel->fetchMore();
+
+    statusBar()->showMessage(tr("Записей %1").arg(cdrModel->rowCount()));
+}
 
 #define _GRAPH_(name) \
     Graph* graphic = new Graph(); \
@@ -708,7 +726,10 @@ void MainWindow::on_actionSucessCallsWeekDay_triggered()
 }
 
 
+// распределение по кагалам
 void MainWindow::on_pushAbonents_clicked()
 {
     _GRAPH_(ReportAbonents);
 }
+
+

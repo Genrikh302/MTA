@@ -73,6 +73,7 @@ private:
     void fillPrefixList(); // заполняет списки префиксов, для ускорения
     void applyFilter(); // применяет фильтр на таблицу
     void addFileListToCDRbase(const QStringList &files); // добавление файлов в базу
+    void showRecordCount();
 };
 
 
