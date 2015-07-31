@@ -732,4 +732,7 @@ void MainWindow::on_pushAbonents_clicked()
     _GRAPH_(ReportAbonents);
 }
 
-
+void MainWindow::on_pushLoad_clicked()
+{
+    _GRAPH_(ReportLoad);
+}

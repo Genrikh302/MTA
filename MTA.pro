@@ -36,6 +36,7 @@ SOURCES += main.cpp\
 
 
 
+
 HEADERS  += \
     mainwindow.h \
     qcallog.h \
@@ -47,6 +48,7 @@ HEADERS  += \
     qcustomplot.h \
     graph.h \
     qfiltercombobox.h 
+
 
 
 HEADERS += stable.h
