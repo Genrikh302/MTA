@@ -530,12 +530,12 @@ void MainWindow::applyFilter()
         switch (propertyFilter.typeCalls()) {
             case Qcallog::TYPE_LOCAL: filter.append("intype = 'A' and outtype = 'A'"); break;
             case Qcallog::TYPE_IN_LOCAL: filter.append("intype = 'C' and outtype = 'A'"); break;
-            case Qcallog::TYPE_OUT_NATIONAL: filter.append(QString("intype = 'A' and outtype = 'C' %1").arg(appendPrefixFilter(nationalCode))); break;
+            case Qcallog::TYPE_OUT_NATIONAL: filter.append(QString("intype = 'A' and outtype = 'C' %1 %2").arg(appendPrefixFilter(nationalCode)).arg(appendPrefixFilter(internationalCode, true))); break;
             case Qcallog::TYPE_OUT_INTERNATIONAL: filter.append(QString("intype = 'A' and outtype = 'C' %1").arg(appendPrefixFilter(internationalCode))); break;
-            case Qcallog::TYPE_OUT_LOCAL: filter.append(QString("intype = 'A' and outtype = 'C' %1").arg(appendPrefixFilter(nationalCode, true))); break;
-            case Qcallog::TYPE_TRANZIT_NATIONAL: filter.append(QString("intype = 'C' and outtype = 'C' %1").arg(appendPrefixFilter(nationalCode))); break;
+            case Qcallog::TYPE_OUT_LOCAL: filter.append(QString("intype = 'A' and outtype = 'C' %1").arg(appendPrefixFilter(nationalCode, true).arg(appendPrefixFilter(internationalCode, true)))); break;
+            case Qcallog::TYPE_TRANZIT_NATIONAL: filter.append(QString("intype = 'C' and outtype = 'C' %1 %2").arg(appendPrefixFilter(nationalCode)).arg(appendPrefixFilter(internationalCode, true))); break;
             case Qcallog::TYPE_TRANZIT_INTERNATIONAL: filter.append(QString("intype = 'C' and outtype = 'C' %1").arg(appendPrefixFilter(internationalCode))); break;
-            case Qcallog::TYPE_TRANZIT_LOCAL: filter.append(QString("intype = 'C' and outtype = 'C' %1").arg(appendPrefixFilter(nationalCode, true))); break;
+            case Qcallog::TYPE_TRANZIT_LOCAL: filter.append(QString("intype = 'C' and outtype = 'C' %1 %2").arg(appendPrefixFilter(nationalCode, true)).arg(appendPrefixFilter(internationalCode, true))); break;
         }
     }
 

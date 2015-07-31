@@ -115,7 +115,7 @@ QVariant QCDRTableModel::data(const QModelIndex & idx, int role) const
 
             QString val = QString("%1%2%3%4").arg(strtype).arg(str1).arg(strtype == "A" ? "" : str2).arg(strtype == "A" ? "" : str3);
             if (strtype == "C") {
-                // попытаемся найти имя этого канала по базу
+                // попытаемся найти имя этого канала по базе
                 qint64 address = ((qint64)module << 32) | (pcm << 16) | ch;
                 QSqlQuery query;
                 if (query.exec(QString("select name from DirectionChannel, DirectionName where key = id and fr <= %1 and by >= %1").arg(address))) {
