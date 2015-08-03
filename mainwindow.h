@@ -56,6 +56,8 @@ private slots:
 
     void on_pushLoad_clicked();
 
+    void on_pushDrawCallens_clicked();
+
 private:
     Ui::MainWindow *ui;
     Qlogdb logdb;    
