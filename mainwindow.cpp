@@ -736,3 +736,8 @@ void MainWindow::on_pushLoad_clicked()
 {
     _GRAPH_(ReportLoad);
 }
+
+void MainWindow::on_pushDrawCallens_clicked()
+{
+    _GRAPH_(ReportCallens);
+}

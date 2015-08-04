@@ -551,8 +551,8 @@ void Graph::buildReportLoad(QSqlTableModel *cdrModel){
     QDateTime dateto = QDateTime::fromString("01-01-1980 00:00:00", "dd-MM-yyyy hh:mm:ss");
     QDateTime datefrom = QDateTime::fromString("01-01-3000 00:00:00", "dd-MM-yyyy hh:mm:ss");
     //QDateTime rowdate;
-    QTime rowtime;
-    int sumlinelen = 0;
+    //QTime rowtime;
+    double sumlinelen = 0;
     QCustomPlot* plot = ui->Plot;
     while (cdrModel->canFetchMore())
         cdrModel->fetchMore();
@@ -571,6 +571,37 @@ void Graph::buildReportLoad(QSqlTableModel *cdrModel){
             datefrom = rowdate;
         }
     }
-    qDebug() << datefrom.toString("dd-MM-yyyy hh:mm:ss") << dateto;
+    //qDebug() << datefrom.toString("dd-MM-yyyy hh:mm:ss") << dateto;
+     QCPBars *loadbar = new QCPBars(plot->xAxis, plot->yAxis);
+    QVector<double> loaddata;
+    QVector<double> ticks;
+    ticks << 1 << 2;
+    loaddata <<  sumlinelen / datefrom.msecsTo(dateto) * 1000;
+    //loaddata <<  datefrom.msecsTo(dateto) * 1000 / sumlinelen;
+    plot->addPlottable(loadbar);
+    loadbar->setData(ticks, loaddata);
+
+    //customPlot->xAxis->setLabel(tr("Нагрузка в эрлангах"));
+    customPlot->xAxis->setAutoTicks(false);
+    customPlot->xAxis->setAutoTickLabels(false);
+    customPlot->xAxis->setTickVector(ticks);
+    //customPlot->xAxis->setTickVectorLabels(labels);
+    customPlot->xAxis->setTickLabelRotation(60);
+    customPlot->xAxis->setSubTickCount(0);
+    customPlot->xAxis->setTickLength(0, 4);
+    customPlot->xAxis->grid()->setVisible(true);
+    customPlot->xAxis->setRange(0, 2);
+
+    // prepare y axis:
+    customPlot->yAxis->setRange(0, loaddata[0] + loaddata[0] / 10);
+    customPlot->yAxis->setPadding(5);
+    customPlot->yAxis->setLabel(tr("Нагрузка в эрлангах"));
+    customPlot->yAxis->grid()->setSubGridVisible(true);
+
+    customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
     show();
+}
+
+void Graph::buildReportCallens(QSqlTableModel *cdrModel){
+    //по иксу должны быть абоненты или звонки по очереди?
 }
