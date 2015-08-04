@@ -523,21 +523,48 @@ void MainWindow::applyFilter()
     }
 
     // фильтр по типу вызова
-    if (propertyFilter.typeCalls()) {
+    QQueue <qint8> q = propertyFilter.typeCalls();
+    QString callTypeFilter;
+    for (qint8 i : q) {
+        if (!callTypeFilter.isEmpty())
+            callTypeFilter.append(" or ");
+        switch (i) {
+            case Qcallog::TYPE_NULL: break;
+            case Qcallog::TYPE_LOCAL: callTypeFilter.append("(intype = 'A' and outtype = 'A'"); break;
+            case Qcallog::TYPE_IN_LOCAL: callTypeFilter.append("(intype = 'C' and outtype = 'A'"); break;
+            case Qcallog::TYPE_OUT_NATIONAL: callTypeFilter.append(QString("(intype = 'A' and outtype = 'C' %1 %2").arg(appendPrefixFilter(nationalCode)).arg(appendPrefixFilter(internationalCode, true))); break;
+            case Qcallog::TYPE_OUT_INTERNATIONAL: callTypeFilter.append(QString("(intype = 'A' and outtype = 'C' %1").arg(appendPrefixFilter(internationalCode))); break;
+            case Qcallog::TYPE_OUT_LOCAL: callTypeFilter.append(QString("(intype = 'A' and outtype = 'C' %1").arg(appendPrefixFilter(nationalCode, true).arg(appendPrefixFilter(internationalCode, true)))); break;
+            case Qcallog::TYPE_TRANZIT_NATIONAL: callTypeFilter.append(QString("(intype = 'C' and outtype = 'C' %1 %2").arg(appendPrefixFilter(nationalCode)).arg(appendPrefixFilter(internationalCode, true))); break;
+            case Qcallog::TYPE_TRANZIT_INTERNATIONAL: callTypeFilter.append(QString("(intype = 'C' and outtype = 'C' %1").arg(appendPrefixFilter(internationalCode))); break;
+            case Qcallog::TYPE_TRANZIT_LOCAL: callTypeFilter.append(QString("(intype = 'C' and outtype = 'C' %1 %2").arg(appendPrefixFilter(nationalCode, true)).arg(appendPrefixFilter(internationalCode, true))); break;
+        }
+        if (!callTypeFilter.isEmpty())
+            callTypeFilter.append(")");
+    }
 
+    if (!callTypeFilter.isEmpty()) {
         if (!filter.isEmpty())
             filter.append(" and ");
-        switch (propertyFilter.typeCalls()) {
-            case Qcallog::TYPE_LOCAL: filter.append("intype = 'A' and outtype = 'A'"); break;
-            case Qcallog::TYPE_IN_LOCAL: filter.append("intype = 'C' and outtype = 'A'"); break;
-            case Qcallog::TYPE_OUT_NATIONAL: filter.append(QString("intype = 'A' and outtype = 'C' %1 %2").arg(appendPrefixFilter(nationalCode)).arg(appendPrefixFilter(internationalCode, true))); break;
-            case Qcallog::TYPE_OUT_INTERNATIONAL: filter.append(QString("intype = 'A' and outtype = 'C' %1").arg(appendPrefixFilter(internationalCode))); break;
-            case Qcallog::TYPE_OUT_LOCAL: filter.append(QString("intype = 'A' and outtype = 'C' %1").arg(appendPrefixFilter(nationalCode, true).arg(appendPrefixFilter(internationalCode, true)))); break;
-            case Qcallog::TYPE_TRANZIT_NATIONAL: filter.append(QString("intype = 'C' and outtype = 'C' %1 %2").arg(appendPrefixFilter(nationalCode)).arg(appendPrefixFilter(internationalCode, true))); break;
-            case Qcallog::TYPE_TRANZIT_INTERNATIONAL: filter.append(QString("intype = 'C' and outtype = 'C' %1").arg(appendPrefixFilter(internationalCode))); break;
-            case Qcallog::TYPE_TRANZIT_LOCAL: filter.append(QString("intype = 'C' and outtype = 'C' %1 %2").arg(appendPrefixFilter(nationalCode, true)).arg(appendPrefixFilter(internationalCode, true))); break;
-        }
+        filter.append(callTypeFilter);
     }
+
+
+//    if (propertyFilter.typeCalls()) {
+
+//        if (!filter.isEmpty())
+//            filter.append(" and ");
+//        switch (propertyFilter.typeCalls()) {
+//            case Qcallog::TYPE_LOCAL: filter.append("intype = 'A' and outtype = 'A'"); break;
+//            case Qcallog::TYPE_IN_LOCAL: filter.append("intype = 'C' and outtype = 'A'"); break;
+//            case Qcallog::TYPE_OUT_NATIONAL: filter.append(QString("intype = 'A' and outtype = 'C' %1 %2").arg(appendPrefixFilter(nationalCode)).arg(appendPrefixFilter(internationalCode, true))); break;
+//            case Qcallog::TYPE_OUT_INTERNATIONAL: filter.append(QString("intype = 'A' and outtype = 'C' %1").arg(appendPrefixFilter(internationalCode))); break;
+//            case Qcallog::TYPE_OUT_LOCAL: filter.append(QString("intype = 'A' and outtype = 'C' %1").arg(appendPrefixFilter(nationalCode, true).arg(appendPrefixFilter(internationalCode, true)))); break;
+//            case Qcallog::TYPE_TRANZIT_NATIONAL: filter.append(QString("intype = 'C' and outtype = 'C' %1 %2").arg(appendPrefixFilter(nationalCode)).arg(appendPrefixFilter(internationalCode, true))); break;
+//            case Qcallog::TYPE_TRANZIT_INTERNATIONAL: filter.append(QString("intype = 'C' and outtype = 'C' %1").arg(appendPrefixFilter(internationalCode))); break;
+//            case Qcallog::TYPE_TRANZIT_LOCAL: filter.append(QString("intype = 'C' and outtype = 'C' %1 %2").arg(appendPrefixFilter(nationalCode, true)).arg(appendPrefixFilter(internationalCode, true))); break;
+//        }
+//    }
 
     cdrModel->setFilter(filter);
 
