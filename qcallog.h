@@ -55,6 +55,7 @@ public:
 
 
     // признаки вызова
+    static const unsigned char TYPE_NULL                  = 0;
     static const unsigned char TYPE_LOCAL                 = 1;
     static const unsigned char TYPE_IN_LOCAL              = 2;
     static const unsigned char TYPE_OUT_INTERNATIONAL     = 3;

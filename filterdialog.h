@@ -3,6 +3,8 @@
 
 #include <QDialog>
 #include <QComboBox>
+#include <QStandardItemModel>
+#include <QStyledItemDelegate>
 
 namespace Ui {
 class FilterDialog;
@@ -28,11 +30,11 @@ private:
     QString m_outnumf;
 
     qint16  m_releaseCause;
-    qint8   m_typeCalls;
+    QQueue <qint8> m_typeCalls;
 
 public:
 
-    PropertyFilter() : QObject(), /*_busylentof("23:59:59"), m_talklentof("23:59:59"),*/ m_releaseCause(0) {}
+    PropertyFilter() : QObject(), /*_busylentof("23:59:59"), m_talklentof("23:59:59"),*/ m_releaseCause(0)  {m_typeCalls << 0;}
     QString aboutf() const ;
     void setAboutf(const QString &aboutf);
     QString abinf() const;
@@ -63,10 +65,9 @@ public:
     void setOutnumf(const QString &outnumf);
     qint16 releaseCause() const;
     void setReleaseCause(const qint16 &releaseCause);
-    qint8 typeCalls() const;
-    void setTypeCalls(const qint8 &typeCalls);
+    QQueue<qint8> typeCalls() const;
+    void setTypeCalls(const QQueue<qint8> &typeCalls);
 };
-
 
 class FilterDialog : public QDialog
 {
@@ -74,6 +75,8 @@ class FilterDialog : public QDialog
     QString addr1;
     QString addr2;
     bool highlighted;
+
+    QStandardItemModel *modelType;
 public:
     explicit FilterDialog(const PropertyFilter &propertyFilter, const QStringList &names, QWidget *parent = 0);
     //void getfil(void); метод для занесения текста из окна фильтра в местные фильтры
@@ -93,6 +96,12 @@ private slots:
 
     void on_about_highlighted(const QString &arg1);
 
+//    void on_type_currentIndexChanged(int index);
+
+//    void on_type_highlighted(int index);
+
+public slots:
+    void type_calls_changed(const QModelIndex&, const QModelIndex&);
 
 private:
     Ui::FilterDialog *ui;

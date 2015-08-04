@@ -108,6 +108,13 @@
      </item>
     </layout>
    </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="timelabel">
+     <property name="text">
+      <string>Время</string>
+     </property>
+    </widget>
+   </item>
    <item row="5" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
@@ -155,13 +162,6 @@
    </item>
    <item row="10" column="0">
     <layout class="QGridLayout" name="gridLayout_3">
-     <item row="0" column="1">
-      <widget class="QLabel" name="reasonlabel">
-       <property name="text">
-        <string>Причина отбоя</string>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="0">
       <widget class="QLabel" name="typelabel">
        <property name="text">
@@ -169,10 +169,17 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="0">
-      <widget class="QComboBox" name="type"/>
+     <item row="2" column="0">
+      <widget class="QTypeCallsComboBox" name="type"/>
      </item>
-     <item row="1" column="1" alignment="Qt::AlignHCenter">
+     <item row="3" column="0">
+      <widget class="QLabel" name="reasonlabel">
+       <property name="text">
+        <string>Причина отбоя</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
       <widget class="QComboBox" name="reason">
        <property name="minimumSize">
         <size>
@@ -284,13 +291,6 @@
     <widget class="QLabel" name="datelabel">
      <property name="text">
       <string>Дата</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0">
-    <widget class="QLabel" name="timelabel">
-     <property name="text">
-      <string>Время</string>
      </property>
     </widget>
    </item>
@@ -422,6 +422,11 @@ p, li { white-space: pre-wrap; }
  <customwidgets>
   <customwidget>
    <class>QFilterComboBox</class>
+   <extends>QComboBox</extends>
+   <header>qfiltercombobox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QTypeCallsComboBox</class>
    <extends>QComboBox</extends>
    <header>qfiltercombobox.h</header>
   </customwidget>

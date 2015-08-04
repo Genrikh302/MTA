@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QRegExp>
 #include <QRegExpValidator>
+#include <QStyledItemDelegate>
 #include "cdrtablemodel.h"
 
 
@@ -91,8 +92,34 @@ FilterDialog::FilterDialog(const PropertyFilter &propertyFilter, const QStringLi
     ui->busyto->setText(propertyFilter.busylentof());
 
     // даты
-    ui->datesince->setDate(QDate::fromString(propertyFilter.datesincef(),"dd.MM.yy").addYears(100));
-    ui->dateto->setDate(QDate::fromString(propertyFilter.datetof(),"dd.MM.yy").addYears(100));
+    QDate current = QDate::currentDate();
+    if (propertyFilter.datesincef().isEmpty()) {
+    #ifdef QT_DEBUG
+        ui->datesince->setDate(current.addDays(-current.day() + 1));
+        ui->datesince->setDate(current.addMonths(-current.month() + 1));
+    #else
+        ui->datesince->setDate(current.addDays(-current.day() + 1));
+    #endif
+    }
+    else
+        ui->datesince->setDate(QDate::fromString(propertyFilter.datesincef(),"dd.MM.yy").addYears(100));
+
+    if (propertyFilter.datetof().isEmpty())
+        ui->dateto->setDate(current);
+    else
+        ui->dateto->setDate(QDate::fromString(propertyFilter.datetof(),"dd.MM.yy").addYears(100));
+
+    // время
+    if (propertyFilter.timefromf().isEmpty())
+        ui->timesince->setTime(QTime::fromString("00:00:00", "hh:mm:ss"));
+    else
+        ui->timesince->setTime(QTime::fromString(propertyFilter.timefromf(), "hh:mm:ss"));
+
+    if (propertyFilter.timetof().isEmpty())
+        ui->timeto->setTime(QTime::fromString("23:59:59", "hh:mm:ss"));
+    else
+        ui->timeto->setTime(QTime::fromString(propertyFilter.timetof(), "hh:mm:ss"));
+
 
     //причины отбоя
     ui->reason->addItem(QString("%1").arg(tr("не задана")), QVariant(0));
@@ -105,33 +132,71 @@ FilterDialog::FilterDialog(const PropertyFilter &propertyFilter, const QStringLi
     // типы вызова
 
 
-//    QStandardItemModel *model = new QStandardItemModel(Qcallog::TYPE_LAST_CODE, 1);
+    modelType = new QStandardItemModel(Qcallog::TYPE_LAST_CODE, 1);
 //  //  ui->type->addItem(QString("%1").arg(tr("не задана")), QVariant(0));
 
-//    QStandardItem* item = new QStandardItem(QString("aaaa"));
-//    item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
-//    item->setData(Qt::Unchecked, Qt::CheckStateRole);
-//    model->setItem(0, 0, item);
-//    for (int i = Qcallog::TYPE_LOCAL; i < Qcallog::TYPE_LAST_CODE; i++) {
-//        QStandardItem* item = new QStandardItem(QString(Qcallog::getQStringTypeCalls(i)));
-//        //item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
-////        item->setCheckState();
-//        item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
-//        //item->setCheckable(true);
-//        //item->setCheckState(Qt::Checked );
-//        item->setData(Qt::Unchecked, Qt::CheckStateRole);
-//        model->setItem(i, 0, item);
-//    }
-//    ui->type->setModel(model);
+    QStandardItem* item = new QStandardItem(QString("не задана"));
+    item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
+    item->setData(Qt::Unchecked, Qt::CheckStateRole);
+    modelType->setItem(0, 0, item);
+    for (int i = Qcallog::TYPE_LOCAL; i < Qcallog::TYPE_LAST_CODE; i++) {
+        QStandardItem* item = new QStandardItem(QString(Qcallog::getQStringTypeCalls(i)));
+        item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
+        item->setData(Qt::Unchecked, Qt::CheckStateRole);
+        modelType->setItem(i, 0, item);
+    }
+    ui->type->setModel(modelType);
+    ui->type->setItemDelegate(new QStyledItemDelegate());
 
-    ui->type->addItem(QString("%1").arg(tr("не задана")), QVariant(0));
-    for (int i = Qcallog::TYPE_LOCAL; i < Qcallog::TYPE_LAST_CODE; i++)
-        ui->type->addItem(QString(Qcallog::getQStringTypeCalls(i)), QVariant(i));
+    connect(modelType, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)), this, SLOT(type_calls_changed(const QModelIndex&, const QModelIndex&)));
 
-    index = ui->type->findData(propertyFilter.typeCalls());
-    ui->type->setCurrentIndex(index < 0 ? 0 : index);
+//    ui->type->addItem(QString("%1").arg(tr("не задана")), QVariant(0));
+//    for (int i = Qcallog::TYPE_LOCAL; i < Qcallog::TYPE_LAST_CODE; i++)
+//        ui->type->addItem(QString(Qcallog::getQStringTypeCalls(i)), QVariant(i));
+
+    QQueue <qint8> q = propertyFilter.typeCalls();
+    QStringList txt;
+    if (q.empty())
+        q << 0;
+
+    for (qint8 i : q) {
+        modelType->item(i)->setCheckState(Qt::Checked);
+        txt.push_back(modelType->item(i)->text());
+    }
+
+    modelType->item(0)->setData(txt.join(','), Qt::DisplayRole);
+
+//    index = ui->type->findData(propertyFilter.typeCalls());
+
+//    modelType->item(index < 0 ? 0 : index)->setCheckState(Qt::Checked);
+//    ui->type->setCurrentIndex(index < 0 ? 0 : index);
 
     highlighted = false;
+}
+
+void FilterDialog::type_calls_changed(const QModelIndex& topLeft, const QModelIndex& bottomRight)
+{
+    Q_UNUSED(bottomRight);
+
+    QStandardItem* item = modelType->item(topLeft.row());
+
+    modelType->blockSignals(true);
+    if (topLeft.row() == 0 && item->checkState() == Qt::Checked) { // кликнули на 0
+        for (int i = 1; i < modelType->rowCount(); i++) // убрали все checkбоксы
+            modelType->item(i)->setCheckState(Qt::Unchecked);
+    }
+    else
+    if (item->checkState() == Qt::Checked) // поставили check, убрали на 0
+        modelType->item(0)->setCheckState(Qt::Unchecked);
+    else { // сняли check
+        int i = 0;
+        for (i = 1; i < modelType->rowCount(); i++)
+            if (modelType->item(i)->checkState() == Qt::Checked)
+                break;
+        if (i == modelType->rowCount())
+            modelType->item(0)->setCheckState(Qt::Checked);
+    }
+    modelType->blockSignals(false);
 }
 
 FilterDialog::~FilterDialog()
@@ -151,14 +216,24 @@ void FilterDialog::writefil(PropertyFilter &f)
     f.setOutnumf(ui->outnum->text());
     f.setInaonf(ui->inaon->text());
     f.setInnumf(ui->innum->text());
+
     f.setTalklenfromf(ui->talklenfrom->text());
     f.setTalklentof(ui->talklento->text());
+
     f.setBusylenfromf(ui->busyfrom->text());
     f.setBusylentof(ui->busyto->text());
+
     f.setTimefromf(ui->timesince->text());
     f.setTimetof(ui->timeto->text());
+
     f.setReleaseCause(ui->reason->currentData().toInt());
-    f.setTypeCalls(ui->type->currentData().toInt());
+
+    QQueue <qint8> q;
+    for (int i = 0; i < modelType->rowCount(); i++)
+        if (modelType->item(i)->checkState() == Qt::Checked)
+            q.push_back(i);
+
+    f.setTypeCalls(q);
 }
 
 void FilterDialog::on_clearbutton_clicked()
@@ -173,15 +248,24 @@ void FilterDialog::on_clearbutton_clicked()
     ui->innum->clear();
     ui->outaon->clear();
     ui->outnum->clear();
-    QDate datesince, dateto;
-    ui->datesince->setDate(datesince.fromString("01-01-2000", "dd-MM-yyyy"));
-    ui->dateto->setDate(dateto.currentDate());
+    QDate datesince = QDate::currentDate();
+    //ui->datesince->setDate(datesince.fromString("01-01-2000", "dd-MM-yyyy"));
+#ifdef QT_DEBUG
+    ui->datesince->setDate(datesince.addDays(-datesince.day() + 1));
+    ui->datesince->setDate(datesince.addMonths(-datesince.month() + 1));
+#else
+    ui->datesince->setDate(datesince.addDays(-datesince.day() + 1));
+#endif
+    ui->dateto->setDate( QDate::currentDate());
     QTime timesince, timeto;
     ui->timesince->setTime(timesince.fromString("00:00:00", "hh:mm:ss"));
     ui->timeto->setTime(timeto.fromString("23:59:59", "hh:mm:ss"));
 
     ui->reason->setCurrentIndex(0);
-    ui->type->setCurrentIndex(0);
+
+    //ui->type->setCurrentIndex(0);
+    modelType->item(0)->setData(QString("не задана"), Qt::DisplayRole);
+    modelType->item(0)->setCheckState(Qt::Checked);
 }
 
 
@@ -325,12 +409,12 @@ void PropertyFilter::setReleaseCause(const qint16 &releaseCause)
     m_releaseCause = releaseCause;
 }
 
-qint8 PropertyFilter::typeCalls() const
+QQueue<qint8> PropertyFilter::typeCalls() const
 {
     return m_typeCalls;
 }
 
-void PropertyFilter::setTypeCalls(const qint8 &typeCalls)
+void PropertyFilter::setTypeCalls(const QQueue <qint8> &typeCalls)
 {
     m_typeCalls = typeCalls;
 }
@@ -385,3 +469,13 @@ void FilterDialog::on_about_highlighted(const QString &arg1)
     Q_UNUSED(arg1);
     highlighted = true;
 }
+
+//void FilterDialog::on_type_currentIndexChanged(int index)
+//{
+//    qDebug() << "Calls Type Index Changed";
+//}
+
+//void FilterDialog::on_type_highlighted(int index)
+//{
+//    qDebug() << "Calls Type highlighted";
+//}
