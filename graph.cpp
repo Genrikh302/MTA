@@ -178,7 +178,7 @@ void Graph::buildReportSucessCallsDate(QSqlTableModel *cdrModel)
         cdrModel->fetchMore();
     for (int i = 0; i < cdrModel->rowCount(); i++) {
         QDate index = QDate::fromJulianDay(cdrModel->data(cdrModel->index(i, dateIndex), Qt::EditRole).toInt());
-        if (!sucals.contains(index)) { // если кулюча нет, добавляем
+        if (!sucals.contains(index)) { // если ключа нет, добавляем
             sucals[index] = 0;
             othercals[index] = 0;
         }
@@ -284,10 +284,10 @@ void Graph::buildReportSucessCallsTime(QSqlTableModel *cdrModel)
     for (int i = 0; i < cdrModel->rowCount(); i++){
         if(cdrModel->data(cdrModel->index(i, reasIndex), Qt::EditRole).toInt() == 16){
             //В базе лежат секунды с начала дня, а методу нужно на вход количество милисекунд, поэтому * 1000
-            suchours[QTime::fromMSecsSinceStartOfDay(cdrModel->data(cdrModel->index(i, timeIndex), Qt::EditRole).toInt() * 1000).hour() - 1]++;
+            suchours[QTime::fromMSecsSinceStartOfDay(cdrModel->data(cdrModel->index(i, timeIndex), Qt::EditRole).toInt() * 1000).hour()]++;
         }
         else{
-            unsuchours[QTime::fromMSecsSinceStartOfDay(cdrModel->data(cdrModel->index(i, timeIndex), Qt::EditRole).toInt() * 1000).hour() - 1]++;
+            unsuchours[QTime::fromMSecsSinceStartOfDay(cdrModel->data(cdrModel->index(i, timeIndex), Qt::EditRole).toInt() * 1000).hour()]++;
         }
     }
     QCPBars *sucbar = new QCPBars(plot->xAxis, plot->yAxis);
@@ -444,6 +444,7 @@ void Graph::buildReportSucessCallsWeekDay(QSqlTableModel *cdrModel)
 }
 
 void Graph::buildReportAbonents(QSqlTableModel *cdrModel){
+    //Успешность вызовов по абонентам
     QCustomPlot* plot = ui->Plot;
     QMap <QString,int> sucals;
     QMap <QString,int> othercals;
@@ -603,5 +604,118 @@ void Graph::buildReportLoad(QSqlTableModel *cdrModel){
 }
 
 void Graph::buildReportCallens(QSqlTableModel *cdrModel){
-    //по иксу должны быть абоненты или звонки по очереди?
+    //Длительность разгововров и занятия линии абонентами
+
+    QCustomPlot* plot = ui->Plot;
+    QMap <QString,int> callen;
+    QMap <QString,int> linelen;
+    int lineLenIndex = cdrModel->fieldIndex("linelen");
+    int calLenIndex = cdrModel->fieldIndex("callen");
+    int intypeIndex = cdrModel->fieldIndex("intype");
+    int dateIndex = cdrModel->fieldIndex("date");
+    int maxdate = 0;
+    qint64 mindate = 3000000;
+
+    QCPBars *callenbar = new QCPBars(plot->xAxis, plot->yAxis);
+    QCPBars *linelenbar = new QCPBars(plot->xAxis, plot->yAxis);
+    cdrModel->select();
+    int ymax = 0;
+    while (cdrModel->canFetchMore())
+        cdrModel->fetchMore();
+
+
+    for (int i = 0; i < cdrModel->rowCount(); i++) {
+        QString index = cdrModel->data(cdrModel->index(i, intypeIndex), Qt::DisplayRole).toString();// + cdrModel->data(cdrModel->index(i, ininc1Index), Qt::EditRole).toString();
+        if (!callen.contains(index)) {
+            callen[index] = 0;
+            linelen[index] = 0;
+        }
+        int rowcal = cdrModel->data(cdrModel->index(i, calLenIndex), Qt::EditRole).toInt();
+        int rowline = cdrModel->data(cdrModel->index(i, lineLenIndex), Qt::EditRole).toInt();
+        int rowdate = cdrModel->data(cdrModel->index(i, dateIndex), Qt::EditRole).toInt();;
+        callen[index] += rowcal;
+        linelen[index] += rowline - rowcal; //Так как стобцы будут стоять друг на друге
+        //qDebug() << rowdate;
+        maxdate = rowdate > maxdate ? rowdate : maxdate;
+        mindate = rowdate < mindate ? rowdate : mindate;
+
+    }
+
+    QVector<double> caldata;
+    QVector<double> linedata;
+    QVector<double> ticks;
+    QVector<QString> labels;
+    plot->addPlottable(callenbar);
+    plot->addPlottable(linelenbar);
+    int tickscount = 0;
+
+    for (auto val : callen.toStdMap()) {
+        caldata << val.second;
+        ticks << ++tickscount;
+        labels << val.first;
+    }
+
+    for (auto val : linelen.toStdMap()) {
+        linedata << val.second;
+    }
+
+    for (auto v : callen.keys()) {
+        if (callen[v] + linelen[v] > ymax)
+            ymax = callen[v] + linelen[v];
+    }
+
+    linelenbar->setData(ticks, linedata);
+    callenbar->setData(ticks, caldata);
+//раскраска столбцов
+    linelenbar->moveAbove(callenbar);
+    QPen pen;
+    pen.setWidthF(1.2);
+    callenbar->setName(tr("Время разговоров"));
+    pen.setColor(QColor(1, 92, 191));
+    callenbar->setPen(pen);
+    callenbar->setBrush(QColor(1, 92, 191, 100));
+    linelenbar->setName("Время занятия линии");
+    pen.setColor(QColor(255, 131, 0));
+    linelenbar->setPen(pen);
+    linelenbar->setBrush(QColor(255, 131, 0, 100));
+
+    customPlot->xAxis->setLabel(tr("Абоненты или линии"));
+    customPlot->xAxis->setAutoTicks(false);
+    customPlot->xAxis->setAutoTickLabels(false);
+    customPlot->xAxis->setTickVector(ticks);
+    customPlot->xAxis->setTickVectorLabels(labels);
+    customPlot->xAxis->setTickLabelRotation(60);
+    customPlot->xAxis->setSubTickCount(0);
+    customPlot->xAxis->setTickLength(0, 4);
+    customPlot->xAxis->grid()->setVisible(true);
+    customPlot->xAxis->setRange(0, linedata.size() + 2);
+
+    // prepare y axis:
+    customPlot->yAxis->setRange(0, ymax + ymax / 5);
+    customPlot->yAxis->setPadding(5);
+    customPlot->yAxis->setLabel(tr("Время в секундах"));
+    customPlot->yAxis->grid()->setSubGridVisible(true);
+    QPen gridPen;
+    gridPen.setStyle(Qt::SolidLine);
+    gridPen.setColor(QColor(0, 0, 0, 25));
+    customPlot->yAxis->grid()->setPen(gridPen);
+    gridPen.setStyle(Qt::DotLine);
+    customPlot->yAxis->grid()->setSubGridPen(gridPen);
+
+    //легенда
+    customPlot->legend->setVisible(true);
+    customPlot->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignTop | Qt::AlignRight);
+    customPlot->legend->setBrush(QColor(255, 255, 255, 200));
+    QPen legendPen;
+    legendPen.setColor(QColor(130, 130, 130, 200));
+    customPlot->legend->setBorderPen(legendPen);
+    QFont legendFont = font();
+    legendFont.setPointSize(10);
+    customPlot->legend->setFont(legendFont);
+
+    qDebug() << mindate << maxdate;
+    QString title = "Выборка с " + QDate::fromJulianDay(mindate).toString("dd-MM-yyyy") + " по " + QDate::fromJulianDay(maxdate).toString("dd-MM-yyyy");
+    setWindowTitle(title);
+    customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
+    show();
 }
