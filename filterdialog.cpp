@@ -95,8 +95,7 @@ FilterDialog::FilterDialog(const PropertyFilter &propertyFilter, const QStringLi
     QDate current = QDate::currentDate();
     if (propertyFilter.datesincef().isEmpty()) {
     #ifdef QT_DEBUG
-        ui->datesince->setDate(current.addDays(-current.day() + 1));
-        ui->datesince->setDate(current.addMonths(-current.month() + 1));
+        ui->datesince->setDate(current.addDays(-current.day() + 1).addMonths(-current.month() + 1));
     #else
         ui->datesince->setDate(current.addDays(-current.day() + 1));
     #endif
@@ -251,8 +250,7 @@ void FilterDialog::on_clearbutton_clicked()
     QDate datesince = QDate::currentDate();
     //ui->datesince->setDate(datesince.fromString("01-01-2000", "dd-MM-yyyy"));
 #ifdef QT_DEBUG
-    ui->datesince->setDate(datesince.addDays(-datesince.day() + 1));
-    ui->datesince->setDate(datesince.addMonths(-datesince.month() + 1));
+    ui->datesince->setDate(datesince.addDays(-datesince.day() + 1).addMonths(-datesince.month() + 1));
 #else
     ui->datesince->setDate(datesince.addDays(-datesince.day() + 1));
 #endif
