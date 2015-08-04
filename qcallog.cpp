@@ -100,7 +100,11 @@ QTextStream &operator >> (QTextStream &in, Qcallog::s &log) throw(std::invalid_a
     else
         throw(std::invalid_argument("Ошибка чтения из потока, не известное значение типа канала"));
 
-    in >> log.anum;
+    if (draft == "-")
+        log.anum = draft;
+    else
+        in >> log.anum;
+
     in >> log.num;
     return in;
 }
