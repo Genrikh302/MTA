@@ -37,6 +37,9 @@ private slots:
     void on_actionSucessCallsDate_triggered(); //
     void on_actionSucessCallsTime_triggered(); //
     void on_actionSucessCallsWeekDay_triggered();
+    void on_actionAbonents_triggered();
+    void on_actionLoad_triggered();
+    void on_actionDrawCallens_triggered();
 
     void on_pushButton_clicked();
 

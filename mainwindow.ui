@@ -384,6 +384,9 @@
     <addaction name="actionSucessCallsDate"/>
     <addaction name="actionSucessCallsTime"/>
     <addaction name="actionSucessCallsWeekDay"/>
+    <addaction name="actionAbonents"/>
+    <addaction name="actionLoad"/>
+    <addaction name="actionDrawCallens"/>
    </widget>
    <widget class="QMenu" name="menuProperty">
     <property name="title">
@@ -450,6 +453,21 @@
    </property>
    <property name="text">
     <string>Успешность вызова по дням недели</string>
+   </property>
+  </action>
+  <action name="actionAbonents">
+   <property name="text">
+    <string>Количество вызовов по линиям</string>
+   </property>
+  </action>
+  <action name="actionLoad">
+   <property name="text">
+    <string>Нагрузка</string>
+   </property>
+  </action>
+  <action name="actionDrawCallens">
+   <property name="text">
+    <string>Время звонка и занятия</string>
    </property>
   </action>
  </widget>

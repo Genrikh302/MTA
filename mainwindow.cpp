@@ -243,7 +243,6 @@ void MainWindow::addCDRFileToDB(const QString &file, int fileid, QProgress* prog
 void MainWindow::addFileListToCDRbase(const QStringList &files)
 {
     //Последовательная обработка файлов
-    //прогресс бар должен обновляться
     int fileIndex = 0;
     QProgress* progress = new QProgress(); //QObject не может копироваться, поэтому указатель
     progress->setWindowTitle(tr("Загрузка файлов"));
@@ -781,12 +780,24 @@ void MainWindow::on_pushAbonents_clicked()
     _GRAPH_(ReportAbonents);
 }
 
+void MainWindow::on_actionAbonents_triggered(){
+    _GRAPH_(ReportAbonents);
+}
+
 void MainWindow::on_pushLoad_clicked()
 {
     _GRAPH_(ReportLoad);
 }
 
+void MainWindow::on_actionLoad_triggered(){
+    _GRAPH_(ReportLoad);
+}
+
 void MainWindow::on_pushDrawCallens_clicked()
 {
+    _GRAPH_(ReportCallens);
+}
+
+void MainWindow::on_actionDrawCallens_triggered(){
     _GRAPH_(ReportCallens);
 }
