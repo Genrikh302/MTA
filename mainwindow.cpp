@@ -12,7 +12,9 @@
 #include <QTableView>
 #include <QTableWidgetItem>
 #include <QMessageBox>
+#include <QProgressBar>
 #include "qprogrampropertydialog.h"
+#include "qprogress.h"
 
 #define VERSION "1.0.0b"
 
@@ -199,9 +201,10 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::addCDRFileToDB(const QString &file, int fileid) {
+void MainWindow::addCDRFileToDB(const QString &file, int fileid, QProgress* progress) {
     QFile inputFile(file);
-
+    int i = 0;
+    //progress->setFileSize(inputFile.size());
     statusBar()->showMessage(tr("Loaded %1").arg(file), 2000);
 
     if(!inputFile.open(QIODevice::ReadOnly))
@@ -214,20 +217,25 @@ void MainWindow::addCDRFileToDB(const QString &file, int fileid) {
 //    std::list <Qcallog> l;
     //Занесение данных из файлов в лист, из листа в базу
     QSqlDatabase::database().transaction();
+    progress->refresh(0);
     while (!in.atEnd())
     {
         //QString line = inputFile.readLine();
+        //при включении обновления програссбара срабатывает throw из qcallog
+        //обновление сделано с частотой прохождения строк, тк шаг обновления .pos меняется и нельзя подобрать кратность
+        if(i % 15 == 0)
+             progress->refresh(in.pos());
         Qcallog logstr;
         in >> logstr;
         logstr.setFilekey(fileid);
         //l.push_back(logstr);
         logdb << logstr;
-        //(*cdrModel) << logstr;
+        //qDebug() << in.pos() << inputFile.size();
+        i++;
     }
     QSqlDatabase::database().commit();
 //    for(auto i = l.begin(); i != l.end(); i++)
 //        i->print();
-
     inputFile.close();
 }
 
@@ -235,9 +243,13 @@ void MainWindow::addCDRFileToDB(const QString &file, int fileid) {
 void MainWindow::addFileListToCDRbase(const QStringList &files)
 {
     //Последовательная обработка файлов
+    //прогресс бар должен обновляться
+    int fileIndex = 0;
+    QProgress* progress = new QProgress(); //QObject не может копироваться, поэтому указатель
+    progress->setWindowTitle(tr("Загрузка файлов"));
+    progress->show();
     for (QString str : files) {
         QFileInfo fileInfo(str);
-
         QSqlQuery q;
         if (!q.exec(QString("select id from LoadedFile where name = '%1'").arg(fileInfo.fileName())))
             qDebug() << q.lastError().text();
@@ -255,11 +267,21 @@ void MainWindow::addFileListToCDRbase(const QStringList &files)
             if (q.exec(QString("select id from LoadedFile where name = '%1'").arg(fileInfo.fileName()))) {
                 if (q.next()) {
                     int fileid = q.value(0).toInt();
-                    addCDRFileToDB(str, fileid);
+                    progress->setFileSize(fileInfo.size());
+                    addCDRFileToDB(str, fileid, progress);
                 }
             }
         }
+        progress->setCurFileNum(fileIndex, files.size());
+        fileIndex++;
+        //иначе не успевает перерисовываться
+        QEventLoop loop;
+        QTimer::singleShot(1, &loop, SLOT(quit()));
+        loop.exec();
+        progress->repaint();
+        //qDebug() << fileIndex;
     } 
+    delete(progress);
 }
 
 void MainWindow::on_actionOpen_triggered()

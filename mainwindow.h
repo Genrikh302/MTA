@@ -9,7 +9,7 @@
 #include "filterdialog.h"
 #include "qchanneltablemodel.h"
 #include "graph.h"
-
+#include "qprogress.h"
 
 namespace Ui {
 class MainWindow;
@@ -23,13 +23,13 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     //QSqlTableModel *model;
     ~MainWindow();
-    void addCDRFileToDB(const QString &file, int fileid); // добавляет CDR file в базу
+    void addCDRFileToDB(const QString &file, int fileid, QProgress *progress); // добавляет CDR file в базу
     void getfilters(FilterDialog fildial); // получает фильтры из диалогового окна
 
     static const QStringList & getNationalPrefix() {return nationalPrefix;}
     static const QStringList & getInternationalPrefix() {return internationalPrefix;}
 private slots:
-    void on_actionOpen_triggered();  // ипорт из файла
+    void on_actionOpen_triggered();  // импорт из файла
     void on_actionExit_triggered();  // выход из программы
     void on_actionAbout_triggered(); // открытие окна о программе
     void on_actionProgramProperty_triggered(); // открытие настроек программы

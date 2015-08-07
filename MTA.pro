@@ -32,7 +32,8 @@ SOURCES += main.cpp\
     qchanneltablemodel.cpp \
     qcustomplot.cpp \
     graph.cpp \
-    qfiltercombobox.cpp 
+    qfiltercombobox.cpp \ 
+    qprogress.cpp
 
 
 
@@ -47,7 +48,8 @@ HEADERS  += \
     qchanneltablemodel.h \
     qcustomplot.h \
     graph.h \
-    qfiltercombobox.h 
+    qfiltercombobox.h \ 
+    qprogress.h
 
 
 
@@ -57,5 +59,6 @@ FORMS    += \
     mainwindow.ui \
     filterdialog.ui \
     qprogrampropertydialog.ui \
-    graph.ui
+    graph.ui \
+    qprogress.ui
 
