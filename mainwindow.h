@@ -78,6 +78,9 @@ private:
     void applyFilter(); // применяет фильтр на таблицу
     void addFileListToCDRbase(const QStringList &files); // добавление файлов в базу
     void showRecordCount();
+
+//public slots:
+//    void slot_table_clicked(int index);
 };
 
 

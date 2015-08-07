@@ -141,6 +141,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tableView->setColumnHidden(QCDRSortFilterModel::COL_ID, true); // id
 
 
+    //connect(ui->tableView->horizontalHeader(), SIGNAL(sectionClicked(int)), this, SLOT(slot_table_clicked(int)));
+    //ui->tableView->sortByColumn(QCDRSortFilterModel::COL_ID);
+    //ui->tableView->so
+
     // высоту ячейки
     ui->tableView->verticalHeader()->setDefaultSectionSize(18);
 //    ui->tableView->setColumnWidth(QCDRTableModel::COL_IN_TYPE, 150);
@@ -691,12 +695,57 @@ void MainWindow::on_pushSave_clicked()
     csv.close();
 }
 
+//void MainWindow::slot_table_clicked(int index)
+//{
+//    qDebug() << "cicked" << index;
+//}
+
 void MainWindow::showRecordCount()
 {
-    while (cdrModel->canFetchMore())
-        cdrModel->fetchMore();
+    //while (cdrModel->canFetchMore())
+    //    cdrModel->fetchMore();
 
-    statusBar()->showMessage(tr("Записей %1").arg(cdrModel->rowCount()));
+    QSqlQuery q;
+    //QString qv = QString("SELECT COUNT(*) FROM logbase %1").arg(cdrModel->filter().isEmpty() ? "" : QString(" WHERE %1").arg(cdrModel->filter()));
+    if (!q.exec(QString("SELECT COUNT(*) FROM logbase %1").arg(cdrModel->filter().isEmpty() ? "" : QString(" WHERE %1").arg(cdrModel->filter()))))
+        qDebug() << "get count" << logdb.lastError();
+
+
+
+
+    //int rowCount = cdrModel->rowCount();
+    int rowCount = 0;
+    if (q.next())
+        rowCount = q.value(0).toInt();
+
+
+    if (!q.exec(QString("SELECT sum(callen) FROM logbase %1").arg(cdrModel->filter().isEmpty() ? "" : QString(" WHERE %1").arg(cdrModel->filter()))))
+        qDebug() << "get sum" << logdb.lastError();
+    int callLen = 0;
+    if (q.next())
+        callLen = q.value(0).toInt();
+
+
+    int talkDays = 0;
+    if (callLen >= 24*60*60) {// больше суток
+        talkDays = callLen / (24*60*60);
+        callLen = callLen  % (24*60*60);
+    }
+
+    QTime talkTime = QTime(0, 0).addSecs(callLen);
+    if (talkDays > 0)
+        statusBar()->showMessage(tr("Записей %1 время разговора %2 суток %3").arg(rowCount).arg(talkDays).arg(talkTime.toString("hh:mm:ss")));
+    else
+        statusBar()->showMessage(tr("Записей %1 время разговора %2").arg(rowCount).arg(talkTime.toString("hh:mm:ss")));
+
+
+    ui->tableView->setSortingEnabled(true);
+    ui->tableView->setColumnHidden(QCDRSortFilterModel::COL_ID, false); // id
+    ui->tableView->sortByColumn(QCDRSortFilterModel::COL_ID, Qt::AscendingOrder);
+    ui->tableView->setColumnHidden(QCDRSortFilterModel::COL_ID, true); // id
+
+    if (rowCount > 500)
+        ui->tableView->setSortingEnabled(false);
 }
 
 #define _GRAPH_(name) \
