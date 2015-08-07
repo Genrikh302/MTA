@@ -721,6 +721,21 @@ void MainWindow::on_pushSave_clicked()
 //    qDebug() << "cicked" << index;
 //}
 
+const  QString minutes (int n)
+{
+    const QString m[3] = {"минута", "минуты", "минут"};
+    n = abs (n);
+    int d = n % 100;
+    if (d >= 20)
+        d = n % 10;
+    int i = 2;
+    if (d == 1)
+        i = 0;
+    if (d >= 2 && d <= 4)
+        i = 2;
+    return m[i];
+}
+
 void MainWindow::showRecordCount()
 {
     //while (cdrModel->canFetchMore())
@@ -730,8 +745,6 @@ void MainWindow::showRecordCount()
     //QString qv = QString("SELECT COUNT(*) FROM logbase %1").arg(cdrModel->filter().isEmpty() ? "" : QString(" WHERE %1").arg(cdrModel->filter()));
     if (!q.exec(QString("SELECT COUNT(*) FROM logbase %1").arg(cdrModel->filter().isEmpty() ? "" : QString(" WHERE %1").arg(cdrModel->filter()))))
         qDebug() << "get count" << logdb.lastError();
-
-
 
 
     //int rowCount = cdrModel->rowCount();
@@ -747,17 +760,18 @@ void MainWindow::showRecordCount()
         callLen = q.value(0).toInt();
 
 
-    int talkDays = 0;
-    if (callLen >= 24*60*60) {// больше суток
-        talkDays = callLen / (24*60*60);
-        callLen = callLen  % (24*60*60);
-    }
+//    int talkDays = 0;
+//    if (callLen >= 24*60*60) {// больше суток
+//        talkDays = callLen / (24*60*60);
+//        callLen = callLen  % (24*60*60);
+//    }
 
-    QTime talkTime = QTime(0, 0).addSecs(callLen);
-    if (talkDays > 0)
-        statusBar()->showMessage(tr("Записей %1 время разговора %2 суток %3").arg(rowCount).arg(talkDays).arg(talkTime.toString("hh:mm:ss")));
-    else
-        statusBar()->showMessage(tr("Записей %1 время разговора %2").arg(rowCount).arg(talkTime.toString("hh:mm:ss")));
+    //QTime talkTime = QTime(0, 0).addSecs(callLen);
+    //if (talkDays > 0)
+    //    statusBar()->showMessage(tr("Записей %1 время разговора %2 суток %3").arg(rowCount).arg(talkDays).arg(talkTime.toString("hh:mm:ss")));
+    //else
+
+    statusBar()->showMessage(tr("Записей %1, время разговора %2 %3").arg(rowCount).arg(callLen / 60).arg(minutes(callLen / 60)));
 
 
     ui->tableView->setSortingEnabled(true);
