@@ -635,7 +635,6 @@ void Graph::buildReportCallens(QSqlTableModel *cdrModel){
         int rowdate = cdrModel->data(cdrModel->index(i, dateIndex), Qt::EditRole).toInt();;
         callen[index] += rowcal;
         linelen[index] += rowline - rowcal; //Так как стобцы будут стоять друг на друге
-        //qDebug() << rowdate;
         maxdate = rowdate > maxdate ? rowdate : maxdate;
         mindate = rowdate < mindate ? rowdate : mindate;
 
@@ -713,7 +712,6 @@ void Graph::buildReportCallens(QSqlTableModel *cdrModel){
     legendFont.setPointSize(10);
     customPlot->legend->setFont(legendFont);
 
-    qDebug() << mindate << maxdate;
     QString title = "Выборка с " + QDate::fromJulianDay(mindate).toString("dd-MM-yyyy") + " по " + QDate::fromJulianDay(maxdate).toString("dd-MM-yyyy");
     setWindowTitle(title);
     customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
