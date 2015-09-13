@@ -210,8 +210,8 @@ void MainWindow::addFileListToCDRbase(const QStringList &files)
 {
     //Последовательная обработка файлов
     int fileIndex = 0;
-    QThread* load = new QThread();
-    ProgressWorker *worker = new ProgressWorker(&logdb, (QStringList *)&files, progressDialog);
+    load = new QThread();
+    worker = new ProgressWorker(&logdb, (QStringList *)&files, progressDialog);
     progressDialog = new QProgressDialog(); //QObject не может копироваться, поэтому указатель
     progressDialog->setWindowTitle(tr("Загрузка файлов"));
     progressDialog->show();
@@ -221,9 +221,10 @@ void MainWindow::addFileListToCDRbase(const QStringList &files)
     connect(worker, SIGNAL(finished()), SLOT(on_worker_finish())); // оповестим MainWindow что мы закончили
     connect(worker, SIGNAL(listProgress(int, int)), progressDialog, SLOT(on_listProgress(int, int)));
     connect(worker, SIGNAL(fileProgress(int)), progressDialog, SLOT(on_fileProgress(int)));
+    connect(progressDialog, SIGNAL(closed()),  load, SLOT(quit()));
+    connect(progressDialog, SIGNAL(closed()),  SLOT(FileLoadDialog_closed()));
     load->start();
     progressDialog->exec(); // запустили окно
-
 /*    for (QString str : files) {
         QFileInfo fileInfo(str);
         QSqlQuery q;
@@ -271,6 +272,15 @@ void MainWindow::on_worker_finish()
         progressDialog->close();
 }
 
+void MainWindow::FileLoadDialog_closed(){
+    qDebug() << "destroyed";
+    worker->stop(); // вышли из окна остановили процесс
+    load->exit();
+    delete(progressDialog);
+    progressDialog = NULL;
+    delete(worker);
+    delete(load);
+}
 
 void MainWindow::on_actionOpen_triggered()
 {

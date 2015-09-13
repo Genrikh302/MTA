@@ -19,36 +19,39 @@ void ProgressWorker::stop()
 
 void ProgressWorker::addCDRFileToDB(const QString &file, int fileid, int size) {
     QFile inputFile(file);
+    int bitesum = 0;
     int i = 0;
-
     //statusBar()->showMessage(tr("Loaded %1").arg(file), 2000);
     if(!inputFile.open(QIODevice::ReadOnly))
     {
         qDebug()<<"ERROR: Can't open file "<< file;
         return;
     }
-//   emit fileSize(size);
     QTextStream in(&inputFile);
 //    std::list <Qcallog> l;
     //Занесение данных из файлов в лист, из листа в базу
     QSqlDatabase::database().transaction();
 //    progress->refresh(0);
+    emit fileProgress(0);
     while (!in.atEnd())
     {
         //QString line = inputFile.readLine();
         //при включении обновления програссбара срабатывает throw из qcallog
-        //обновление сделано с частотой прохождения строк, тк шаг обновления .pos меняется и нельзя подобрать кратность
-//        if(in.pos() > size/100 * i){
-//             emit fileProgress(i);
-//             i++;
+        if(bitesum > size / 100  * i){
+             emit fileProgress(bitesum * 100 / size);
+        }
+//        if(i % 50 == 0){
+//            emit fileProgress(in.pos() * 100 / size);
 //        }
         Qcallog logstr;
         in >> logstr;
+        QString logstring = logstr.toString();
         logstr.setFilekey(fileid);
         //l.push_back(logstr);
         *logdb << logstr;
-        //qDebug() << in.pos() << inputFile.size();
-
+        i++;
+        bitesum += logstring.size() * sizeof(char) + sizeof(char);
+        //qDebug() << file <<  in.pos() << bitesum;
     }
     QSqlDatabase::database().commit();
 //    for(auto i = l.begin(); i != l.end(); i++)
@@ -61,7 +64,7 @@ void ProgressWorker::addFileListToCDRbase()
 {
     //Последовательная обработка файлов
     int fileIndex = 0;
-
+    emit listProgress(0,1);
     for (QString str : *files) {
         QFileInfo fileInfo(str);
         QSqlQuery q;
@@ -87,14 +90,6 @@ void ProgressWorker::addFileListToCDRbase()
                 }
             }
         }
-//        progressDialog->setFileNum(fileIndex, files.size());
-//        fileIndex++;
-//        //иначе не успевает перерисовываться
-//        QEventLoop loop;
-//        QTimer::singleShot(1, &loop, SLOT(quit()));
-//        loop.exec();
-//        progressDialog->repaint();
-        //qDebug() << fileIndex;
     }
     emit finished(); // отправляем сообщение что закончили работу
 }

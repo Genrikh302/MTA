@@ -10,6 +10,7 @@
 #include "qchanneltablemodel.h"
 #include "graph.h"
 #include "qprogressdialog.h"
+#include "progressworker.h"
 
 namespace Ui {
 class MainWindow;
@@ -87,10 +88,13 @@ private:
     void showRecordCount();
 
     QProgressDialog *progressDialog;
+    QThread* load;
+    ProgressWorker *worker;
 
 public slots:
 //    void slot_table_clicked(int index);
     void on_worker_finish();
+    void FileLoadDialog_closed();
 //    void on_fileProgress(const int value);
 //    void on_listProgress(const int value);
 };

@@ -22,6 +22,11 @@ public slots:
     void on_fileProgress(int value);
     //void on_fileSize(int size);
     void on_listProgress(int filenum, int sumfiles);
+private slots:
+    void on_qprogress_rejected();
+
+signals:
+    void closed();
 private:
     Ui::qprogress *ui;
     int curfilenum;

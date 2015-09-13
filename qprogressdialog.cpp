@@ -24,3 +24,10 @@ void QProgressDialog::on_fileProgress(int value){
 //void QProgressDialog::on_fileSize(int size){
 //    ui->progressBar->setMaximum(size);
 //}
+
+
+void QProgressDialog::on_qprogress_rejected()
+{
+    qDebug() << "destr";
+    emit closed();
+}
