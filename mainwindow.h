@@ -30,6 +30,7 @@ public:
     static const QStringList & getInternationalPrefix() {return internationalPrefix;}
 private slots:
     void on_actionOpen_triggered();  // импорт из файла
+    void on_action_SSH_import_triggered();  // импорт по SSH
     void on_actionExit_triggered();  // выход из программы
     void on_actionAbout_triggered(); // открытие окна о программе
     void on_actionProgramProperty_triggered(); // открытие настроек программы

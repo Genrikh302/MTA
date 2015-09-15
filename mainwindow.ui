@@ -374,6 +374,7 @@
      <string>Файл</string>
     </property>
     <addaction name="actionOpen"/>
+    <addaction name="action_SSH_import"/>
     <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menu">
@@ -468,6 +469,11 @@
   <action name="actionDrawCallens">
    <property name="text">
     <string>Время звонка и занятия</string>
+   </property>
+  </action>
+  <action name="action_SSH_import">
+   <property name="text">
+    <string>Импорт по SSH</string>
    </property>
   </action>
  </widget>

@@ -22,6 +22,11 @@ TEMPLATE = app
 
 win32:RC_ICONS += resources/MTA.ico
 
+!macx {
+    LIBS += -lssh2
+}
+
+
 SOURCES += main.cpp\
     mainwindow.cpp \
     qcallog.cpp \
@@ -33,7 +38,8 @@ SOURCES += main.cpp\
     qcustomplot.cpp \
     graph.cpp \
     qfiltercombobox.cpp \ 
-    qprogress.cpp
+    qprogress.cpp \
+    qsshlogindialog.cpp
 
 
 
@@ -49,7 +55,8 @@ HEADERS  += \
     qcustomplot.h \
     graph.h \
     qfiltercombobox.h \ 
-    qprogress.h
+    qprogress.h \
+    qsshlogindialog.h
 
 
 
@@ -60,5 +67,6 @@ FORMS    += \
     filterdialog.ui \
     qprogrampropertydialog.ui \
     graph.ui \
-    qprogress.ui
+    qprogress.ui \
+    qsshlogindialog.ui
 

@@ -25,18 +25,23 @@ Graph::~Graph()
 void Graph::buildReportReleaseCause(QSqlTableModel *cdrModel)
 {
     setWindowTitle(tr("Причины отбоя"));
-    cdrModel->select();
+    //cdrModel->select();
     QCustomPlot* plot = ui->Plot;
     int idIndex = cdrModel->fieldIndex("relreason");
     int m[256];
 
     int columnum = 0;
     memset(m, 0, sizeof(m));
-    while (cdrModel->canFetchMore())
-        cdrModel->fetchMore();
 
-    for (int i = 0; i < cdrModel->rowCount(); i++)
-        m[cdrModel->data(cdrModel->index(i, idIndex), Qt::EditRole).toInt()]++;
+    QSqlQuery q;
+    q.setForwardOnly(true);
+    if (!q.exec(QString("SELECT relreason FROM logbase %1").arg(cdrModel->filter().isEmpty() ? "" : QString(" WHERE %1").arg(cdrModel->filter()))))
+        qDebug() << "ReleaseCause select error" << q.lastError();
+
+    //for (int i = 0; i < cdrModel->rowCount(); i++)
+    //    m[cdrModel->data(cdrModel->index(i, idIndex), Qt::EditRole).toInt()]++;
+    while (q.next())
+        m[q.value(0).toInt()]++;
 
     QCPBars *bar = new QCPBars(plot->xAxis, plot->yAxis);
     int ymax = 0;
@@ -171,20 +176,36 @@ void Graph::buildReportSucessCallsDate(QSqlTableModel *cdrModel)
     int dateIndex = cdrModel->fieldIndex("date");
     QCPBars *sucbar = new QCPBars(plot->xAxis, plot->yAxis);
     QCPBars *otherbar = new QCPBars(plot->xAxis, plot->yAxis);
-    cdrModel->select();
+//    cdrModel->select();
     int ymax = 0;
 
-    while (cdrModel->canFetchMore())
-        cdrModel->fetchMore();
-    for (int i = 0; i < cdrModel->rowCount(); i++) {
-        QDate index = QDate::fromJulianDay(cdrModel->data(cdrModel->index(i, dateIndex), Qt::EditRole).toInt());
+//    while (cdrModel->canFetchMore())
+//        cdrModel->fetchMore();
+
+    QSqlQuery q;
+    q.setForwardOnly(true);
+    if (!q.exec(QString("SELECT relreason, date FROM logbase %1").arg(cdrModel->filter().isEmpty() ? "" : QString(" WHERE %1").arg(cdrModel->filter()))))
+        qDebug() << "ReleaseCause select error" << q.lastError();
+
+
+    while (q.next()) {
+        QDate index = QDate::fromJulianDay(q.value(1).toInt());
         if (!sucals.contains(index)) { // если ключа нет, добавляем
             sucals[index] = 0;
             othercals[index] = 0;
         }
-
-        cdrModel->data(cdrModel->index(i, reasIndex), Qt::EditRole).toInt() == 16  ? sucals[index]++ : othercals[index]++;
+        q.value(0).toInt() == 16  ? sucals[index]++ : othercals[index]++;
     }
+
+//    for (int i = 0; i < cdrModel->rowCount(); i++) {
+//        QDate index = QDate::fromJulianDay(cdrModel->data(cdrModel->index(i, dateIndex), Qt::EditRole).toInt());
+//        if (!sucals.contains(index)) { // если ключа нет, добавляем
+//            sucals[index] = 0;
+//            othercals[index] = 0;
+//        }
+
+//        cdrModel->data(cdrModel->index(i, reasIndex), Qt::EditRole).toInt() == 16  ? sucals[index]++ : othercals[index]++;
+//    }
 
     QVector<double> sucdata;
     QVector<double> otherdata;
@@ -269,7 +290,7 @@ void Graph::buildReportSucessCallsTime(QSqlTableModel *cdrModel)
      Если нужен именно вид линии - нужно уменьшать точность, пока сделал столбиками
      */
     setWindowTitle(tr("Успешность вызовов по часам"));
-    cdrModel->select();
+//    cdrModel->select();
     QCustomPlot* plot = ui->Plot;
     int reasIndex = cdrModel->fieldIndex("relreason");
     int timeIndex = cdrModel->fieldIndex("time");
@@ -278,18 +299,31 @@ void Graph::buildReportSucessCallsTime(QSqlTableModel *cdrModel)
     memset(suchours, 0, sizeof(suchours));
     memset(unsuchours, 0, sizeof(unsuchours));
 
-    while (cdrModel->canFetchMore())
-        cdrModel->fetchMore();
+//    while (cdrModel->canFetchMore())
+//        cdrModel->fetchMore();
 
-    for (int i = 0; i < cdrModel->rowCount(); i++){
-        if(cdrModel->data(cdrModel->index(i, reasIndex), Qt::EditRole).toInt() == 16){
-            //В базе лежат секунды с начала дня, а методу нужно на вход количество милисекунд, поэтому * 1000
-            suchours[QTime::fromMSecsSinceStartOfDay(cdrModel->data(cdrModel->index(i, timeIndex), Qt::EditRole).toInt() * 1000).hour()]++;
-        }
-        else{
-            unsuchours[QTime::fromMSecsSinceStartOfDay(cdrModel->data(cdrModel->index(i, timeIndex), Qt::EditRole).toInt() * 1000).hour()]++;
-        }
+    QSqlQuery q;
+    q.setForwardOnly(true);
+    if (!q.exec(QString("SELECT relreason, time FROM logbase %1").arg(cdrModel->filter().isEmpty() ? "" : QString(" WHERE %1").arg(cdrModel->filter()))))
+        qDebug() << "ReleaseCause select error" << q.lastError();
+
+
+    while (q.next()) {
+        if (q.value(0).toInt() == 16)
+            suchours[QTime::fromMSecsSinceStartOfDay(q.value(1).toInt() * 1000).hour()]++;
+        else
+            unsuchours[QTime::fromMSecsSinceStartOfDay(q.value(1).toInt() * 1000).hour()]++;
     }
+
+//    for (int i = 0; i < cdrModel->rowCount(); i++){
+//        if(cdrModel->data(cdrModel->index(i, reasIndex), Qt::EditRole).toInt() == 16){
+//            //В базе лежат секунды с начала дня, а методу нужно на вход количество милисекунд, поэтому * 1000
+//            suchours[QTime::fromMSecsSinceStartOfDay(cdrModel->data(cdrModel->index(i, timeIndex), Qt::EditRole).toInt() * 1000).hour()]++;
+//        }
+//        else {
+//            unsuchours[QTime::fromMSecsSinceStartOfDay(cdrModel->data(cdrModel->index(i, timeIndex), Qt::EditRole).toInt() * 1000).hour()]++;
+//        }
+//    }
     QCPBars *sucbar = new QCPBars(plot->xAxis, plot->yAxis);
     QCPBars *otherbar = new QCPBars(plot->xAxis, plot->yAxis);
 
@@ -359,7 +393,7 @@ void Graph::buildReportSucessCallsTime(QSqlTableModel *cdrModel)
 void Graph::buildReportSucessCallsWeekDay(QSqlTableModel *cdrModel)
 {
     setWindowTitle(tr("Успешность вызовов по дням недели"));
-    cdrModel->select();
+//    cdrModel->select();
     QCustomPlot* plot = ui->Plot;
     const int dayOfWeek = 7;
     int reasIndex = cdrModel->fieldIndex("relreason");
@@ -369,13 +403,24 @@ void Graph::buildReportSucessCallsWeekDay(QSqlTableModel *cdrModel)
     memset(sucdays, 0, sizeof(sucdays));
     memset(unsucdays, 0, sizeof(unsucdays));
 
-    while (cdrModel->canFetchMore())
-        cdrModel->fetchMore();
+//    while (cdrModel->canFetchMore())
+//        cdrModel->fetchMore();
 
-    for (int i = 0; i < cdrModel->rowCount(); i++) {
-        int index = QDate::fromJulianDay(cdrModel->data(cdrModel->index(i, dateIndex), Qt::EditRole).toInt()).dayOfWeek() - 1;
-        cdrModel->data(cdrModel->index(i, reasIndex), Qt::EditRole).toInt() == 16 ? sucdays[index]++ : unsucdays[index]++;
+    QSqlQuery q;
+    q.setForwardOnly(true);
+    if (!q.exec(QString("SELECT relreason, date FROM logbase %1").arg(cdrModel->filter().isEmpty() ? "" : QString(" WHERE %1").arg(cdrModel->filter()))))
+        qDebug() << "ReleaseCause select error" << q.lastError();
+
+
+    while (q.next()) {
+        int index = QDate::fromJulianDay(q.value(1).toInt()).dayOfWeek() - 1;
+        q.value(0) == 16 ? sucdays[index]++ : unsucdays[index]++;
     }
+
+//    for (int i = 0; i < cdrModel->rowCount(); i++) {
+//        int index = QDate::fromJulianDay(cdrModel->data(cdrModel->index(i, dateIndex), Qt::EditRole).toInt()).dayOfWeek() - 1;
+//        cdrModel->data(cdrModel->index(i, reasIndex), Qt::EditRole).toInt() == 16 ? sucdays[index]++ : unsucdays[index]++;
+//    }
 
     QCPBars *sucbar = new QCPBars(plot->xAxis, plot->yAxis);
     QCPBars *otherbar = new QCPBars(plot->xAxis, plot->yAxis);
@@ -457,6 +502,8 @@ void Graph::buildReportAbonents(QSqlTableModel *cdrModel){
     int ymax = 0;
     while (cdrModel->canFetchMore())
         cdrModel->fetchMore();
+
+
     for (int i = 0; i < cdrModel->rowCount(); i++) {
         QString index = cdrModel->data(cdrModel->index(i, intypeIndex), Qt::DisplayRole).toString();// + cdrModel->data(cdrModel->index(i, ininc1Index), Qt::EditRole).toString();
         if (!sucals.contains(index)) {

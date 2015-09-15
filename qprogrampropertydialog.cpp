@@ -6,7 +6,7 @@
 #include <QSqlError>
 #include <QDebug>
 
-//TODO Сделать выбор цвтов для расскрашивания типов вызовов
+//TODO Сделать выбор цветов для расскрашивания типов вызовов
 //TODO Сделать работу по старому формату xx-xx-xx, а не xxx-xxx-xxx
 
 QProgramPropertyDialog::QProgramPropertyDialog(QSqlTableModel *national, QSqlTableModel *international, QSqlTableModel *directionName, QSqlTableModel *directionChannel, QWidget *parent) :
@@ -265,7 +265,7 @@ QWidget *QChannelDelegate::createEditor(QWidget *parent, const QStyleOptionViewI
 {
     QLineEdit *editor = new QLineEdit(parent);
 
-    QRegExp regExp = QRegExp("([Cc][0-9]{9,9})");
+    QRegExp regExp = QRegExp("(([Cc][0-9]{9,9})|([Aa][0-9]{1,10}))");
     QRegExpValidator *validator = new QRegExpValidator(regExp);
     editor->setValidator(validator);
 
@@ -292,17 +292,23 @@ void QChannelDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, 
 
     if (edit) {
         QString value = edit->text();
-        QRegularExpression r("([Cc](\\d{3,3})(\\d{3,3})(\\d{3,3}))");
-        QRegularExpressionMatch m = r.match(value);
+        QRegularExpression c("([Cc](\\d{3,3})(\\d{3,3})(\\d{3,3}))");
+        QRegularExpression a("([Aa](\\d{0,9}))");
+        QRegularExpressionMatch cm = c.match(value);
+        QRegularExpressionMatch am = a.match(value);
 //        QString sa1 = m.captured(2);
 //        QString sa2 = m.captured(3);
 //        QString sa3 = m.captured(4);
 //        qint64 a1 = m.captured(2).toLongLong();
 //        qint64 a2 = m.captured(3).toLongLong();
 //        qint64 a3 = m.captured(4).toLongLong();
-        if (m.hasMatch()) {
-            if (!model->setData(index, (m.captured(2).toLongLong() << 32) | (m.captured(3).toLongLong() << 16) | m.captured(4).toLongLong()))
+        if (cm.hasMatch()) {
+            if (!model->setData(index, (cm.captured(2).toLongLong() << 32) | (cm.captured(3).toLongLong() << 16) | cm.captured(4).toLongLong()))
                 qDebug() << "error set data 4" <<  qobject_cast<QSqlTableModel*>(model)->lastError().text();
+        }
+        else if (am.hasMatch())
+        {
+            qDebug() << "subscribe match " << am.captured(2).toLongLong();
         }
         else
             qDebug() << "error capture delegate " << value;

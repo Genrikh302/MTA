@@ -15,6 +15,29 @@
 #include <QProgressBar>
 #include "qprogrampropertydialog.h"
 #include "qprogress.h"
+#include "qsshlogindialog.h"
+
+
+#ifndef Q_OS_MAC
+
+#include <libssh2.h>
+
+#ifndef WIN32
+#include <arpa/inet.h>
+#endif
+
+#ifdef WIN32
+#include <winsock2.h>
+#include <QTextCodec>
+#include <QThread>
+#endif
+
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdarg.h>
+
+#endif
 
 #define VERSION "1.0.0b"
 
@@ -304,6 +327,149 @@ void MainWindow::on_actionOpen_triggered()
     showRecordCount();
 }
 
+//QMessageBox writeError(QMessageBox::Warning,
+//                                   tr("Ошибка записи файла"),
+//                                   tr("произошла ошибка записи файла ") + (diskFile ? diskFile->fileName() : ""),
+//                                   QMessageBox::Ok,
+//                                   this);
+//            writeError.setModal(true);
+//            writeError.exec();
+
+
+#ifdef Q_OS_WIN
+#define CLEAR_SSH_VAR \
+    libssh2_session_disconnect(session, "Normal Shutdown, Thank you for playing"); \
+    libssh2_session_free(session); \
+    closesocket(sock);
+#elseif
+#ifdef Q_OS_MAC
+#define CLEAR_SSH_VAR
+#endif
+#else
+#define CLEAR_SSH_VAR \
+    libssh2_session_disconnect(session, "Normal Shutdown, Thank you for playing"); \
+    libssh2_session_free(session); \
+    ::close(sock);
+
+#endif
+
+void MainWindow::on_action_SSH_import_triggered()
+{
+#ifndef Q_OS_MAC
+    // открытие файла по ssh
+    QSSHLoginDialog login;
+
+    if (login.exec() != QDialog::Accepted)
+        return;
+
+#ifdef Q_OS_WIN
+    WSADATA wsadata;
+
+    WSAStartup(MAKEWORD(2,0), &wsadata);
+#endif
+
+    LIBSSH2_SESSION *session = NULL;
+    int sock = -1;
+    QStringList v;
+
+    try {
+        int rc = libssh2_init (0);
+
+        if (rc != 0)
+            throw(std::logic_error(tr("Ошибка инициализации ssh2").toStdString()));
+
+
+        v = login.getIP().split(':');
+        QString ip  = v.size() ? v[0] : "127.0.0.1";
+        QString port = v.size() == 2 ? v[1] : "22" ;
+        QString user = login.getUser();
+        QString password = login.getPassword();
+
+        unsigned long hostaddr = inet_addr(ip.toStdString().c_str());
+
+        sock = socket(AF_INET, SOCK_STREAM, 0);
+
+        struct sockaddr_in sin;
+        sin.sin_family = AF_INET;
+        sin.sin_port = htons(port.toInt());
+        sin.sin_addr.s_addr = hostaddr;
+        int error = ::connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in));
+        if (error != 0)
+            throw(std::logic_error(tr("Ошибка %1 подключения на ip адрес %2").arg(strerror(errno)).arg(ip.toStdString().c_str()).toStdString()));
+
+        session = libssh2_session_init();
+        if(!session)
+            throw(std::logic_error(tr("Ошибка создания сессиии ssh2").toStdString()));
+
+        rc = libssh2_session_handshake(session, sock);
+
+        if (rc)
+            throw(std::runtime_error(tr("Ошибка рукопожатия ssh2").toStdString()));
+
+        if (libssh2_userauth_password(session, user.toStdString().c_str(), password.toStdString().c_str()))
+            throw(std::runtime_error(tr("Ошибка авторизации ssh2").toStdString()));
+
+
+        v.clear();
+
+        LIBSSH2_CHANNEL *channel = libssh2_channel_open_session(session);
+        if (channel) {
+            libssh2_channel_set_blocking(channel, 1);
+            libssh2_channel_exec(channel, QString(QString("ls -r -c /ATS/TARIF/CDR/*.log | xargs -n1 basename")).toLocal8Bit().data());
+
+            char buf[1000];
+
+            QString out;
+            int res = 0;
+            do  {
+                memset(buf, 0 , sizeof(buf));
+                res = libssh2_channel_read(channel, buf, sizeof(buf) - 1);
+                out.append(buf);
+            } while (res > 0);
+
+            v = out.split("\n", QString::SkipEmptyParts);
+
+            libssh2_channel_close(channel);
+            libssh2_channel_free(channel);
+        } else
+            throw(std::runtime_error(tr("Ошибка создания канала ssh").toStdString()));
+    }
+
+    catch (const std::logic_error& e) {
+        QMessageBox error(QMessageBox::Warning, tr("Ошибка"), e.what(), QMessageBox::Ok, this);
+        error.setModal(true);
+        error.exec();
+        return;
+    }
+
+    catch (const std::runtime_error& e) {
+        CLEAR_SSH_VAR;
+        QMessageBox error(QMessageBox::Warning, tr("Ошибка"), e.what(), QMessageBox::Ok, this);
+        error.setModal(true);
+        error.exec();
+        return;
+    }
+
+    // создаем окно с полученой выборкой
+    qDebug() << v;
+
+
+    CLEAR_SSH_VAR
+    libssh2_exit();
+
+#ifdef Q_OS_WIN
+    WSACleanup();
+#endif
+
+
+#endif
+
+    cdrModel->select();
+    ui->tableView->reset();
+
+    showRecordCount();
+
+}
 
 // выход из программы
 void MainWindow::on_actionExit_triggered()
@@ -742,7 +908,7 @@ void MainWindow::showRecordCount()
     //    cdrModel->fetchMore();
 
     QSqlQuery q;
-    //QString qv = QString("SELECT COUNT(*) FROM logbase %1").arg(cdrModel->filter().isEmpty() ? "" : QString(" WHERE %1").arg(cdrModel->filter()));
+    QString qv = QString("SELECT COUNT(*) FROM logbase %1").arg(cdrModel->filter().isEmpty() ? "" : QString(" WHERE %1").arg(cdrModel->filter()));
     if (!q.exec(QString("SELECT COUNT(*) FROM logbase %1").arg(cdrModel->filter().isEmpty() ? "" : QString(" WHERE %1").arg(cdrModel->filter()))))
         qDebug() << "get count" << logdb.lastError();
 

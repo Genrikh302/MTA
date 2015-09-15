@@ -8,7 +8,6 @@ QVariant QChannelTableModel::data(const QModelIndex & idx, int role) const
     if (role == Qt::DisplayRole) {
 
         qint64 v = QSqlTableModel::data(idx, role).toLongLong();
-        QString str1 = QString("%1").arg(QSqlTableModel::data(QSqlTableModel::index(idx.row(), idx.column() + 1), Qt::DisplayRole).toInt(), 3, 10, QLatin1Char('0'));
 
         return QString("C%1%2%3").arg((v >> 32) & 0xffff, 3, 10, QLatin1Char('0')).arg((v >> 16) & 0xffff, 3, 10, QLatin1Char('0')).arg(v & 0xffff, 3, 10, QLatin1Char('0'));
     }
