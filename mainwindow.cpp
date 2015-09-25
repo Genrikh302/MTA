@@ -398,7 +398,7 @@ void MainWindow::on_action_SSH_import_triggered()
         sin.sin_addr.s_addr = hostaddr;
         int error = ::connect(sock, (struct sockaddr*)(&sin), sizeof(struct sockaddr_in));
         if (error != 0)
-            throw(std::logic_error(tr("Ошибка %1 подключения на ip адрес %2").arg(strerror(errno)).arg(ip.toStdString().c_str()).toStdString()));
+            throw(std::logic_error(tr("Ошибка %1 подключения на ip адрес %2").arg(strerror(error)).arg(ip.toStdString().c_str()).toStdString()));
 
         session = libssh2_session_init();
         if(!session)

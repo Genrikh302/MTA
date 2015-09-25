@@ -8,15 +8,15 @@
 class MainProgressWorker : public QObject
 {
     Q_OBJECT
-    bool fExit;
 
 private:
 
-    QStringList files;
     QProgressDialog *progressDialog;
 
 protected:
+    bool fExit;
     Qlogdb* logdb;
+     QStringList files;
 
 public:
     MainProgressWorker(Qlogdb *logdb, const QStringList &files, QProgressDialog *progressDialog, QObject *parent = NULL);
