@@ -14,7 +14,7 @@ class QSSHLoginDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit QSSHLoginDialog(QWidget *parent = 0);
+    explicit QSSHLoginDialog(const QString &host, const QString &port, const QString &user, const QString &password, QWidget *parent = 0);
     ~QSSHLoginDialog();
 
 

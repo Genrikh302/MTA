@@ -14,11 +14,12 @@
 #include <QMessageBox>
 #include <QProgressBar>
 #include "qprogrampropertydialog.h"
-#include "qprogress.h"
 #include "qsshlogindialog.h"
+#include "qsshselectdialog.h"
+#include "qsshfile.h"
 
+#include "common.h"
 
-#ifndef Q_OS_MAC
 
 #include <libssh2.h>
 
@@ -37,7 +38,9 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-#endif
+
+#include "qprogressdialog.h"
+#include "progressworker.h"
 
 #define VERSION "1.0.0b"
 
@@ -90,11 +93,11 @@ MainWindow::MainWindow(QWidget *parent) :
     sortFilterModel->setSourceModel(cdrModel);
 
 
-#ifdef QT_DEBUG
-    if (!cdrModel->rowCount())
-        addFileListToCDRbase(QStringList() << QApplication::instance()->applicationDirPath()+QString("/CDR/cdr_log_17_03_2015.log") );
-    cdrModel->select();
-#endif
+//#ifdef QT_DEBUG
+//    if (!cdrModel->rowCount())
+//        addFileListToCDRbase(QStringList() << QApplication::instance()->applicationDirPath()+QString("/CDR/cdr_log_17_03_2015.log") );
+//    cdrModel->select();
+//#endif
 
 
     nationalCode = new QSqlTableModel(this, logdb.getDB());
@@ -228,53 +231,27 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::addCDRFileToDB(const QString &file, int fileid, QProgress* progress) {
-    QFile inputFile(file);
-    int i = 0;
-    //progress->setFileSize(inputFile.size());
-    statusBar()->showMessage(tr("Loaded %1").arg(file), 2000);
-
-    if(!inputFile.open(QIODevice::ReadOnly))
-    {
-        qDebug()<<"ERROR: Can't open file "<< file;
-        return;
-    }
-
-    QTextStream in(&inputFile);
-//    std::list <Qcallog> l;
-    //Занесение данных из файлов в лист, из листа в базу
-    QSqlDatabase::database().transaction();
-    progress->refresh(0);
-    while (!in.atEnd())
-    {
-        //QString line = inputFile.readLine();
-        //при включении обновления програссбара срабатывает throw из qcallog
-        //обновление сделано с частотой прохождения строк, тк шаг обновления .pos меняется и нельзя подобрать кратность
-        if(i % 15 == 0)
-             progress->refresh(in.pos());
-        Qcallog logstr;
-        in >> logstr;
-        logstr.setFilekey(fileid);
-        //l.push_back(logstr);
-        logdb << logstr;
-        //qDebug() << in.pos() << inputFile.size();
-        i++;
-    }
-    QSqlDatabase::database().commit();
-//    for(auto i = l.begin(); i != l.end(); i++)
-//        i->print();
-    inputFile.close();
-}
-
 
 void MainWindow::addFileListToCDRbase(const QStringList &files)
 {
     //Последовательная обработка файлов
-    int fileIndex = 0;
-    QProgress* progress = new QProgress(); //QObject не может копироваться, поэтому указатель
-    progress->setWindowTitle(tr("Загрузка файлов"));
-    progress->show();
-    for (QString str : files) {
+    //int fileIndex = 0;
+    load = new QThread();
+    worker = new ProgressWorker(&logdb, files, progressDialog);
+    progressDialog = new QProgressDialog(); //QObject не может копироваться, поэтому указатель
+    progressDialog->setWindowTitle(tr("Загрузка файлов"));
+    progressDialog->show();
+    worker->moveToThread(load);
+    connect(load, SIGNAL(started()), worker, SLOT(addFileListToCDRbase()));
+    connect(worker, SIGNAL(finished()), load, SLOT(quit())); // оповестим процесс что мы заончили
+    connect(worker, SIGNAL(finished()), SLOT(on_worker_finish())); // оповестим MainWindow что мы закончили
+    connect(worker, SIGNAL(listProgress(int, int)), progressDialog, SLOT(on_listProgress(int, int)));
+    connect(worker, SIGNAL(fileProgress(int)), progressDialog, SLOT(on_fileProgress(int)));
+    connect(progressDialog, SIGNAL(closed()),  load, SLOT(quit()));
+    connect(progressDialog, SIGNAL(closed()),  SLOT(FileLoadDialog_closed()));
+    load->start();
+    progressDialog->exec(); // запустили окно
+/*    for (QString str : files) {
         QFileInfo fileInfo(str);
         QSqlQuery q;
         if (!q.exec(QString("select id from LoadedFile where name = '%1'").arg(fileInfo.fileName())))
@@ -294,20 +271,42 @@ void MainWindow::addFileListToCDRbase(const QStringList &files)
                 if (q.next()) {
                     int fileid = q.value(0).toInt();
                     progress->setFileSize(fileInfo.size());
-                    addCDRFileToDB(str, fileid, progress);
+                    addCDRFileToDB(str, fileid, progressDialog, fileInfo.size());
                 }
             }
         }
-        progress->setCurFileNum(fileIndex, files.size());
+        progressDialog->setFileNum(fileIndex, files.size());
         fileIndex++;
         //иначе не успевает перерисовываться
         QEventLoop loop;
         QTimer::singleShot(1, &loop, SLOT(quit()));
         loop.exec();
-        progress->repaint();
-        //qDebug() << fileIndex;
-    } 
-    delete(progress);
+        progressDialog->repaint();
+        qDebug() << fileIndex;
+    }*/
+    worker->stop(); // вышли из окна остановили процесс
+    load->exit();
+
+    delete progressDialog; progressDialog = NULL;
+    delete worker; worker = NULL;
+    delete load; load = NULL;
+}
+
+void MainWindow::on_worker_finish()
+{
+    qDebug() << "finish";
+    if (progressDialog)
+        progressDialog->close();
+}
+
+void MainWindow::FileLoadDialog_closed(){
+    qDebug() << "destroyed";
+//    worker->stop(); // вышли из окна остановили процесс
+//    load->exit();
+//    delete(progressDialog);
+//    progressDialog = NULL;
+//    delete(worker);
+//    delete(load);
 }
 
 void MainWindow::on_actionOpen_triggered()
@@ -337,14 +336,12 @@ void MainWindow::on_actionOpen_triggered()
 
 
 #ifdef Q_OS_WIN
+
 #define CLEAR_SSH_VAR \
     libssh2_session_disconnect(session, "Normal Shutdown, Thank you for playing"); \
     libssh2_session_free(session); \
     closesocket(sock);
-#elseif
-#ifdef Q_OS_MAC
-#define CLEAR_SSH_VAR
-#endif
+
 #else
 #define CLEAR_SSH_VAR \
     libssh2_session_disconnect(session, "Normal Shutdown, Thank you for playing"); \
@@ -355,9 +352,15 @@ void MainWindow::on_actionOpen_triggered()
 
 void MainWindow::on_action_SSH_import_triggered()
 {
-#ifndef Q_OS_MAC
     // открытие файла по ssh
-    QSSHLoginDialog login;
+    // читаем опции из файла
+    QSettings settings;
+    QString host = settings.value("host", "127.0.0.1").toString();
+    QString port = settings.value("port", "22").toString();
+    QString user = settings.value("user", "atsuser").toString();
+    QString password = settings.value("password", "atsuser").toString();
+
+    QSSHLoginDialog login(host, port, user, password);
 
     if (login.exec() != QDialog::Accepted)
         return;
@@ -410,12 +413,18 @@ void MainWindow::on_action_SSH_import_triggered()
             throw(std::runtime_error(tr("Ошибка авторизации ssh2").toStdString()));
 
 
+        // успешно залогинились, все сохраняем параметры
+        settings.setValue("host", ip);
+        settings.setValue("port", port);
+        settings.setValue("user", user);
+        settings.setValue("password", password);
+
         v.clear();
 
         LIBSSH2_CHANNEL *channel = libssh2_channel_open_session(session);
         if (channel) {
             libssh2_channel_set_blocking(channel, 1);
-            libssh2_channel_exec(channel, QString(QString("ls -r -c /ATS/TARIF/CDR/*.log | xargs -n1 basename")).toLocal8Bit().data());
+            libssh2_channel_exec(channel, QString(QString("ls -r -c ") + __FILE_PATH__ + QString("*.log | xargs -n1 basename")).toLocal8Bit().data());
 
             char buf[1000];
 
@@ -452,16 +461,49 @@ void MainWindow::on_action_SSH_import_triggered()
 
     // создаем окно с полученой выборкой
     qDebug() << v;
+    while (1) {
+        QSSHSelectDialog sshSelectDlg(v);
+        if (sshSelectDlg.exec() != QDialog::Accepted)
+            break;
 
+        QStringList selFiles = sshSelectDlg.getSelectedFiles();
+        if (selFiles.empty())
+            break;
+
+        for (auto f: selFiles) {
+            try {
+                QSSHFile sshf(session, f, this);
+
+                if (!sshf.open(QIODevice::ReadOnly))
+                    continue;
+
+
+                QTextStream in(&sshf);
+                QSqlDatabase::database().transaction();
+                while (!in.atEnd())
+                {
+                    Qcallog logstr;
+                    in >> logstr;
+                }
+                QSqlDatabase::database().commit();
+                sshf.close();
+            }
+            catch (const std::runtime_error& e) {
+                continue;
+            }
+
+        }
+
+
+        // загружаем данные по ssh
+        break;
+    }
 
     CLEAR_SSH_VAR
     libssh2_exit();
 
 #ifdef Q_OS_WIN
     WSACleanup();
-#endif
-
-
 #endif
 
     cdrModel->select();
@@ -758,6 +800,8 @@ void MainWindow::applyFilter()
 //    }
 
     cdrModel->setFilter(filter);
+    cdrModel->select();
+    ui->tableView->reset();
 
     showRecordCount();
 }

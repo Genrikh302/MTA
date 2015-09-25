@@ -14,6 +14,9 @@ int main(int argc, char *argv[])
 //    }
 
 //    return 0;
+    QCoreApplication::setOrganizationName("MTA");
+    QCoreApplication::setApplicationName("отчет2015");
+
     QApplication app(argc, argv);
     MainWindow w;
     w.show();

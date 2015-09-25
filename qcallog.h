@@ -38,7 +38,7 @@ public:
 
     } in, out;
 
-    void print();
+    QString toString();
     //Заполнение лога данными из потока
     friend QTextStream &operator >> (QTextStream &in, Qcallog &log) throw(std::invalid_argument);
     //Заполнение БД данными из лога

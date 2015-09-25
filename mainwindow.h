@@ -9,7 +9,9 @@
 #include "filterdialog.h"
 #include "qchanneltablemodel.h"
 #include "graph.h"
-#include "qprogress.h"
+#include "qprogressdialog.h"
+#include "progressworker.h"
+
 
 namespace Ui {
 class MainWindow;
@@ -23,11 +25,15 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     //QSqlTableModel *model;
     ~MainWindow();
-    void addCDRFileToDB(const QString &file, int fileid, QProgress *progress); // добавляет CDR file в базу
+    //void addCDRFileToDB(const QString &file, int fileid, QProgressDialog *progress, int size); // добавляет CDR file в базу
     void getfilters(FilterDialog fildial); // получает фильтры из диалогового окна
 
     static const QStringList & getNationalPrefix() {return nationalPrefix;}
     static const QStringList & getInternationalPrefix() {return internationalPrefix;}
+signals:
+    void updatebar(int value);
+    void updatefilenum();
+
 private slots:
     void on_actionOpen_triggered();  // импорт из файла
     void on_action_SSH_import_triggered();  // импорт по SSH
@@ -83,8 +89,16 @@ private:
     void addFileListToCDRbase(const QStringList &files); // добавление файлов в базу
     void showRecordCount();
 
-//public slots:
+    QProgressDialog *progressDialog;
+    QThread* load;
+    ProgressWorker *worker;
+
+public slots:
 //    void slot_table_clicked(int index);
+    void on_worker_finish();
+    void FileLoadDialog_closed();
+//    void on_fileProgress(const int value);
+//    void on_listProgress(const int value);
 };
 
 

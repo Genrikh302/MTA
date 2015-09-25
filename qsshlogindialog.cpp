@@ -1,7 +1,7 @@
 #include "qsshlogindialog.h"
 #include "ui_qsshlogindialog.h"
 
-QSSHLoginDialog::QSSHLoginDialog(QWidget *parent) :
+QSSHLoginDialog::QSSHLoginDialog(const QString &host, const QString &port, const QString &user, const QString &password, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::qsshlogindialog)
 {
@@ -11,6 +11,11 @@ QSSHLoginDialog::QSSHLoginDialog(QWidget *parent) :
     QRegExpValidator *validator = new QRegExpValidator(regExp, this);
 
     ui->lineEditIP->setValidator(validator);
+
+    ui->lineEditIP->setText(QString(host + (port == "22" ? "" : QString(":%1").arg(port))));
+    ui->lineEditUser->setText(user);
+    ui->lineEditPassword->setText(password);
+
 }
 
 QSSHLoginDialog::~QSSHLoginDialog()

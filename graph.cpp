@@ -27,7 +27,7 @@ void Graph::buildReportReleaseCause(QSqlTableModel *cdrModel)
     setWindowTitle(tr("Причины отбоя"));
     //cdrModel->select();
     QCustomPlot* plot = ui->Plot;
-    int idIndex = cdrModel->fieldIndex("relreason");
+    //int idIndex = cdrModel->fieldIndex("relreason");
     int m[256];
 
     int columnum = 0;
@@ -172,8 +172,8 @@ void Graph::buildReportSucessCallsDate(QSqlTableModel *cdrModel)
     QCustomPlot* plot = ui->Plot;
     QMap <QDate,int> sucals;
     QMap <QDate,int> othercals;
-    int reasIndex = cdrModel->fieldIndex("relreason");
-    int dateIndex = cdrModel->fieldIndex("date");
+    //int reasIndex = cdrModel->fieldIndex("relreason");
+    //int dateIndex = cdrModel->fieldIndex("date");
     QCPBars *sucbar = new QCPBars(plot->xAxis, plot->yAxis);
     QCPBars *otherbar = new QCPBars(plot->xAxis, plot->yAxis);
 //    cdrModel->select();
@@ -292,8 +292,8 @@ void Graph::buildReportSucessCallsTime(QSqlTableModel *cdrModel)
     setWindowTitle(tr("Успешность вызовов по часам"));
 //    cdrModel->select();
     QCustomPlot* plot = ui->Plot;
-    int reasIndex = cdrModel->fieldIndex("relreason");
-    int timeIndex = cdrModel->fieldIndex("time");
+    //int reasIndex = cdrModel->fieldIndex("relreason");
+    //int timeIndex = cdrModel->fieldIndex("time");
     int suchours[24];
     int unsuchours[24];
     memset(suchours, 0, sizeof(suchours));
@@ -396,8 +396,8 @@ void Graph::buildReportSucessCallsWeekDay(QSqlTableModel *cdrModel)
 //    cdrModel->select();
     QCustomPlot* plot = ui->Plot;
     const int dayOfWeek = 7;
-    int reasIndex = cdrModel->fieldIndex("relreason");
-    int dateIndex = cdrModel->fieldIndex("date");
+    //int reasIndex = cdrModel->fieldIndex("relreason");
+    //int dateIndex = cdrModel->fieldIndex("date");
     int sucdays[dayOfWeek]; //QMap не имеет смысла, так как .dayOfWeek() возвращает int, то есть целое служило бы ключом к целому
     int unsucdays[dayOfWeek];
     memset(sucdays, 0, sizeof(sucdays));

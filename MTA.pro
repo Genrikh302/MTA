@@ -22,10 +22,12 @@ TEMPLATE = app
 
 win32:RC_ICONS += resources/MTA.ico
 
-!macx {
-    LIBS += -lssh2
+macx {
+    LIBS += -L/opt/local/lib
+    QMAKE_CXXFLAGS += -I/opt/local/include
 }
 
+LIBS += -lssh2
 
 SOURCES += main.cpp\
     mainwindow.cpp \
@@ -37,11 +39,12 @@ SOURCES += main.cpp\
     qchanneltablemodel.cpp \
     qcustomplot.cpp \
     graph.cpp \
-    qfiltercombobox.cpp \ 
-    qprogress.cpp \
-    qsshlogindialog.cpp
-
-
+    qfiltercombobox.cpp \
+    qsshlogindialog.cpp \
+    qprogressdialog.cpp \
+    progressworker.cpp \
+    qsshselectdialog.cpp \
+    qsshfile.cpp
 
 
 HEADERS  += \
@@ -54,11 +57,13 @@ HEADERS  += \
     qchanneltablemodel.h \
     qcustomplot.h \
     graph.h \
-    qfiltercombobox.h \ 
-    qprogress.h \
-    qsshlogindialog.h
-
-
+    qfiltercombobox.h \
+    qsshlogindialog.h \
+    qprogressdialog.h \
+    progressworker.h \
+    qsshselectdialog.h \
+    qsshfile.h \
+    common.h
 
 HEADERS += stable.h
 
@@ -68,5 +73,6 @@ FORMS    += \
     qprogrampropertydialog.ui \
     graph.ui \
     qprogress.ui \
-    qsshlogindialog.ui
+    qsshlogindialog.ui \
+    qsshselectdialog.ui
 

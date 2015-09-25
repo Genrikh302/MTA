@@ -44,9 +44,9 @@ QTextStream &operator>>(QTextStream &in, Qcallog &log) throw(std::invalid_argume
     return in;
 }
 
-void Qcallog::print()
+QString Qcallog::toString()
 {
-     qDebug() << in.sPrint() << out.sPrint() << this->date.toString("dd-MM-yy hh:mm:ss") << this->linelen << this->callen <<this->relreason;
+     return in.sPrint() + out.sPrint() + this->date.toString("dd-MM-yy hh:mm:ss") + this->linelen + this->callen + this->relreason;
 }
 
 void Qcallog::s::sWrite(char type, const QString &draft, const QString &inc1, const QString &inc2, const QString &inc3, const QString &num, const QString &anum)
@@ -98,7 +98,7 @@ QTextStream &operator >> (QTextStream &in, Qcallog::s &log) throw(std::invalid_a
         log.inc2 = log.inc3 = "-";
     }
     else
-        //qDebug() << "Смотри throw в qcallog";
+        //qDebug() << "Смотри throw в qcallog" << log.type << QChar(log.type);
         throw(std::invalid_argument("Ошибка чтения из потока, не известное значение типа канала"));
 
     if (draft == "-")
