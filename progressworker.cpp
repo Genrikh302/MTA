@@ -84,23 +84,62 @@ void ProgressWorker::addCDRFileToDB(const QString &file, int fileid, int size) {
 //        if(i % 50 == 0){
 //            emit fileProgress(in.pos() * 100 / size);
 //        }
+        if(fExit){
+            break;
+        }
         Qcallog logstr;
         in >> logstr;
         QString logstring = logstr.toString();
         logstr.setFilekey(fileid);
-        //l.push_back(logstr);
         *logdb << logstr;
         i++;
         bitesum += logstring.size() * sizeof(char) + sizeof(char);
-        //qDebug() << file <<  in.pos() << bitesum;
     }
     QSqlDatabase::database().commit();
-//    for(auto i = l.begin(); i != l.end(); i++)
-//        i->print();
     inputFile.close();
 }
 
 
+<<<<<<< HEAD
+=======
+void ProgressWorker::addFileListToCDRbase()
+{
+    //Последовательная обработка файлов
+    int fileIndex = 0;
+    emit listProgress(0,1);
+    for (QString str : *files) {
+        QFileInfo fileInfo(str);
+        QSqlQuery q;
+        if (!q.exec(QString("select id from LoadedFile where name = '%1'").arg(fileInfo.fileName())))
+            qDebug() << q.lastError().text();
+
+        if (q.next())
+            continue;
+        else {// в базе нет
+            // добавляем в базу
+            q.prepare("insert into LoadedFile (name) "
+                      "values (:name)");
+            q.bindValue(":name", QString(fileInfo.fileName()));
+            if (!q.exec())
+                qDebug() << q.lastError().text();
+
+            if (q.exec(QString("select id from LoadedFile where name = '%1'").arg(fileInfo.fileName()))) {
+                if (q.next()) {
+                    int fileid = q.value(0).toInt();
+                    addCDRFileToDB(str, fileid, fileInfo.size());
+                    if(fExit)
+                        break;
+                    emit listProgress(fileIndex, files->size());
+                    fileIndex++;
+                }
+            }
+        }
+    }
+    if(!fExit)
+        emit finished(); // отправляем сообщение что закончили работу
+}
+
+>>>>>>> 8f49e6db3207cfb3eab981ffe4babb8d549b9bdd
 ProgressWorker::~ProgressWorker()
 {
 
