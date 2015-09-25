@@ -43,19 +43,18 @@ void ProgressWorker::addCDRFileToDB(const QString &file, int fileid, int size) {
 //        if(i % 50 == 0){
 //            emit fileProgress(in.pos() * 100 / size);
 //        }
+        if(fExit){
+            break;
+        }
         Qcallog logstr;
         in >> logstr;
         QString logstring = logstr.toString();
         logstr.setFilekey(fileid);
-        //l.push_back(logstr);
         *logdb << logstr;
         i++;
         bitesum += logstring.size() * sizeof(char) + sizeof(char);
-        //qDebug() << file <<  in.pos() << bitesum;
     }
     QSqlDatabase::database().commit();
-//    for(auto i = l.begin(); i != l.end(); i++)
-//        i->print();
     inputFile.close();
 }
 
@@ -85,13 +84,16 @@ void ProgressWorker::addFileListToCDRbase()
                 if (q.next()) {
                     int fileid = q.value(0).toInt();
                     addCDRFileToDB(str, fileid, fileInfo.size());
+                    if(fExit)
+                        break;
                     emit listProgress(fileIndex, files->size());
                     fileIndex++;
                 }
             }
         }
     }
-    emit finished(); // отправляем сообщение что закончили работу
+    if(!fExit)
+        emit finished(); // отправляем сообщение что закончили работу
 }
 
 ProgressWorker::~ProgressWorker()

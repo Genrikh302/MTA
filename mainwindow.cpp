@@ -156,7 +156,7 @@ MainWindow::MainWindow(QWidget *parent) :
     fillPrefixList();
 
 
-    directionName = new QSqlTableModel();    
+    directionName = new QSqlTableModel();
     directionName->setTable("DirectionName");
     directionName->setHeaderData(0, Qt::Horizontal, "id");
     directionName->setHeaderData(1, Qt::Horizontal, "Имя");
@@ -260,10 +260,15 @@ void MainWindow::addFileListToCDRbase(const QStringList &files)
     }*/
     worker->stop(); // вышли из окна остановили процесс
     load->exit();
-    delete(progressDialog);
+    if(progressDialog)
+        delete progressDialog;
     progressDialog = NULL;
-    delete(worker);
-    delete(load);
+    if(worker)
+        delete worker;
+    worker = NULL;
+    if(load)
+        delete load;
+    load = NULL;
 }
 void MainWindow::on_worker_finish()
 {
@@ -273,13 +278,8 @@ void MainWindow::on_worker_finish()
 }
 
 void MainWindow::FileLoadDialog_closed(){
-    qDebug() << "destroyed";
     worker->stop(); // вышли из окна остановили процесс
     load->exit();
-    delete(progressDialog);
-    progressDialog = NULL;
-    delete(worker);
-    delete(load);
 }
 
 void MainWindow::on_actionOpen_triggered()
