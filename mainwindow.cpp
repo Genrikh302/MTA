@@ -997,6 +997,7 @@ void MainWindow::showRecordCount()
     Graph* graphic = new Graph(); \
     graphic->build##name(cdrModel);
 
+
 //Построение графика по причинам отбоя
 void MainWindow::on_pushDrawReleaseCause_clicked()
 {

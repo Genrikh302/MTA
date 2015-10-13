@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QSqlTableModel>
+#include <QAction>
 
 namespace Ui {
 class Graph;
@@ -22,6 +23,9 @@ public:
     void buildReportLoad(QSqlTableModel *cdrModel);
     void buildReportCallens(QSqlTableModel *cdrModel);
     ~Graph();
+
+private slots:
+    void save(void);
 
 private:
     Ui::Graph *ui;

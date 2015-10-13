@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <QMap>
 #include <QDateTime>
+#include <QAction>
 #define customPlot ui->Plot
 
 Graph::Graph(QWidget *parent) :
@@ -14,12 +15,38 @@ Graph::Graph(QWidget *parent) :
 #ifdef Q_OS_WIN
     setWindowFlags(windowFlags() | Qt::CustomizeWindowHint | Qt::WindowMinMaxButtonsHint);
 #endif
-
+//    ui->Plot->addAction(new QAction(QObject::tr("Сохранить"),ui->Plot));
+//    ui->Plot->setContextMenuPolicy(Qt::ActionsContextMenu);
+    QAction *save;
+    save = new QAction("Сохранить", ui->Plot);
+    ui->Plot->addAction(save);
+    ui->Plot->setContextMenuPolicy(Qt::ActionsContextMenu);
+    ui->Plot->connect(save, SIGNAL(triggered()), this, SLOT(save()));
 }
 
 Graph::~Graph()
 {
     delete ui;
+}
+
+void Graph::save(void){
+//    QPixmap pixmap(ui->Plot->size());
+//    ui->Plot->render(&pixmap);
+//    pixmap.save("test.png");
+    QPixmap pixmap(ui->Plot->size());
+    QPainter pixPainter(&pixmap);
+    ui->Plot->render(&pixPainter);
+    //pixmap.save("savetest.png", "PNG"); // writes pixmap into bytes in PNG format
+    QString format = "png";
+    QString initialPath = QDir::currentPath() + tr("/untitled.") + format;
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save As"),
+                                   initialPath,
+                                   tr("%1 Files (*.%2);;All Files (*)")
+                                   .arg(format.toUpper())
+                                   .arg(format));
+    if (!fileName.isEmpty())
+            pixmap.save(fileName, "PNG");
+    //qDebug() << "saved" << ui->Plot->size() << pixmap;
 }
 
 void Graph::buildReportReleaseCause(QSqlTableModel *cdrModel)
@@ -764,3 +791,4 @@ void Graph::buildReportCallens(QSqlTableModel *cdrModel){
     customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
     show();
 }
+
